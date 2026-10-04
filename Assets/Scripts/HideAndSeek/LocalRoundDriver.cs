@@ -1,6 +1,6 @@
-// Drops stand-in bodies and the yard's gameplay markers, then lets RoundDirector run a local round.
+// Drops stand-in bodies and, when the bake is present, the yard from scripts/gen.
 // 1 human → solo bot (cage, then hunt). 2+ humans → no hide phase, claws locked for startLock.
-// Markers are primitives at the source coordinates. They are not the cannery.
+// If yard.json.gz is missing, the old loot / hide / cage cubes are used instead.
 
 using UnityEngine;
 
@@ -50,7 +50,10 @@ namespace HideAndSeek
             director.PersistentRoot = persistent;
             director.RoundRoot = round;
 
+            bool yardBuilt = false;
             if (spawnYardMarkers)
+                yardBuilt = YardBuilder.TryBuild(director, persistent);
+            if (spawnYardMarkers && !yardBuilt)
                 SpawnPersistent(persistent);
 
             int humans = Mathf.Max(1, humanPlayers);
@@ -75,6 +78,7 @@ namespace HideAndSeek
                 actor.Bind(director);
                 go.AddComponent<ActorMotor>();
                 go.AddComponent<ActorActions>();
+                go.AddComponent<ActorVisualStandIn>();
                 if (i == 0)
                 {
                     go.AddComponent<LocalPlayerInput>();

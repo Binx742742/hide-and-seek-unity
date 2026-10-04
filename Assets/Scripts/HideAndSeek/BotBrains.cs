@@ -1,7 +1,7 @@
 // scripts/bot-mimic.js and scripts/bot-hider.js.
 // Decisions run every 3th Update, matching updateSchedule.every = 3.
-// Spawn pathfinding (builtin/nav findPath) is not available here: StepToward walks a straight line.
-// Level hook: replace StepToward with a NavMesh path. Thresholds below stay the script's.
+// Spawn pathfinding (builtin/nav findPath) is not available here: the goal is still a straight line.
+// YardMotion.Slide only keeps that step out of walls. It does not pick a new goal.
 
 using UnityEngine;
 
@@ -48,7 +48,10 @@ namespace HideAndSeek
                     else if (step.magnitude > to.magnitude)
                         step = new Vector3(to.x, 0f, to.z);
                 }
-                p += step;
+                p = YardMotion.Slide(p, step);
+                float vertical = 0f;
+                bool grounded = true;
+                YardMotion.Snap(ref p, ref vertical, ref grounded, _a.GroundY);
                 transform.position = p;
             }
         }
@@ -399,7 +402,10 @@ namespace HideAndSeek
                 return;
             if (_vel.sqrMagnitude > 0f)
             {
-                Vector3 p = transform.position + _vel * Time.deltaTime;
+                Vector3 p = YardMotion.Slide(transform.position, _vel * Time.deltaTime);
+                float vertical = 0f;
+                bool grounded = true;
+                YardMotion.Snap(ref p, ref vertical, ref grounded, _a.GroundY);
                 transform.position = p;
             }
         }

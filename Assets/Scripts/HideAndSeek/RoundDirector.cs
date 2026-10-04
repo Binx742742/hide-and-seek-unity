@@ -777,6 +777,7 @@ namespace HideAndSeek
             a.Bind(this);
             go.AddComponent<BotMimic>();
             Tint(go, new Color(0.55f, 0.12f, 0.1f));
+            go.AddComponent<ActorVisualStandIn>();
         }
 
         void SpawnNpc(int index, int count, int playerCount)
@@ -800,6 +801,7 @@ namespace HideAndSeek
             a.Bind(this);
             go.AddComponent<BotHider>();
             Tint(go, new Color(0.35f, 0.45f, 0.32f));
+            go.AddComponent<ActorVisualStandIn>();
         }
 
         void SpawnDreamersAndClues()
@@ -878,6 +880,7 @@ namespace HideAndSeek
             var go = SpawnMarker("fish", new Vector3(spot.x, 0f, spot.y), PrimitiveType.Sphere, 0.35f, true);
             go.AddComponent<FishPile>();
             Tint(go, new Color(0.75f, 0.45f, 0.25f));
+            YardForms.Dress(go, "fish");
         }
 
         public void NoteEaten(Vector3 pos)

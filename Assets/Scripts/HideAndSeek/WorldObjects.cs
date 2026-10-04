@@ -1,5 +1,5 @@
 // Gameplay markers: loot, hiding spots, fish, crafted hazards, clues, dreamers, doors, noise pings.
-// Meshes are primitives so a round can run. Swap them for the cannery when a level exists.
+// YardBuilder parents generator meshes as children named Visual. These components stay on the root.
 // Door swing numbers are door.js. Dreamer shuffle numbers are dreamer.js.
 
 using System.Collections.Generic;

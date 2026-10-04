@@ -197,9 +197,10 @@ namespace HideAndSeek
     }
 
     /// <summary>
-    /// Eases planar velocity the way player.js does (accel while the intent agrees, decel otherwise)
-    /// and keeps a ground plane so the stand-in does not need a collidable yard.
-    /// Level hook: replace Step with a CharacterController or NavMeshAgent.
+    /// Eases planar velocity the way player.js does (accel while the intent agrees, decel otherwise).
+    /// YardMotion slides that step against the baked colliders and snaps the feet to the ground.
+    /// Hidden bodies skip this; they are teleported to the hiding spot. Level hook: a CharacterController
+    /// can replace Slide and Snap. The numbers (accel, gravity, jump) stay here.
     /// </summary>
     [RequireComponent(typeof(Actor))]
     public class ActorMotor : MonoBehaviour
@@ -255,29 +256,19 @@ namespace HideAndSeek
             float dt = Time.deltaTime;
             Vector3 v = _actor.DesiredVelocity;
             v.y = 0f;
-            Vector3 intent = v;
-            // Drive() already wrote the eased target into DesiredVelocity. Ease from the
-            // previous integrated velocity stored back into DesiredVelocity after the step.
-            // The first frame treats current desired as the target; we keep last applied in _planar.
-            StepPlanar(intent, dt);
-
+            Vector3 delta = PlanarDelta(v, dt);
+            Vector3 p = YardMotion.Slide(transform.position, delta);
             _vertical += BodyTune.YardGravity * dt;
-            Vector3 p = transform.position;
             p.y += _vertical * dt;
-            if (p.y <= _actor.GroundY)
-            {
-                p.y = _actor.GroundY;
-                _vertical = 0f;
-                _grounded = true;
-            }
-            else
-                _grounded = false;
+            bool grounded = _grounded;
+            YardMotion.Snap(ref p, ref _vertical, ref grounded, _actor.GroundY);
+            _grounded = grounded;
             transform.position = p;
         }
 
         Vector3 _planar;
 
-        void StepPlanar(Vector3 intent, float dt)
+        Vector3 PlanarDelta(Vector3 intent, float dt)
         {
             bool along = Vector3.Dot(intent, _planar) > 0f
                 || (_planar.sqrMagnitude < 1e-8f && intent.sqrMagnitude > 0f);
@@ -286,10 +277,7 @@ namespace HideAndSeek
             float gap = delta.magnitude;
             float k = gap > step ? step / gap : 1f;
             _planar += delta * k;
-            Vector3 p = transform.position;
-            p.x += _planar.x * dt;
-            p.z += _planar.z * dt;
-            transform.position = p;
+            return new Vector3(_planar.x * dt, 0f, _planar.z * dt);
         }
     }
 }

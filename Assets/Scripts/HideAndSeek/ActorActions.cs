@@ -284,6 +284,7 @@ namespace HideAndSeek
             loot.Fake = true;
             loot.OwnerId = _a.ActorId;
             loot.SpawnedAt = now;
+            YardForms.Dress(go, "loot");
             dir.PlaySfx("morph", transform.position);
             _a.Say("fake loot planted. let them open it");
         }
@@ -317,6 +318,8 @@ namespace HideAndSeek
                 var go = dir.SpawnMarker("rigged-fish", me + f * 1.4f, PrimitiveType.Sphere, 0.35f);
                 var pile = go.AddComponent<FishPile>();
                 pile.Rigged = true;
+                // fishpile.js params.rigged is the same tray plus the fuse tube.
+                YardForms.Dress(go, "fish-rigged");
                 var haz = go.AddComponent<PlacedHazard>();
                 haz.Kind = PropKind.Bait;
                 haz.OwnerId = _a.ActorId;
@@ -1114,6 +1117,8 @@ namespace HideAndSeek
             h.OwnerId = _a.ActorId;
             h.ArmAt = armAt;
             h.FireAt = fireAt;
+            // bearTrap is a torus in the template. Unity has no torus; the bake uses two cylinders.
+            YardForms.Dress(go, kind == PropKind.Lure ? "lure" : "trap");
         }
 
         void CrumbleOldestFake(RoundDirector dir, int max)
