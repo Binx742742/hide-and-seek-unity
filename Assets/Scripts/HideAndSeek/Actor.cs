@@ -73,6 +73,20 @@ namespace HideAndSeek
         public float LungeReadyAt;
         public float WailReadyAt;
         public float FadeReadyAt;
+        public float EchoReadyAt;
+        public float SnareReadyAt;
+        public float StealReadyAt;
+
+        // player.js faceOf / faceName. Cleared by resetBody. The worn name shows only while unrevealed.
+        public string FaceOf;
+        public string FaceName;
+
+        // player.js smoked. True while a hider stands inside a smoke cloud.
+        public bool Smoked;
+        public float SmokeCheckAt;
+
+        // Tripwire highlight stand-in. highlightSet is per hider; this is the mark's end time on the mimic.
+        public float MarkedUntil;
 
         public HidingSpot HiddenIn;
         public Vector3 HideFrom;
@@ -110,6 +124,9 @@ namespace HideAndSeek
                 case "lunge": return LungeReadyAt;
                 case "wail": return WailReadyAt;
                 case "fade": return FadeReadyAt;
+                case "echo": return EchoReadyAt;
+                case "snare": return SnareReadyAt;
+                case "steal": return StealReadyAt;
                 default: return 0f;
             }
         }
@@ -122,8 +139,15 @@ namespace HideAndSeek
                 case "lunge": LungeReadyAt = at; break;
                 case "wail": WailReadyAt = at; break;
                 case "fade": FadeReadyAt = at; break;
+                case "echo": EchoReadyAt = at; break;
+                case "snare": SnareReadyAt = at; break;
+                case "steal": StealReadyAt = at; break;
             }
         }
+
+        /// <summary>Nametag uses faceName while a mimic is still unrevealed.</summary>
+        public string ShownName =>
+            Role == RoleKind.Mimic && !Revealed && !string.IsNullOrEmpty(FaceName) ? FaceName : DisplayName;
 
         public float PlanarSpeed(RoundRules rules)
         {

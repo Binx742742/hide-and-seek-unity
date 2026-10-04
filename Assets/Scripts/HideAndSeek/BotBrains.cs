@@ -81,12 +81,13 @@ namespace HideAndSeek
 
             Vector3 me = transform.position;
             Actor target = null;
+            KitPiece crow = null;
             float td = 99f;
             var actors = dir.Actors;
             for (int i = 0; i < actors.Count; i++)
             {
                 var p = actors[i];
-                if (p == null || p == _a || p.Dead || p.Role != RoleKind.Hider || p.HiddenIn != null)
+                if (p == null || p == _a || p.Dead || p.Role != RoleKind.Hider || p.HiddenIn != null || p.Smoked)
                     continue;
                 float d = YardMath.Flat(me, p.transform.position);
                 bool visible = _a.Disguise == DisguiseForm.None ? Sees(p, bot.botSight) : d < 3.5f;
@@ -96,9 +97,27 @@ namespace HideAndSeek
                     td = d;
                 }
             }
-
-            if (target != null)
+            var kit = dir.Kit;
+            for (int i = 0; i < kit.Count; i++)
             {
+                var c = kit[i];
+                if (c == null || c.Kind != KitKind.Scarecrow)
+                    continue;
+                float d = YardMath.Flat(me, c.transform.position);
+                if (d > bot.botSight)
+                    continue;
+                bool visible = _a.Disguise == DisguiseForm.None ? SeesPoint(c.transform.position, bot.botSight) : d < 3.5f;
+                if (d < td && visible)
+                {
+                    crow = c;
+                    target = null;
+                    td = d;
+                }
+            }
+
+            if (target != null || crow != null)
+            {
+                Vector3 at = crow != null ? crow.transform.position : target.transform.position;
                 if (_a.Disguise != DisguiseForm.None)
                 {
                     _a.ChangeDisguise(DisguiseForm.None);
@@ -110,10 +129,20 @@ namespace HideAndSeek
                     dir.SetBlackout(now + bot.blackoutSeconds);
                 }
                 Mode = BotMode.Hunt;
-                LastSeen = target.transform.position;
+                LastSeen = at;
                 LastSeenAt = now;
+                if (crow != null && td < bot.botReach && now > _a.AtkReadyAt)
+                {
+                    Destroy(crow.gameObject);
+                    _a.AtkReadyAt = now + bot.botCooldown;
+                    _a.StunUntil = now + bot.scarecrowStun;
+                    Mode = BotMode.Search;
+                    dir.PlaySfx("pop", at + Vector3.up * 1.1f);
+                    dir.PostFeed("it clawed a scarecrow. powder everywhere");
+                    return;
+                }
                 float dmg = bot.botDamage + _a.Power * bot.hungerClawPer;
-                if (td < bot.botReach && now > _a.AtkReadyAt)
+                if (target != null && td < bot.botReach && now > _a.AtkReadyAt)
                 {
                     _a.AtkReadyAt = now + bot.botCooldown;
                     target.Hp -= dmg;
@@ -129,7 +158,7 @@ namespace HideAndSeek
                     dir.PlaySfx("claw", target.transform.position);
                     return;
                 }
-                Seek(target.transform.position, bot.botChase + _a.Power * bot.hungerBotChasePer, 0.8f);
+                Seek(at, bot.botChase + _a.Power * bot.hungerBotChasePer, 0.8f);
                 return;
             }
 
@@ -364,12 +393,17 @@ namespace HideAndSeek
 
         bool Sees(Actor p, float sight)
         {
-            float d = YardMath.Flat(transform.position, p.transform.position);
+            return SeesPoint(p.transform.position, sight);
+        }
+
+        bool SeesPoint(Vector3 feet, float sight)
+        {
+            float d = YardMath.Flat(transform.position, feet);
             if (d > sight)
                 return false;
             if (d < 3f)
                 return true;
-            return LineOfSight.Clear(transform.position, p.transform.position, 1.5f, 1.2f);
+            return LineOfSight.Clear(transform.position, feet, 1.5f, 1.2f);
         }
     }
 

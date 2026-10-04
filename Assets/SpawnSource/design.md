@@ -46,3 +46,18 @@ Mimic needs 3 claws a hider = 12 claws in 240 s.
 - 2026-10-03 (binxius: "Make the map bigger and matches longer then republish"): hunt 240 s → 420 s. The yard runs east to x 96 (was 44): the Rail Siding quarter through two cuts in the old east fence (z -6..0, z 50..56): salt shed (70,-12), pump house (82,14), engine shed (64,40), signal box (84,64), coal store (70,86), two container stacks, a railway line along x 50, lamps 11–15, 6 hiding spots (lockers 7–8, tarps 5–6, dinghy 4, dumpster), 10 decoys, 4 fish spots (10 piles at once). Loot stays scarce: 4 crates (26 total over ~1.6x the ground). Pell the gutter and clues 3 and 6 moved east.
 - 2026-10-03 (binxius, via Hide And Seek Dev): human rounds skip hide; claws locked 30s from hunt start; solo bot still uses the cage.
 - 2026-10-03 (binxius): basic tutorial page at the start: a first arrival reads it before the menu (the monster looks like a player until they hurt someone or get spotted, claws locked 30s, sneak / search / craft / hide, how a round is won, and the keys that already exist); CONTINUE stores it on player.state so M does not show it again; the menu's TUTORIAL button opens it; a join still skips both.
+
+- 2026-10-03: Saltgate (#2971): a bluff town west of the yard (x -112..-60, ground y 4): ten cottages and a chapel, every door a plank door hiders can bar (R) and the monster claws through; cot-8 has a sliding secret panel out the back. Under it, storm drains (floor y 0) run from a culvert mouth in the yard (x -43, z 26) to three stairs up into the town, each behind an iron grate. Doors ring the monster's noise rings like loot and talk.
+
+## Creative kit (2026-10-04, binxius: "expand the amount of abilities for the monster and hiders, allow players to be creative")
+Hiders craft 8 things now (keys 1–8, HUD buttons):
+- 5 Tripwire (2 wire): a wire across a gap. The mimic crossing it rings a bell, roots it 1 s, unmasks it, and every hider sees it through walls for 6 s.
+- 6 Barricade (2 scrap + 1 wire): planks nailed across a lane, solid. Claws take one plank a swing (4). Max 2 each. Hammering makes door-noise.
+- 7 Smoke (2 powder): a 4.5 m cloud for 10 s. A hider inside is unseen: no body, no lamp, no nametag, no scent, bots lose them, claws only find them at touch range.
+- 8 Scarecrow (scrap + wire + powder): a dummy wearing your character, lamp lit. The mimic that claws it is stunned 2.2 s in powder, unmasked, and it makes a loud noise.
+The mimic gets 3 tricks with no fish needed:
+- B Throw voice (16 s): a cry for help sounds up to 14 m ahead, short of the first wall.
+- H Gut snare (10 s, max 3): a hider who steps in takes 10, sticks 2.5 s, and it rings for the mimic (60 m).
+- J Steal face (30 s): wear the nearest hider's character and name tag until revealed.
+Combos the kit is built for: tripwire behind a barricade, smoke to break a chase into a hiding spot, a scarecrow by a rigged fish; the mimic's voice thrown past a snare.
+Numbers: scripts/lib/data/rules.yml (tripwire, barricade, smoke, scarecrow, tricks).

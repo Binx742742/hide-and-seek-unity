@@ -84,6 +84,20 @@ namespace HideAndSeek
                 _actions.Craft(CraftKind.Lure);
             if (Input.GetKeyDown(KeyCode.Alpha4))
                 _actions.Craft(CraftKind.Flash);
+            if (Input.GetKeyDown(KeyCode.Alpha5))
+                _actions.Craft(CraftKind.Tripwire);
+            if (Input.GetKeyDown(KeyCode.Alpha6))
+                _actions.Craft(CraftKind.Barricade);
+            if (Input.GetKeyDown(KeyCode.Alpha7))
+                _actions.Craft(CraftKind.Smoke);
+            if (Input.GetKeyDown(KeyCode.Alpha8))
+                _actions.Craft(CraftKind.Scarecrow);
+            if (Input.GetKeyDown(KeyCode.B))
+                _actions.Trick("echo");
+            if (Input.GetKeyDown(KeyCode.H))
+                _actions.Trick("snare");
+            if (Input.GetKeyDown(KeyCode.J))
+                _actions.Trick("steal");
         }
     }
 }

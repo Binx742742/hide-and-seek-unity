@@ -151,6 +151,36 @@ namespace HideAndSeek
         public int lureScrap = 1;
         public int flashPowder = 1;
         public int flashWire = 1;
+        public int tripwireWire = 2;
+        public int barricadeScrap = 2;
+        public int barricadeWire = 1;
+        public int smokePowder = 2;
+        public int scarecrowScrap = 1;
+        public int scarecrowWire = 1;
+        public int scarecrowPowder = 1;
+
+        [Header("Creative kit — rules.yml tripwire, barricade, smoke, scarecrow, tricks")]
+        public float tripwireLength = 3.2f;
+        public float tripwireReach = 0.6f;
+        public float tripwireMark = 6f;
+        public float tripwireRoot = 1f;
+        public int barricadeHp = 4;
+        public float barricadeWidth = 2.4f;
+        public int barricadeMax = 2;
+        public float smokeRadius = 4.5f;
+        public float smokeSeconds = 10f;
+        public float scarecrowStun = 2.2f;
+        public int scarecrowMax = 2;
+        public float echoCooldown = 16f;
+        public float echoDistance = 14f;
+        public float snareCooldown = 10f;
+        public int snareMax = 3;
+        public float snareReach = 0.75f;
+        public float snareRoot = 2.5f;
+        public float snareDamage = 10f;
+        public float snareRing = 60f;
+        public float stealCooldown = 30f;
+        public float stealReach = 5f;
 
         [Header("Spawn / cage positions — rules.yml")]
         public Vector2 spawnXZ = new Vector2(-4f, 2f);
@@ -183,6 +213,10 @@ namespace HideAndSeek
                 case CraftKind.Bait: scrap = baitScrap; powder = baitPowder; return true;
                 case CraftKind.Lure: wire = lureWire; scrap = lureScrap; return true;
                 case CraftKind.Flash: powder = flashPowder; wire = flashWire; return true;
+                case CraftKind.Tripwire: wire = tripwireWire; return true;
+                case CraftKind.Barricade: scrap = barricadeScrap; wire = barricadeWire; return true;
+                case CraftKind.Smoke: powder = smokePowder; return true;
+                case CraftKind.Scarecrow: scrap = scarecrowScrap; wire = scarecrowWire; powder = scarecrowPowder; return true;
                 default: return false;
             }
         }

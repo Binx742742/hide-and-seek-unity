@@ -79,7 +79,15 @@ namespace HideAndSeek
             _a.NoteSwing();
 
             Actor target = PickTarget(dir, reach, cone);
+            KitPiece crow = mimic ? NearestScarecrow(dir, reach, cone) : null;
+            if (crow != null && (target == null || YardMath.Flat(transform.position, crow.transform.position) < YardMath.Flat(transform.position, target.transform.position)))
+            {
+                PopScarecrow(dir, rules, crow, now);
+                return;
+            }
             if (target == null && mimic && TryDrag(dir, rules, reach, now))
+                return;
+            if (target == null && mimic && TryBarricade(dir, rules, reach))
                 return;
             if (target == null && mimic)
             {
@@ -329,10 +337,153 @@ namespace HideAndSeek
                 SpawnHazard(dir, "lure", me + f * 1f + Vector3.up * 0.02f, PropKind.Lure, 0f, now + rules.lureDelay);
             else if (kind == CraftKind.Flash)
                 DetonateFlash(dir, rules, me, f, now);
+            else if (kind == CraftKind.Tripwire)
+                PlaceTripwire(dir, rules, me, f, now);
+            else if (kind == CraftKind.Barricade)
+                PlaceBarricade(dir, rules, me, f, now);
+            else if (kind == CraftKind.Smoke)
+                PlaceSmoke(dir, rules, me, f, now);
+            else if (kind == CraftKind.Scarecrow)
+                PlaceScarecrow(dir, rules, me, f, now);
             if (kind == CraftKind.Trap) _a.Say("bear trap set");
             else if (kind == CraftKind.Bait) _a.Say("rigged fish set");
             else if (kind == CraftKind.Lure) _a.Say("rattle lure: 6s");
-            else _a.Say("FLASH");
+            else if (kind == CraftKind.Flash) _a.Say("FLASH");
+            else if (kind == CraftKind.Tripwire) _a.Say("tripwire strung. it rings when it crosses");
+            else if (kind == CraftKind.Barricade) _a.Say("planks nailed up");
+            else if (kind == CraftKind.Smoke) _a.Say("SMOKE. you can't be seen in it");
+            else if (kind == CraftKind.Scarecrow) _a.Say("a scarecrow wearing your face");
+        }
+
+        void PlaceTripwire(RoundDirector dir, RoundRules rules, Vector3 me, Vector3 f, float now)
+        {
+            float yaw = transform.eulerAngles.y;
+            var go = dir.SpawnKitRoot("tripwire", me + f * 1.2f, yaw);
+            var piece = go.AddComponent<KitPiece>();
+            piece.Kind = KitKind.Tripwire;
+            piece.OwnerId = _a.ActorId;
+            piece.SpawnedAt = now;
+            piece.ArmAt = now + BodyTune.KitArmSeconds;
+            KitVisuals.Tripwire(go, rules.tripwireLength);
+        }
+
+        void PlaceBarricade(RoundDirector dir, RoundRules rules, Vector3 me, Vector3 f, float now)
+        {
+            dir.DropOldestKit(KitKind.Barricade, _a.ActorId, rules.barricadeMax);
+            float yaw = transform.eulerAngles.y;
+            Vector3 at = me + f * 1.4f;
+            var go = dir.SpawnKitRoot("barricade", at, yaw);
+            var piece = go.AddComponent<KitPiece>();
+            piece.Kind = KitKind.Barricade;
+            piece.OwnerId = _a.ActorId;
+            piece.SpawnedAt = now;
+            piece.Hp = rules.barricadeHp;
+            KitVisuals.Barricade(go, rules.barricadeWidth);
+            dir.PlaySfx("hammer", at);
+            dir.MakeNoise(me, rules.noiseDoor, "door");
+        }
+
+        void PlaceSmoke(RoundDirector dir, RoundRules rules, Vector3 me, Vector3 f, float now)
+        {
+            Vector3 at = me + f * 0.5f;
+            var go = dir.SpawnKitRoot("smoke", at, 0f);
+            var piece = go.AddComponent<KitPiece>();
+            piece.Kind = KitKind.Smoke;
+            piece.OwnerId = _a.ActorId;
+            piece.SpawnedAt = now;
+            piece.Until = now + rules.smokeSeconds;
+            piece.Radius = rules.smokeRadius;
+            KitVisuals.SmokeMarker(go);
+            dir.PlaySfx("smoke", at);
+        }
+
+        void PlaceScarecrow(RoundDirector dir, RoundRules rules, Vector3 me, Vector3 f, float now)
+        {
+            dir.DropOldestKit(KitKind.Scarecrow, _a.ActorId, rules.scarecrowMax);
+            float yaw = transform.eulerAngles.y + 180f + (UnityEngine.Random.value - 0.5f) * 40f;
+            var go = dir.SpawnKitRoot("scarecrow", me + f * 1.3f, yaw);
+            var piece = go.AddComponent<KitPiece>();
+            piece.Kind = KitKind.Scarecrow;
+            piece.OwnerId = _a.ActorId;
+            piece.SpawnedAt = now;
+            KitVisuals.Scarecrow(go);
+        }
+
+        public void Trick(string key)
+        {
+            var dir = Dir();
+            if (dir == null || _a.Role != RoleKind.Mimic || dir.Phase != RoundPhase.Hunt)
+                return;
+            var rules = dir.Rules;
+            float now = Time.time;
+            float ready = _a.CooldownReadyAt(key);
+            float cd = key == "echo" ? rules.echoCooldown : key == "snare" ? rules.snareCooldown : key == "steal" ? rules.stealCooldown : 0f;
+            if (cd <= 0f)
+                return;
+            if (now < ready)
+            {
+                _a.Say(key + " in " + Mathf.CeilToInt(ready - now) + "s");
+                return;
+            }
+            Vector3 me = transform.position;
+            Vector3 f = YardMath.Forward(transform);
+            if (key == "echo")
+            {
+                Vector3 origin = me + Vector3.up * 1.4f;
+                float dist = rules.echoDistance;
+                if (Physics.Raycast(origin, f, out RaycastHit hit, rules.echoDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+                    dist = Mathf.Max(2f, hit.distance - 0.8f);
+                Vector3 p = me + f * dist + Vector3.up * 1.2f;
+                dir.PlaySfx("echo", p);
+                _a.Say("your voice, over there. someone will come");
+            }
+            else if (key == "snare")
+            {
+                dir.DropOldestKit(KitKind.Snare, _a.ActorId, rules.snareMax);
+                var go = dir.SpawnKitRoot("snare", me + f * 1.2f + Vector3.up * 0.02f, transform.eulerAngles.y);
+                var piece = go.AddComponent<KitPiece>();
+                piece.Kind = KitKind.Snare;
+                piece.OwnerId = _a.ActorId;
+                piece.SpawnedAt = now;
+                piece.ArmAt = now + BodyTune.KitArmSeconds;
+                KitVisuals.Snare(go);
+                dir.PlaySfx("morph", me);
+                _a.Say("a snare in the dirt. you'll hear it");
+            }
+            else if (key == "steal")
+            {
+                if (_a.Revealed)
+                {
+                    _a.Say("they've seen what you are. no face fits now");
+                    return;
+                }
+                Actor best = null;
+                float bd = rules.stealReach;
+                var actors = dir.Actors;
+                for (int i = 0; i < actors.Count; i++)
+                {
+                    var p = actors[i];
+                    if (p == null || p == _a || p.IsNpc || p.IsBot || p.Role != RoleKind.Hider)
+                        continue;
+                    float d = YardMath.Flat(p.transform.position, me);
+                    if (d < bd)
+                    {
+                        best = p;
+                        bd = d;
+                    }
+                }
+                if (best == null)
+                {
+                    _a.Say("nobody close enough to wear");
+                    return;
+                }
+                _a.FaceOf = string.IsNullOrEmpty(best.CharacterId) ? "own" : best.CharacterId;
+                _a.FaceName = best.DisplayName;
+                dir.PlaySfx("steal", me);
+                _a.Say("you wear " + best.DisplayName + "'s face now");
+                _a.NotifyVisuals();
+            }
+            _a.SetCooldownReadyAt(key, now + cd);
         }
 
         public void UsePower(string key)
@@ -367,7 +518,7 @@ namespace HideAndSeek
                 for (int i = 0; i < actors.Count; i++)
                 {
                     var p = actors[i];
-                    if (p == null || p.Role != RoleKind.Hider)
+                    if (p == null || p.Role != RoleKind.Hider || p.Smoked)
                         continue;
                     if (YardMath.Flat(p.transform.position, me) > rules.scentRange)
                         continue;
@@ -859,6 +1010,8 @@ namespace HideAndSeek
                 float d = YardMath.Flat(me, t.transform.position);
                 if (d > bestD)
                     continue;
+                if (t.Smoked && d > BodyTune.SmokeTouchRange)
+                    continue;
                 if (d >= 1.7f)
                 {
                     Vector3 to = t.transform.position - me;
@@ -871,6 +1024,100 @@ namespace HideAndSeek
                 bestD = d;
             }
             return best;
+        }
+
+        KitPiece NearestScarecrow(RoundDirector dir, float range, float cone)
+        {
+            Vector3 me = transform.position;
+            Vector3 f = YardMath.Forward(transform);
+            KitPiece best = null;
+            float bestD = range;
+            var kit = dir.Kit;
+            for (int i = 0; i < kit.Count; i++)
+            {
+                var c = kit[i];
+                if (c == null || c.Kind != KitKind.Scarecrow)
+                    continue;
+                if (YardMath.Flat(me, c.transform.position) > 30f)
+                    continue;
+                float dy = Mathf.Abs(c.transform.position.y - me.y);
+                if (dy > 2f)
+                    continue;
+                float d = YardMath.Flat(me, c.transform.position);
+                if (d > bestD)
+                    continue;
+                if (d >= 1.7f)
+                {
+                    Vector3 to = c.transform.position - me;
+                    to.y = 0f;
+                    float ang = Mathf.Acos(Mathf.Clamp(Vector3.Dot(to.normalized, f), -1f, 1f)) * Mathf.Rad2Deg;
+                    if (ang > cone * 0.5f)
+                        continue;
+                }
+                best = c;
+                bestD = d;
+            }
+            return best;
+        }
+
+        void PopScarecrow(RoundDirector dir, RoundRules rules, KitPiece crow, float now)
+        {
+            Vector3 p = crow.transform.position;
+            Destroy(crow.gameObject);
+            dir.PlaySfx("pop", p + Vector3.up * 1.1f);
+            _a.StunUntil = now + rules.scarecrowStun;
+            if (_a.Disguise != DisguiseForm.None)
+                _a.ChangeDisguise(DisguiseForm.None);
+            if (_a.Role == RoleKind.Mimic && !_a.Revealed && !string.IsNullOrEmpty(_a.DisplayName))
+            {
+                _a.Revealed = true;
+                dir.PostFeed(_a.DisplayName + " clawed a scarecrow. THE MIMIC");
+                dir.RaiseRevealed(_a);
+                _a.NotifyVisuals();
+            }
+            dir.MakeNoise(p, rules.noiseLure, "loot");
+            _a.Say("a scarecrow. powder in your eyes");
+        }
+
+        bool TryBarricade(RoundDirector dir, RoundRules rules, float reach)
+        {
+            Vector3 me = transform.position;
+            Vector3 f = YardMath.Forward(transform);
+            KitPiece best = null;
+            float bestD = reach + 1.6f;
+            var kit = dir.Kit;
+            for (int i = 0; i < kit.Count; i++)
+            {
+                var b = kit[i];
+                if (b == null || b.Kind != KitKind.Barricade)
+                    continue;
+                Vector3 d = b.transform.position - me;
+                d.y = 0f;
+                float dist = d.magnitude;
+                if (dist > bestD)
+                    continue;
+                if (dist > 1.7f && Vector3.Dot(d.normalized, f) < 0.3f)
+                    continue;
+                best = b;
+                bestD = dist;
+            }
+            if (best == null)
+                return false;
+            best.Hp -= 1;
+            Vector3 at = best.transform.position + Vector3.up;
+            dir.MakeNoise(best.transform.position, rules.noiseDoor, "door");
+            if (best.Hp <= 0)
+            {
+                Destroy(best.gameObject);
+                dir.PlaySfx("doorBreak", at);
+                _a.Say("the planks give");
+            }
+            else
+            {
+                dir.PlaySfx("doorHit", at);
+                _a.Say("planks: " + best.Hp + " left");
+            }
+            return true;
         }
 
         List<Actor> Enemies(RoundDirector dir)

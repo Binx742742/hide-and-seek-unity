@@ -38,4 +38,11 @@ export const SFX = {
   lunge: "cdn/sfx-creature-pounce-fast-whoosh-with-snarl.mp3",
   wail: "cdn/sfx-inhuman-banshee-wail-echoing-horror-scream.mp3",
   fade: "cdn/sfx-ghostly-reverse-whisper-vanish-shimmer.mp3",
+  wire: "cdn/sfx-tripwire-twang-and-tin-bell-jangle-loud.mp3",
+  hammer: "cdn/sfx-hammering-planks-quickly-nails-rusty.mp3",
+  smoke: "cdn/sfx-smoke-canister-hissing-thick-release.mp3",
+  pop: "cdn/sfx-firecracker-bang-with-straw-and-powder-burst.mp3",
+  snare: "cdn/sfx-wet-sinew-snare-snapping-tight-around-ankle.mp3",
+  echo: "cdn/voice-frightened-young-man-saying-help-me-please-im-over-here.mp3",
+  steal: "cdn/sfx-wet-skin-stretching-face-peeling-creepy.mp3",
 };

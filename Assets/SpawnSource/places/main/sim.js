@@ -33,10 +33,10 @@ function spawnAt(i, n) { const a = (i / Math.max(1, n)) * Math.PI * 2; return { 
 function resetBody(p, role, round) {
   if (p.state.hiddenIn) { p.state.hiddenIn = null; }
   p.state.talk = null;
-  Object.assign(p.state, { role, risen: false, revealed: false, ambushAt: 0, clawReadyAt: 0, power: 0, cd: {}, fadeUntil: 0, faded: false, team: role === "mimic" ? "mimic" : role === "hider" ? "hiders" : role === "lobby" ? null : p.state.team, hp: role === "mimic" ? RULES.seekerHp : RULES.hiderHp, inv: { scrap: 0, wire: 0, powder: 0 }, disguise: "none", stunUntil: 0, rootUntil: 0, round, msg: null, prompt: null, dread: 0 });
+  Object.assign(p.state, { role, risen: false, revealed: false, ambushAt: 0, clawReadyAt: 0, power: 0, cd: {}, fadeUntil: 0, faded: false, team: role === "mimic" ? "mimic" : role === "hider" ? "hiders" : role === "lobby" ? null : p.state.team, hp: role === "mimic" ? RULES.seekerHp : RULES.hiderHp, inv: { scrap: 0, wire: 0, powder: 0 }, disguise: "none", stunUntil: 0, rootUntil: 0, round, msg: null, prompt: null, dread: 0, faceOf: null, faceName: null, smoked: false });
 }
 function clearRound(ctx) {
-  for (const r of ctx.query({ anyTags: ["trap", "bait", "lure", "fake", "mimic-bot", "dreamer", "clue", "food", "npc-hider", "ping"] })) ctx.destroy(r.id);
+  for (const r of ctx.query({ anyTags: ["trap", "bait", "lure", "fake", "mimic-bot", "dreamer", "clue", "food", "npc-hider", "ping", "tripwire", "barricade", "smoke", "scarecrow", "snare"] })) ctx.destroy(r.id);
   for (const r of ctx.query({ tags: ["door"] })) { const d = ctx.getObject(r.id); if (d) Object.assign(d.state, { open: false, broken: false, barredUntil: 0, barCoolUntil: 0, hp: RULES.door.hp }); }
   ctx.place.state.ate = null; ctx.place.state.blackout = null;
   ctx.place.state.clues = 0; ctx.place.state.awake = 0;
@@ -198,11 +198,53 @@ function judgeTraps(ctx) {
       if ((victim.state.power ?? 0) > 0) victim.state.power -= 1;
     }
     victim.state.hurtAt = now;
-    if (victim.state.role === "mimic" && !victim.state.revealed) { victim.state.revealed = true; feed(ctx, `the trap caught ${victim.displayName}. THEY ARE THE MIMIC`); ctx.emit("playSound", { clip: SFX.unmorph, position: victim.feetPosition, volume: 1, maxDistance: 50 }); }
+    if (victim.state.role === "mimic" && !victim.state.revealed) { victim.state.revealed = true; feed(ctx, victim.displayName ? `the trap caught ${victim.displayName}. THEY ARE THE MIMIC` : "the trap caught it"); ctx.emit("playSound", { clip: SFX.unmorph, position: victim.feetPosition, volume: 1, maxDistance: 50 }); }
     if (victim.state.disguise && victim.state.disguise !== "none") victim.state.disguise = "none";
     ctx.emit("flash", { target: victim.id, color: "oklch(0.8 0.15 30)", duration: 0.2 });
     ctx.emit("playSound", { clip: SFX.mimicHurt, position: victim.feetPosition, volume: 0.9, maxDistance: 40 });
     ctx.destroy(t.id);
+  }
+}
+
+// the creative kit: a hider's tripwire rings on the mimic; the mimic's snare bites a hider
+function judgeKit(ctx) {
+  const now = ctx.now();
+  const wires = ctx.query({ tags: ["tripwire"] }), snares = ctx.query({ tags: ["snare"] });
+  if (!wires.length && !snares.length) return;
+  if (wires.length) {
+    const mimics = mimicBodies(ctx), TW = RULES.tripwire;
+    for (const r of wires) {
+      if (now < (r.state.armAt ?? 0)) continue;
+      const a = ((r.state.yaw ?? 0) * Math.PI) / 180, ax = Math.cos(a), az = -Math.sin(a), half = TW.length / 2;
+      const victim = mimics.find((m) => {
+        const dx = m.feetPosition.x - r.feetPosition.x, dz = m.feetPosition.z - r.feetPosition.z, along = dx * ax + dz * az;
+        return Math.abs(along) <= half + 0.2 && Math.abs(dx * -az + dz * ax) < TW.reach && Math.abs(m.feetPosition.y - r.feetPosition.y) < 1.2;
+      });
+      if (!victim) continue;
+      ctx.destroy(r.id);
+      ctx.emit("playSound", { clip: SFX.wire, position: r.feetPosition, volume: 1, maxDistance: 60 });
+      ctx.emit("playSound", { clip: SFX.bell, position: r.feetPosition, volume: 0.8, maxDistance: 80 });
+      victim.state.rootUntil = now + TW.root * 1000;
+      for (const p of ctx.place.players) if (p.state.role === "hider") ctx.emit("highlightSet", { target: victim.id, color: "oklch(0.8 0.17 60)", style: "xray", duration: TW.mark }, { audience: { player: p.id } });
+      if (victim.state.disguise && victim.state.disguise !== "none") victim.state.disguise = "none";
+      if (victim.state.role === "mimic" && !victim.state.revealed) { victim.state.revealed = true; feed(ctx, victim.displayName ? `the tripwire rang on ${victim.displayName}. THE MIMIC` : "the tripwire rang. it's there, see it through the walls"); }
+      else feed(ctx, "a tripwire rang. it's there, see it through the walls");
+    }
+  }
+  if (snares.length) {
+    const T = RULES.tricks.snare, prey = ctx.place.players.filter((p) => p.state.role === "hider" && !p.state.hiddenIn);
+    for (const n of ctx.query({ tags: ["npc-hider"] })) if (!n.state.dead) { const h = ctx.getObject(n.id); if (h) prey.push(h); }
+    for (const r of snares) {
+      if (now < (r.state.armAt ?? 0)) continue;
+      const v = prey.find((p) => flat(p.feetPosition, r.feetPosition) < T.reach && Math.abs(p.feetPosition.y - r.feetPosition.y) < 1.2);
+      if (!v) continue;
+      ctx.destroy(r.id);
+      v.state.hp = (v.state.hp ?? 100) - T.damage; v.state.hurtAt = now; v.state.rootUntil = now + T.root * 1000;
+      ctx.emit("playSound", { clip: SFX.snare, position: r.feetPosition, volume: 1, maxDistance: 35 });
+      ctx.emit("damageNumber", { position: { ...v.feetPosition, y: v.feetPosition.y + 1.4 }, value: T.damage, color: "oklch(0.65 0.2 25)" });
+      ctx.emit("screenShake", { intensity: 0.4, duration: 0.3 }, { audience: { player: v.id } });
+      noise(ctx, r.feetPosition, T.ring, "snare");
+    }
   }
 }
 
@@ -253,6 +295,7 @@ export function tick(ctx) {
   }
   if (s.phase === "hunt") {
     judgeTraps(ctx);
+    judgeKit(ctx);
     judgeDark(ctx);
     // the dead
     for (const p of players) {

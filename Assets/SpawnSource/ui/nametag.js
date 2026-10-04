@@ -44,7 +44,8 @@ const STYLE = `<style>
 export default function (ctx, tag) {
   // Gullmouth: no names on the hidden, the dead, or anyone past 10 m in the fog
   const body = ctx.getObject?.(tag.id), st = body?.state ?? {};
-  if (st.role === "ghost" || st.faded || (st.disguise && st.disguise !== "none") || tag.distance > 10) return "";
+  if (st.role === "ghost" || st.faded || st.smoked || (st.disguise && st.disguise !== "none") || tag.distance > 10) return "";
+  if (st.role === "mimic" && !st.revealed && st.faceName) { tag = { ...tag, name: st.faceName, face: null, handle: null }; } // a stolen face wears the stolen name
   const states = [
     "named",
     "earshot",
