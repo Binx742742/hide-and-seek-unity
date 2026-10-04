@@ -225,6 +225,7 @@ GameObject:
   m_Component:
   - component: {fileID: 200001}
   - component: {fileID: 200002}
+  - component: {fileID: 200003}
   m_Layer: 0
   m_Name: RoundDirector
   m_TagString: Untagged
@@ -261,6 +262,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rules: {fileID: 0}
   soloBotRound: 1
+--- !u!114 &200003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ffee0000000000000000000000000a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  director: {fileID: 200002}
+  characters: {fileID: 0}
+  spawnStandIns: 1
+  humanPlayers: 1
+  fillNpcSeats: 1
+  spawnYardMarkers: 1
+  openMenuOnStart: 1
 --- !u!1 &300000
 GameObject:
   m_ObjectHideFlags: 0

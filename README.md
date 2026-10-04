@@ -1,50 +1,95 @@
-# Hide and Seek (Unity port bridge)
+# Hide and Seek (Unity port)
 
-This folder is a **Unity project starter** for **Gullmouth / Hide and Seek** — a port bridge from the live Spawn world [@binxius/hide-and-seek](https://spawn.co). It is **not** a finished 3D rebuild of the cannery yard.
+This folder is a **Unity 6** project for **Gullmouth / Hide and Seek**, carried over from the live Spawn world [@binxius/hide-and-seek](https://spawn.co). Gameplay is callable from C#. The yard is the Spawn generators and cell scenes, baked into stand-in meshes at the source coordinates. Character models, sounds, and CDN art are not in this project. The original Spawn text is under `Assets/SpawnSource`.
 
-**Editor target:** Unity **6000.0.23f1** (Unity 6). Open this folder in that editor (or a close 6000.0.x); Unity will generate Library/ and other ignored folders on first open.
+**Editor target:** Unity **6000.0.23f1**. Open this folder in that editor (or a close 6000.0.x). Unity generates `Library/` on first open. Built-in modules only — no URP, no Netcode package.
 
-## How to open
+## How to play the stand-in round
 
-1. Install Unity Hub + Unity **6000.0.23f1** (or another 6000.0 LTS/patch you already use).
-2. Hub → **Open** → choose this folder: `hide-and-seek-unity`.
-3. Let Unity import. Ignore missing URP/HDRP packages unless you add a render pipeline later — this starter uses built-in modules only.
-4. Open `Assets/Scenes/Bootstrap.unity` (or create a new scene).
-5. Select the **RoundDirector** GameObject (or create an empty GameObject and **Add Component → RoundDirector**). Press Play: Console logs Lobby → Hide → Hunt → End using the Spawn rule timings.
+1. Open `Assets/Scenes/Bootstrap.unity`.
+2. Press Play.
+3. The local body starts in the menu. Read the tutorial, press **CONTINUE**, then **PLAY HERE**.
+4. The lobby holds at 15 seconds until someone has left the menu. One human means a **bot round**: 30 seconds of cage hide, then a 420 second hunt. The cannery, cottages, drains, pier, lamps, doors, loot, and hiding spots are stand-in meshes at the source coordinates, so the yard can be walked. Dreamers and clues stay capsules. A hider or an unrevealed mimic stays a capsule. A revealed mimic with no disguise uses `scripts/gen/mimic.js`. Crate, barrel, loot, locker, tarp, dinghy, and dumpster disguises use those same generator forms.
 
-If the scene script link is missing after import, drag `Assets/Scripts/HideAndSeek/RoundDirector.cs` onto an empty GameObject.
+Keys (from `world.config.yaml`, not invented):
 
-## What is playable today vs reference
-
-| Ready in Unity | Still Spawn-only / not ported |
+| Key | Action |
 | --- | --- |
-| Round phase timer stub (`RoundDirector`) | Multiplayer / netcode |
-| Rule numbers as a ScriptableObject (`RoundRules`) | 3D cannery, pier, Fishermen's Row, Rail Siding |
-| Original scripts & design copied under `Assets/SpawnSource` | Models, disguises, craft UI, dreamers, bots |
+| WASD | Move. Mouse orbits. Scroll changes the camera arm by 0.6. |
+| Space | Jump |
+| Click or F | Stab (hider) or claw (mimic) |
+| E | Search, hide, wake a dreamer, eat fish, or use a door |
+| Q | Cycle mimic disguise |
+| R | Bar a shut door, or plant fake loot |
+| T | Blackout (mimic, hunt) |
+| G | Hang a false clue |
+| C V X Z | Scent, lunge, wail, fade |
+| 1–4 | Bear trap, powder keg, rattle lure, flash |
+| M | Menu. Blocked for a living hider or mimic during hide and hunt. |
 
-**Do not claim the 3D cannery is rebuilt.** The yard, props, and netcode live in the Spawn world. This project carries the rules layer and a readable mirror of the source so you can continue the port in Unity.
+The HUD **POWER** button calls `ActorActions.UseBestPower`. The Spawn power chip has no keyboard key (`keys: []` in `world.config.yaml`).
+
+`LocalRoundDriver.humanPlayers` defaults to 1. Set it to 2 or more for a human round: no hide phase, claws locked for `reveal.startLock` (30 seconds) from hunt start. Extra humans are not in the menu, so they count as soon as Play starts. `fillNpcSeats` fills `rules.seats` (5) with NPC hiders. Turn it off and the driver sets `seats` to the human count for that play session.
+
+If you remove `LocalRoundDriver`, `RoundDirector.simulateMatch` stays off and the old timer still runs: Lobby → Hide or Hunt → End → Lobby, with console logs and no roles.
+
+## What is ported vs still Spawn-only
+
+Numbers come from `Assets/SpawnSource/scripts/lib/data/rules.yml`, `dream.yml`, `characters.yml`, `player.yml`, `places/main/config.yaml` (yard gravity −24), and the hiding-spot rows in `places/main/cells`. C# defaults match those files. Do not invent stats on top of them.
+
+| Ported (call it from Unity) | Still Spawn-only |
+| --- | --- |
+| Round phases: lobby 15s (10 eligible humans pull a long lobby to 5s), bot-only hide 30s, human rounds skip hide and lock claws for 30s, hunt 420s, end 8s | Proximity voice. `IProximityVoice` is an empty hook. The scripts never defined a distance model. |
+| Draw, roles (hider, mimic, risen, ghost), mask transfer, late join, NPC takeover | The live room list. `sim.js` posts the SQL `lobbies` table every 4s and drops rows older than 20s. `ILobbyDirectory` is the hook. The menu says the list is missing instead of inventing rooms. |
+| Combat: claw, stab, ambush, drag-out, reveal (survivor or a witness with line of sight), frenzy heal | CDN character models, dreamer models, clue pictures, sound files, and music tracks. `IActorVisuals` replaces the child `StandInVisual` when assigned. `Actor.VisualsChanged`, `DisguiseChanged`, `SwingStarted`, and `PowerPerformed` are the animator events. `SfxPlayed` carries the `sfx.js` clip id. `MusicCue` is `"lobby"`, `"hunt"`, or `"stop"`. |
+| The yard from `scripts/gen` and the three cell scenes: combined meshes on a child named `Visual`, colliders on `Collision` or a primitive collider. Gameplay stays on the root (`HidingSpot`, `LootCrate`, `YardDoor`, `CageGate`, `Actor`). `YardDoor` swings that root. The cage gate starts closed at `cageFloorY` (the scene pose is the open one). | Harbour ambience (CDN mp3), sea-mist particles, and the cage-sign SVG. Those nodes are not spawned. Fisherman disguise stays a capsule because that body is a CDN model. |
+| Terrain from `flat-starter-terrain.js` `heightAt`, with the four drain holes from `places/main/config.yaml`, and a sea plane at y −1.6 with no collider. Lamps `lamp-1`..`15` go to intensity 25 or 0. Bulb stutter and sodium burst use `flicker.js` and `lamp-flicker.js`. A point light is soft when that scene light had shadows enabled. | Light cookies and lightmaps. NavMesh. Bot goals are a straight line (`builtin/nav` is not here). `YardMotion` slides that step off walls and does not choose a new goal. |
+| Hiding spots, loot crates, fish piles (the fishpile generator), rigged fish (same tray plus the fuse tube), crafted trap and lure stand-ins, and the five powers. Flash uses the full `flash.cone` (60°), matching `player.js`. `doorClawGap` is stored because it is in `rules.yml`; `door.js` never reads it. | Netcode. Nothing in this project references Unity Netcode. A second human is a local stand-in transform, not a connected client. |
+| Dreamers, clues, the convince needle, false clues, blackout. `YardLamps` implements `IYardLamps`. `BlackoutChanged` still fires. | Dreamer meshes and clue pictures. Shards keep the CDN picture path and are not loaded. |
+| Menu and tutorial as `OnGUI` logic (`arrival.js` + the keyboard copy in `ui.js`) | Pointer lock and the humanoid gait clips in `player.yml`. The stand-in camera leaves the cursor unlocked so the menu can be clicked. Pitch is clamped only so the orbit stays upright. |
+| Bot mimic decision loop and bot hider loop against those stand-ins | Orbit-engine replication beyond the behaviours above. |
+
+`rules.yml` stays the canonical sheet. `RoundRules.CreateRuntimeDefaults()` fills an unassigned rules asset from that sheet, including the 17 food spots and 26 loot spots.
 
 ## Where to look
 
-- **`Assets/SpawnSource/`** — original Spawn text sources, relative paths preserved:
-  - `design.md` — product decisions and loop
-  - `AGENTS.md` — agent notes
-  - `world.config.yaml`, `sim.js`
-  - `places/` — place config and cell scenes (Spawn format, not Unity)
-  - `scripts/` — gameplay JS (player, bot, craft, etc.)
-  - `scripts/lib/data/rules.yml` — **canonical numbers** (keep C# in sync)
-  - `templates/`, `ui/`
-- **`Assets/Scripts/HideAndSeek/`** — C# start:
-  - `RoundRules.cs` — hide/hunt seconds, HP, speeds, claw/stab/trap damage from `rules.yml`
-  - `RoundDirector.cs` — Lobby / Hide (bot only) / Hunt / End; human rounds skip Hide and lock claws for `startLock` seconds
+- **`Assets/SpawnSource/`** — original Spawn sources (`design.md`, `scripts/`, `places/`, `rules.yml`).
+- **`Assets/Scripts/HideAndSeek/`** — the C# port:
+  - `RoundRules.cs`, `DreamCatalog.cs`, `CharacterCatalog.cs` — data
+  - `RoundDirector.cs` — referee (`places/main/sim.js`)
+  - `Actor.cs`, `ActorActions.cs` — body and verbs (`player.js`)
+  - `BotBrains.cs` — `bot-mimic.js`, `bot-hider.js`
+  - `WorldObjects.cs`, `YardLayout.cs` — markers, doors, cage gate, hiding spots
+  - `YardBuilder.cs`, `YardMotion.cs`, `ActorVisualStandIn.cs` — baked yard, walking, swappable body mesh
+  - `MenuFlow.cs`, `RoundHud.cs`, `LocalPlayerInput.cs`, `StandInCamera.cs`
+  - `LocalRoundDriver.cs` — Bootstrap entry that spawns the stand-ins and the yard
+  - `SpawnOnly.cs` — `ILobbyDirectory`, `IProximityVoice`, `IActorVisuals`, `IYardLamps`
+  - `GameTypes.cs` — shared enums and the small constants that live in JS rather than YAML (stab cone fallback 80°, drag stun 0.8s, talk break 4m, lobby walk 6, yard gravity −24)
 
-## Round behaviour (as encoded)
+## Round behaviour
 
-- **Solo bot:** Lobby → **Hide** (cage) → Hunt → End → Lobby.
-- **Human round:** Lobby → **Hunt** (skip Hide); claws locked for **30 s** from hunt start (`reveal.startLock`). Full multiplayer is **not** implemented — this is a local stub only.
+- **Bot round** (fewer than 2 humans who have left the menu): Lobby → Hide (cage at rules `cage`, door slides 2.9m) → Hunt → End → Lobby.
+- **Human round**: Lobby → Hunt. Claws locked for 30s from hunt start. Risen players bypass that lock because `ResetBody` clears `ClawReadyAt`.
+- A hider who dies rises as a revealed mimic (90 HP) on the mimic team. NPC hiders die and are removed. A true mimic who dies becomes a ghost on the mimic team. Risen do not count as true mimics for the win check.
+- Wins: every dreamer awake; every true mimic dead; no living hiders (players and NPCs — the HUD uses that same count); hunt timer elapsed ("dawn came. they survived"). If the last true mimic leaves and fewer than two hiders remain, hiders win because the mimic fled.
+
+## Yard bake
+
+`tools/bake-yard.mjs` runs the generators and writes `Assets/StreamingAssets/HideAndSeek/yard.json.gz`. Boxes and tubes from one generator become one shared mesh (32-bit indices, because the largest form is past 65k vertices). A plate from `ctx.quad` is a 6 cm box so a fence panel has thickness. The railway is the scene spline, width 2.4, drawn in 2 m steps; that step is display only. Colours are oklch converted to RGB. `ctx.random` in a generator uses the xorshift already written in those files. Flicker timing uses `UnityEngine.Random` with the same thresholds, because the Spawn host RNG is not in this repo.
+
+Regenerate from the repo root:
+
+```bash
+node --import ./tools/register-yard.mjs tools/bake-yard.mjs
+```
+
+If that file is missing, `LocalRoundDriver` falls back to the loot, hiding-spot, and cage cubes.
 
 ## Notes
 
-- No third-party packages. No `.git` from the Spawn clone. Do not commit secrets or `node_modules`.
-- Unity regenerates `Library/`, `Temp/`, `Logs/`, `*.csproj` — they are gitignored.
-- Not git-committed yet; commit when you are ready.
+- No third-party packages. No Netcode, no proximity-voice implementation, no downloaded CDN models or audio.
+- Do not commit secrets, `Library/`, or `node_modules`.
+- Feet rest on a floor the downward ray actually hit. `Actor.GroundY` is only the rest height when that ray hits nothing. A body under the Saltgate bluff is lifted onto the object named Terrain; roofs and drain floors are other objects. Fish piles use that same terrain height (`y: { terrain: 0 }` in sim.js).
+- A dreamer scream and a false clue do not spawn an ear ping. `player.js` only writes `place.state.noise`, and the bot never reads it. A lure's ear ping is `noise.lure` (40 m). The 30 m lure radius is the rattle's audio distance.
+- `ActorVisualStandIn` rebuilds its child only when the disguise or the revealed-mimic form changes. Assigning `visualHook` removes that generated child once and does not turn the root renderer back on. Yard meshes stay on a child named `Visual`.
+- This was checked by reading the C# against the Spawn sources and by baking the yard file. Play Mode was not run here: this environment has no Unity editor.
