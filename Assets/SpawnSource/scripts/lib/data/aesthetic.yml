@@ -1,0 +1,16 @@
+# The art direction of this world, how everything built here LOOKS: its light, palette, material
+# finishes, air and grade. What is built is the creator's ask; this file adds, removes and replaces
+# nothing. It stands until an ask names a theme; then the theme wins: replace this look with one that
+# fits and tune the place's light and grade to it. This file holds the look and nothing else; a note on
+# a build or a decision belongs in memory/game/ or design.md. A script may import it.
+name: rust-fog
+palette: ["#1b2430", "#4a5d6a", "#b7410e", "#e8c170", "#d9d4c7"]
+finish: ["rust-streaked iron", "tar-black timber", "wet slate", "salt-bleached rope"]
+era: "a 1970s working waterfront, everything weathered"
+mood: "fog lifting after dawn, sodium lights still on, everything damp and cold"
+hour: 6.8
+clouds: { density: 0.8, opacity: 0.9 }
+fog: { near: 150, far: 450 }
+ground: oklch(0.42 0.03 230)
+grade: { exposure: 1, saturation: 0.85, contrast: 1, temperature: -0.06, grain: 0.03 }
+reference: "Rust and sodium light on wet slate in the morning fog: nothing here is new."

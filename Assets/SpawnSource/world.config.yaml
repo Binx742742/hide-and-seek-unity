@@ -1,0 +1,98 @@
+# name: the game's name: fill it once you know what this is. description: one line for the box art.
+name: "Hide and Seek"
+description: "Four hide in a dead cannery. One of the crates is not a crate."
+camera: templates/camera.js#camera
+lighting: scripts/lighting.js
+defaultPlace: main
+engine:
+  behaviors:
+    - scripts/arrival.js
+  networking:
+    mode: multiplayer
+  ui:
+    theme:
+      font: Geist Pixel Square
+routing:
+  maxPlayers: 10
+  persistence: session
+inputs:
+  actions:
+    jump:
+      keys:
+        - space
+    attack:
+      mouse: left
+      keys: [f]
+    interact:
+      keys: [e]
+    disguise:
+      keys: [q]
+    plant:
+      keys: [r]
+    blackout:
+      keys: [t]
+    falseclue:
+      keys: [g]
+    scent:
+      keys: [c]
+    lunge:
+      keys: [v]
+    wail:
+      keys: [x]
+    fade:
+      keys: [z]
+    power:
+      keys: []
+    menu:
+      keys: [m]
+    craft1:
+      keys: ["1"]
+    craft2:
+      keys: ["2"]
+    craft3:
+      keys: ["3"]
+    craft4:
+      keys: ["4"]
+  axes:
+    moveX:
+      keys: a/d
+    moveZ:
+      keys: s/w
+    zoomIn:
+      mouse: wheelY
+  touch:
+    active: scripts/controls.js
+    surfaces:
+      default:
+        sticks: [{ x: moveX, y: moveZ }]
+        buttons:
+          - { action: attack, slot: 1, size: primary, label: STAB }
+          - { action: interact, slot: 2, label: USE }
+          - { action: jump, slot: 3 }
+      mimic:
+        sticks: [{ x: moveX, y: moveZ }]
+        buttons:
+          - { action: attack, slot: 1, size: primary, label: CLAW }
+          - { action: disguise, slot: 2, label: MIMIC }
+          - { action: interact, slot: 3, label: EAT }
+          - { action: plant, slot: 4, label: FAKE LOOT }
+          - { action: blackout, slot: 5, label: DARK }
+          - { action: falseclue, slot: 6, label: LIE }
+          - { action: power, slot: 7, label: POWER }
+      ghost:
+        sticks: [{ x: moveX, y: moveZ }]
+        buttons:
+          - { action: jump, slot: 1 }
+    style: |
+      [data-part="button"] { background: oklch(0.22 0.02 240 / 0.8); border: 2px solid oklch(0.55 0.13 45); color: oklch(0.88 0.08 80); font-weight: 800; text-shadow: none; }
+      [data-part="button"][data-pressed] { background: oklch(0.45 0.13 40 / 0.9); transform: translateY(2px); }
+      [data-part="stick"] { background: oklch(0.2 0.02 240 / 0.4); border: 2px solid oklch(0.5 0.05 240); }
+      [data-part="thumb"] { background: oklch(0.55 0.13 45); border: none; }
+player: templates/player.js#player
+ui:
+  render: scripts/ui.js
+# nametag: the tag over other players' heads: this file, yours to edit: export default function (ctx, tag) { return html }, the shape ui.js has.
+nametag: ui/nametag.js
+authoring:
+  starter:
+    id: 3d

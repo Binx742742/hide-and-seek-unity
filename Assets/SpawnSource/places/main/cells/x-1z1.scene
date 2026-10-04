@@ -1,0 +1,47 @@
+# spawn-scene v2 yaml x-1z1
+chapel:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: 0, y: 3, z: 1.5}, light: {color: oklch(0.75 0.1 60), distance: 12, intensity: 10, kind: point, shadow: {enabled: false}}, state: {base: 10, distance: 12}}]
+  feetPosition: {x: -82, y: 4, z: 93}
+  id: chapel
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 6, door: 0, h: 4.2, w: 10}, script: scripts/gen/cottage.js, seed: 7}
+  receiveShadow: true
+  rotation: {yaw: 0}
+  tags: [building]
+chapel-door:
+  overrides:
+    feetPosition: {x: -82.6, y: 4, z: 90.2}
+    rotation: {yaw: 0}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: 0
+  template: templates/door.js#door
+hide-tarp-chapel:
+  castShadow: true
+  feetPosition: {x: -88, y: 4, z: 84}
+  id: hide-tarp-chapel
+  physics: none
+  primitive: {kind: scripted, params: {}, script: scripts/gen/tarp.js, seed: 11}
+  rotation: {yaw: 35}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: tarp, occupant: null}
+  tags: [hidespot]
+loot-drain-2:
+  overrides:
+    feetPosition: {x: -82, y: 0, z: 70}
+    rotation: {yaw: 20}
+  template: templates/props.js#lootCrate
+town-lamp-6:
+  children: [{behavior: scripts/lamp-flicker.js, feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 20, intensity: 22, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -78, y: 4, z: 80}
+  id: town-lamp-6
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 0}
+  tags: [lamp]

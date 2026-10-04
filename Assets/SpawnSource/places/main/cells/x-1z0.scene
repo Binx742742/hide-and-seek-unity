@@ -1,0 +1,431 @@
+# spawn-scene v2 yaml x-1z0
+cot-1:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -70, y: 4, z: 0}
+  id: cot-1
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 100}
+  receiveShadow: true
+  rotation: {yaw: 90}
+  tags: [building]
+cot-1-door:
+  overrides:
+    feetPosition: {x: -72.3, y: 4, z: 0.5999999999999999}
+    rotation: {yaw: 90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: 90
+  template: templates/door.js#door
+cot-10:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -100, y: 4, z: 38}
+  id: cot-10
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 138}
+  receiveShadow: true
+  rotation: {yaw: 0}
+  tags: [building]
+cot-10-door:
+  overrides:
+    feetPosition: {x: -100.6, y: 4, z: 35.7}
+    rotation: {yaw: 0}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: 0
+  template: templates/door.js#door
+cot-2:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -70, y: 4, z: 14}
+  id: cot-2
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 114}
+  receiveShadow: true
+  rotation: {yaw: 90}
+  tags: [building]
+cot-2-door:
+  overrides:
+    feetPosition: {x: -72.3, y: 4, z: 14.6}
+    rotation: {yaw: 90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: 90
+  template: templates/door.js#door
+cot-3:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -70, y: 4, z: 40}
+  id: cot-3
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 140}
+  receiveShadow: true
+  rotation: {yaw: 90}
+  tags: [building]
+cot-3-door:
+  overrides:
+    feetPosition: {x: -72.3, y: 4, z: 40.6}
+    rotation: {yaw: 90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: 90
+  template: templates/door.js#door
+cot-4:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -70, y: 4, z: 54}
+  id: cot-4
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 154}
+  receiveShadow: true
+  rotation: {yaw: 90}
+  tags: [building]
+cot-4-door:
+  overrides:
+    feetPosition: {x: -72.3, y: 4, z: 54.6}
+    rotation: {yaw: 90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: 90
+  template: templates/door.js#door
+cot-5:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -87, y: 4, z: -6}
+  id: cot-5
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 94}
+  receiveShadow: true
+  rotation: {yaw: -90}
+  tags: [building]
+cot-5-door:
+  overrides:
+    feetPosition: {x: -84.7, y: 4, z: -6.6}
+    rotation: {yaw: -90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: -90
+  template: templates/door.js#door
+cot-6:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -87, y: 4, z: 10}
+  id: cot-6
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 110}
+  receiveShadow: true
+  rotation: {yaw: -90}
+  tags: [building]
+cot-6-door:
+  overrides:
+    feetPosition: {x: -84.7, y: 4, z: 9.4}
+    rotation: {yaw: -90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: -90
+  template: templates/door.js#door
+cot-7:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -87, y: 4, z: 42}
+  id: cot-7
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 142}
+  receiveShadow: true
+  rotation: {yaw: -90}
+  tags: [building]
+cot-7-door:
+  overrides:
+    feetPosition: {x: -84.7, y: 4, z: 41.4}
+    rotation: {yaw: -90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: -90
+  template: templates/door.js#door
+cot-8:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -87, y: 4, z: 58}
+  id: cot-8
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {back: 0, d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 158}
+  receiveShadow: true
+  rotation: {yaw: -90}
+  tags: [building]
+cot-8-door:
+  overrides:
+    feetPosition: {x: -84.7, y: 4, z: 57.4}
+    rotation: {yaw: -90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: -90
+  template: templates/door.js#door
+cot-8-secret:
+  overrides:
+    feetPosition: {x: -89.05, y: 4, z: 57.45}
+    primitive: {kind: scripted, params: {h: 2.05, kind: panel, w: 1.1}, script: scripts/gen/door.js}
+    rotation: {yaw: -90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.home: {x: -89.05, y: 4, z: 57.45}
+    state.hp: 3
+    state.kind: panel
+    state.open: false
+    state.slide: 1.15
+    state.w: 1.1
+    state.yaw0: -90
+  template: templates/door.js#door
+cot-9:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: -1.5, y: 2.2, z: 0.8}, light: {color: oklch(0.8 0.13 70), distance: 8, intensity: 8, kind: point, shadow: {enabled: false}}, state: {base: 8, distance: 8}}]
+  feetPosition: {x: -100, y: 4, z: 14}
+  id: cot-9
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {d: 5, door: 0, h: 2.8, w: 6}, script: scripts/gen/cottage.js, seed: 114}
+  receiveShadow: true
+  rotation: {yaw: 180}
+  tags: [building]
+cot-9-door:
+  overrides:
+    feetPosition: {x: -99.4, y: 4, z: 16.3}
+    rotation: {yaw: 180}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: plank
+    state.open: false
+    state.swing: 100
+    state.w: 1.2
+    state.yaw0: 180
+  template: templates/door.js#door
+drain-bulb-2:
+  children: [{behavior: scripts/flicker.js, id: light, light: {color: oklch(0.78 0.14 65), distance: 9, intensity: 6, kind: point, shadow: {enabled: false}}, state: {base: 6, distance: 9}}]
+  feetPosition: {x: -66, y: 2.75, z: 26}
+  id: drain-bulb-2
+  material: {color: oklch(0.9 0.1 75), emissive: oklch(0.85 0.14 70), emissiveIntensity: 3}
+  primitive: {kind: sphere, radius: 0.07}
+drain-bulb-3:
+  children: [{behavior: scripts/flicker.js, id: light, light: {color: oklch(0.78 0.14 65), distance: 9, intensity: 6, kind: point, shadow: {enabled: false}}, state: {base: 6, distance: 9}}]
+  feetPosition: {x: -82, y: 2.75, z: 26}
+  id: drain-bulb-3
+  material: {color: oklch(0.9 0.1 75), emissive: oklch(0.85 0.14 70), emissiveIntensity: 3}
+  primitive: {kind: sphere, radius: 0.07}
+drain-bulb-4:
+  children: [{behavior: scripts/flicker.js, id: light, light: {color: oklch(0.78 0.14 65), distance: 9, intensity: 6, kind: point, shadow: {enabled: false}}, state: {base: 6, distance: 9}}]
+  feetPosition: {x: -98, y: 2.75, z: 26}
+  id: drain-bulb-4
+  material: {color: oklch(0.9 0.1 75), emissive: oklch(0.85 0.14 70), emissiveIntensity: 3}
+  primitive: {kind: sphere, radius: 0.07}
+drain-bulb-5:
+  children: [{behavior: scripts/flicker.js, id: light, light: {color: oklch(0.78 0.14 65), distance: 9, intensity: 6, kind: point, shadow: {enabled: false}}, state: {base: 6, distance: 9}}]
+  feetPosition: {x: -82, y: 2.75, z: 44}
+  id: drain-bulb-5
+  material: {color: oklch(0.9 0.1 75), emissive: oklch(0.85 0.14 70), emissiveIntensity: 3}
+  primitive: {kind: sphere, radius: 0.07}
+drain-bulb-6:
+  children: [{behavior: scripts/flicker.js, id: light, light: {color: oklch(0.78 0.14 65), distance: 9, intensity: 6, kind: point, shadow: {enabled: false}}, state: {base: 6, distance: 9}}]
+  feetPosition: {x: -82, y: 2.75, z: 62}
+  id: drain-bulb-6
+  material: {color: oklch(0.9 0.1 75), emissive: oklch(0.85 0.14 70), emissiveIntensity: 3}
+  primitive: {kind: sphere, radius: 0.07}
+drain-gate-chapel:
+  overrides:
+    feetPosition: {x: -83.95, y: 0, z: 30}
+    primitive: {kind: scripted, params: {h: 2.9, kind: grate, w: 3.9}, script: scripts/gen/door.js}
+    rotation: {yaw: 0}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: grate
+    state.open: false
+    state.swing: 95
+    state.w: 3.9
+    state.yaw0: 0
+  template: templates/door.js#door
+hide-dumpster-town:
+  castShadow: true
+  feetPosition: {x: -76, y: 4, z: 4}
+  id: hide-dumpster-town
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/dumpster.js, seed: 1}
+  rotation: {yaw: 90}
+  state: {inside: {x: 0, y: 0.3, z: 0}, kind: dumpster, occupant: null}
+  tags: [hidespot]
+hide-locker-drain:
+  castShadow: true
+  feetPosition: {x: -90, y: 0, z: 27.45}
+  id: hide-locker-drain
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: 180}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-locker-town-1:
+  castShadow: true
+  feetPosition: {x: -68.3, y: 4.05, z: 37.7}
+  id: hide-locker-town-1
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: 270}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-locker-town-2:
+  castShadow: true
+  feetPosition: {x: -88.6, y: 4.05, z: 55.7}
+  id: hide-locker-town-2
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: 0}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+loot-drain-1:
+  overrides:
+    feetPosition: {x: -75, y: 0, z: 26.8}
+    rotation: {yaw: 0}
+  template: templates/props.js#lootCrate
+loot-town-1:
+  overrides:
+    feetPosition: {x: -71.2, y: 4.05, z: 12.4}
+    rotation: {yaw: 100}
+  template: templates/props.js#lootCrate
+loot-town-2:
+  overrides:
+    feetPosition: {x: -88.2, y: 4.05, z: -4.4}
+    rotation: {yaw: -80}
+  template: templates/props.js#lootCrate
+loot-town-3:
+  overrides:
+    feetPosition: {x: -88.4, y: 4.05, z: 40.2}
+    rotation: {yaw: -80}
+  template: templates/props.js#lootCrate
+loot-town-4:
+  overrides:
+    feetPosition: {x: -98.2, y: 4.05, z: 39.3}
+    rotation: {yaw: 10}
+  template: templates/props.js#lootCrate
+loot-town-5:
+  overrides:
+    feetPosition: {x: -98.2, y: 4.05, z: 12.8}
+    rotation: {yaw: 190}
+  template: templates/props.js#lootCrate
+town-crates-1:
+  feetPosition: {x: -73, y: 4, z: 30}
+  id: town-crates-1
+  physics: static
+  primitive: {kind: scripted, params: {nx: 2, ny: 3, nz: 2, seed: 4}, script: scripts/gen/fish-crates.js, seed: 1}
+  rotation: {yaw: 14}
+town-crates-2:
+  feetPosition: {x: -65, y: 4, z: -14}
+  id: town-crates-2
+  physics: static
+  primitive: {kind: scripted, params: {nx: 3, ny: 2, nz: 1, seed: 9}, script: scripts/gen/fish-crates.js, seed: 1}
+  rotation: {yaw: -8}
+town-drums-1:
+  feetPosition: {x: -84, y: 4, z: 22}
+  id: town-drums-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 4, seed: 8, tipped: true}, script: scripts/gen/drums.js, seed: 1}
+town-lamp-1:
+  children: [{behavior: scripts/lamp-flicker.js, feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 20, intensity: 22, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -74, y: 4, z: -12}
+  id: town-lamp-1
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 160}
+  tags: [lamp]
+town-lamp-2:
+  children: [{behavior: scripts/lamp-flicker.js, feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 20, intensity: 22, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -74, y: 4, z: 18}
+  id: town-lamp-2
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 200}
+  tags: [lamp]
+town-lamp-3:
+  children: [{behavior: scripts/lamp-flicker.js, feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 20, intensity: 22, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -82, y: 4, z: 30}
+  id: town-lamp-3
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 0}
+  tags: [lamp]
+town-lamp-4:
+  children: [{behavior: scripts/lamp-flicker.js, feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 20, intensity: 22, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -74, y: 4, z: 50}
+  id: town-lamp-4
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 200}
+  tags: [lamp]
+town-lamp-5:
+  children: [{behavior: scripts/lamp-flicker.js, feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 20, intensity: 22, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -104, y: 4, z: 30}
+  id: town-lamp-5
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 90}
+  tags: [lamp]
+town-nets-1:
+  feetPosition: {x: -92, y: 4, z: 26}
+  id: town-nets-1
+  physics: static
+  primitive: {kind: scripted, params: {seed: 3, w: 4}, script: scripts/gen/net-rack.js, seed: 1}
+  rotation: {yaw: 90}

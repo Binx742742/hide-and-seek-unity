@@ -1,0 +1,27 @@
+# The dream: Gullmouth is a nightmare everyone shares. Wake every dreamer and the hiders wake too.
+# Clues (memory shards) make the dreamers easier to convince: a slower needle, a wider gold zone.
+convince:
+  hits: 3            # gold hits to wake a dreamer
+  misses: 2          # misses before they scream and the mimic hears
+  period: 1300       # ms for the needle to cross the bar, with 0 clues
+  periodPerClue: 70  # ms slower per clue
+  zone: 0.13         # width of the gold zone, 0..1, with 0 clues
+  zonePerClue: 0.04
+  zoneMax: 0.5
+  cooldown: 12       # s a screaming dreamer won't listen
+  reach: 2.6
+dreamers:
+  - { id: dreamer-1, name: "Old Haddie", home: [-5, -20], says: ["the nets... the nets are full of teeth", "it's tuesday. it's always tuesday", "my wife is waiting at the gate"] }
+  - { id: dreamer-2, name: "Pell the gutter", home: [68, 30], says: ["count the crates. count them again", "the boss said no one leaves till dawn", "dawn doesn't come here, does it"] }
+  - { id: dreamer-3, name: "Mags Dorran", home: [-27, 7], says: ["the boat's got no bottom, love", "i hear the bell but i can't find it", "who's that standing behind you"] }
+  - { id: dreamer-4, name: "Young Tam", home: [5, -33], says: ["the water's warm. it shouldn't be warm", "mam says don't go near the cage", "i can't feel my hands"] }
+  - { id: dreamer-5, name: "Foreman Grice", home: [-10, 80], says: ["shift's not over. shift is never over", "sign the sheet. sign it", "the lamps buzz my name"] }
+clues:
+  - { id: clue-1, pic: "/cdn/value.743666cbf35667e607e34751b18725fcb3ee607f5a36e46a432ad40d3af202d5.png", at: [10, -25], text: "a clock with no hands. time isn't moving here." }
+  - { id: clue-2, pic: "/cdn/value.11ad39e660df3fc1c6f5b88bc4a66e4512ad95fd407d993b3ce614f016308933.png", at: [-15, -27], text: "a photo of you, asleep. taken from the ceiling." }
+  - { id: clue-3, pic: "/cdn/value.efcc4381623e5939f5860998ed2fc2e9017b1071b64f98689e67d4313e40665d.png", at: [72, -6], text: "a fish, swimming through the air. this isn't real." }
+  - { id: clue-4, pic: "/cdn/value.df5aa9442a4fde538948213430630daa7a329a417d8a3f70d42d48ccc0368a81.png", at: [-30, 10], text: "WAKE UP, in your own handwriting." }
+  - { id: clue-5, pic: "/cdn/value.a2802c94fecac4756ccbd41378c44443e8f4f03ad6473432b0eedf0f4708af90.png", at: [-26, 64], text: "stairs that climb into the sky and stop." }
+  - { id: clue-6, pic: "/cdn/value.e4091737a5519461360172e5267fe1039c7dd9e64a84ee685214abe8620a61a4.png", at: [84, 60], text: "a mirror with no one in it. not even you." }
+  - { id: clue-7, pic: "/cdn/value.f1decbbdfbd649f3bfb8b550b0eef6ee1dc702df63903cf750d152bcab2f45ef.png", at: [-2, 92], text: "a gull frozen mid-air. the wind isn't real either." }
+  - { id: clue-8, pic: "/cdn/value.7c79f7ee274da74de912f19ba542fd15207249b000603cea00e540f707a9d03b.png", at: [28, 74], text: "a door alone on the quay. daylight behind it." }

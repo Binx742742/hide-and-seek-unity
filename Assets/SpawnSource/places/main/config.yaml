@@ -1,0 +1,134 @@
+atmosphere:
+  clouds:
+    altitude: 500
+    density: 0.7
+    enabled: true
+    opacity: 0.85
+    thickness: 500
+    color: "#3a414c"
+    speed: 2
+  fog:
+    far: 70
+    kind: linear
+    near: 4
+    height: {base: 0, falloff: 14}
+  look:
+    script: scripts/look-default.js
+  moon:
+    intensity: 5
+    enabled: true
+    phase: 0.45
+    size: 1.2
+  sky:
+    kind: realistic
+    model: hosek
+  stars:
+    density: 0.4
+    enabled: true
+    milkyWay: 0.2
+  timeOfDay: 1.5
+  wind:
+    direction: 230
+    speed: 4
+  wet: 0.7
+  ambient:
+    light: {color: oklch(0.55 0.05 250), intensity: 0.9}
+  hemisphere:
+    groundColor: oklch(0.3 0.04 60)
+    intensity: 0.8
+    skyColor: oklch(0.5 0.06 250)
+defaultSpawnPoint:
+  x: 0
+  y:
+    terrain: 0
+  z: 0
+gravity:
+  x: 0
+  y: -24
+  z: 0
+mode: 3d
+terrain:
+  decorations:
+    bindings:
+      grass:
+        - grass
+        - pebble
+        - reed
+    layers:
+      grass:
+        density: 22
+        items:
+          - kind: scripted
+            randomRotation: true
+            scale:
+              - 0.6
+              - 1
+            script: scripts/grass.js
+            seed: 1
+            wind:
+              force: 0.06
+        material:
+          kind: scripted
+          script: scripts/grass-look.js
+      pebble:
+        density: 0.4
+        items:
+          - colorJitter:
+              hue: 0
+              value: 0.15
+            kind: scripted
+            params:
+              stone: "#4a5d6a"
+            randomRotation: true
+            scale:
+              - 0.6
+              - 1.6
+            script: scripts/pebble.js
+            seed: 1
+      reed:
+        density: 0.6
+        items:
+          - colorJitter:
+              hue: 4
+              value: 0.08
+            kind: scripted
+            params:
+              head: "#3a3a38"
+              stem: "#6b6b5a"
+            randomRotation: true
+            scale:
+              - 0.8
+              - 1.2
+            script: scripts/reed.js
+            seed: 1
+            wind:
+              force: 0.08
+  generator: scripts/flat-starter-terrain.js
+  kind: heightmap
+  materials:
+    - albedo: cdn/texture-terrain-grass-realistic-albedo-summer-exploration.png
+      id: grass
+      pbr: true
+      tint: oklch(0.42 0.03 230)
+    - albedo: cdn/texture-terrain-gravel-realistic-albedo.png
+      id: gravel
+      pbr: true
+      tint: oklch(0.70 0.02 80)
+    - albedo: cdn/texture-terrain-rock-realistic-albedo.png
+      id: rock
+      pbr: true
+      tint: oklch(0.58 0.02 260)
+    - albedo: cdn/texture-terrain-cracked-wet-asphalt-with-oil-stains-albedo.png
+      id: asphalt
+      pbr: true
+      tint: oklch(0.80 0.01 240)
+      textureScale: 4
+  marks:
+    sea:
+      kind: sea
+      level: -1.6
+    drainMouth: {kind: hole, points: [[-49, 24], [-43.2, 24], [-43.2, 28], [-49, 28]]}
+    drainWestStair: {kind: hole, points: [[-112, 24], [-104, 24], [-104, 28], [-112, 28]]}
+    drainChapelStair: {kind: hole, points: [[-84, 78], [-80, 78], [-80, 86], [-84, 86]]}
+    drainSouthStair: {kind: hole, points: [[-62, -30], [-58, -30], [-58, -22], [-62, -22]]}
+  seed: 1

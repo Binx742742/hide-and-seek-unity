@@ -1,0 +1,1136 @@
+# spawn-scene v2 yaml x0z0
+boatshed:
+  castShadow: true
+  children: [{feetPosition: {x: -4.5, y: 3.4, z: 0}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -28, y: 0, z: 6}
+  id: boatshed
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/boatshed.js}
+  receiveShadow: true
+  tags: [building]
+cage-bulb:
+  feetPosition: {x: 24, y: 2.6999999999999997, z: -31}
+  id: cage-bulb
+  light: {color: oklch(0.6 0.2 25), distance: 8, intensity: 5, kind: point}
+  material: {color: oklch(0.6 0.2 25), emissive: oklch(0.6 0.2 25), emissiveIntensity: 3}
+  primitive: {kind: sphere, radius: 0.08}
+cage-door:
+  children: [{feetPosition: {x: -1.4545454545454546, y: 0, z: 0}, id: b0, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: -1.1636363636363636, y: 0, z: 0}, id: b1, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: -0.8727272727272727, y: 0, z: 0}, id: b2, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: -0.5818181818181818, y: 0, z: 0}, id: b3, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: -0.2909090909090908, y: 0, z: 0}, id: b4, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 2.220446049250313e-16, y: 0, z: 0}, id: b5, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0.290909090909091, y: 0, z: 0}, id: b6, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0.581818181818182, y: 0, z: 0}, id: b7, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0.872727272727273, y: 0, z: 0}, id: b8, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 1.163636363636364, y: 0, z: 0}, id: b9, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 1.454545454545455, y: 0, z: 0}, id: b10, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 2.7199999999999998, z: 0}, id: rail-top, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {depth: 0.1, height: 0.1, kind: box, width: 3.2}}, {feetPosition: {x: 0, y: 1.2, z: 0}, id: rail-mid, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {depth: 0.08, height: 0.06, kind: box, width: 3.2}}]
+  feetPosition: {x: 24, y: 3.1999999999999993, z: -29.4}
+  id: cage-door
+  physics: {body: kinematic, collider: box}
+  primitive: {depth: 0.12, height: 2.8, kind: box, width: 3.2}
+  render: false
+  tags: [cage]
+cage-e:
+  children: [{feetPosition: {x: 0, y: 0, z: -1.4545454545454546}, id: b0, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: -1.1636363636363636}, id: b1, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: -0.8727272727272727}, id: b2, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: -0.5818181818181818}, id: b3, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: -0.2909090909090908}, id: b4, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 2.220446049250313e-16}, id: b5, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 0.290909090909091}, id: b6, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 0.581818181818182}, id: b7, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 0.872727272727273}, id: b8, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 1.163636363636364}, id: b9, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 1.454545454545455}, id: b10, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 2.7199999999999998, z: 0}, id: rail-top, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {depth: 3.2, height: 0.1, kind: box, width: 0.1}}, {feetPosition: {x: 0, y: 1.2, z: 0}, id: rail-mid, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {depth: 3.2, height: 0.06, kind: box, width: 0.08}}]
+  feetPosition: {x: 25.6, y: 0.3, z: -31}
+  id: cage-e
+  physics: {body: static, collider: box}
+  primitive: {depth: 3.2, height: 2.8, kind: box, width: 0.12}
+  render: false
+  tags: [cage]
+cage-floor:
+  feetPosition: {x: 24, y: 0.15, z: -31}
+  id: cage-floor
+  material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}
+  physics: static
+  primitive: {depth: 3.5, height: 0.15, kind: box, width: 3.5}
+  tags: [cage]
+cage-roof:
+  feetPosition: {x: 24, y: 3.0999999999999996, z: -31}
+  id: cage-roof
+  material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}
+  physics: static
+  primitive: {depth: 3.4000000000000004, height: 0.1, kind: box, width: 3.4000000000000004}
+  tags: [cage]
+cage-s:
+  children: [{feetPosition: {x: -1.4545454545454546, y: 0, z: 0}, id: b0, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: -1.1636363636363636, y: 0, z: 0}, id: b1, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: -0.8727272727272727, y: 0, z: 0}, id: b2, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: -0.5818181818181818, y: 0, z: 0}, id: b3, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: -0.2909090909090908, y: 0, z: 0}, id: b4, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 2.220446049250313e-16, y: 0, z: 0}, id: b5, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0.290909090909091, y: 0, z: 0}, id: b6, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0.581818181818182, y: 0, z: 0}, id: b7, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0.872727272727273, y: 0, z: 0}, id: b8, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 1.163636363636364, y: 0, z: 0}, id: b9, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 1.454545454545455, y: 0, z: 0}, id: b10, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 2.7199999999999998, z: 0}, id: rail-top, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {depth: 0.1, height: 0.1, kind: box, width: 3.2}}, {feetPosition: {x: 0, y: 1.2, z: 0}, id: rail-mid, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {depth: 0.08, height: 0.06, kind: box, width: 3.2}}]
+  feetPosition: {x: 24, y: 0.3, z: -32.6}
+  id: cage-s
+  physics: {body: static, collider: box}
+  primitive: {depth: 0.12, height: 2.8, kind: box, width: 3.2}
+  render: false
+  tags: [cage]
+cage-sign:
+  feetPosition: {x: 24, y: 1.2, z: -29.32}
+  id: cage-sign
+  vector: "<svg viewBox='0 0 200 60' width='1.2m'><rect width='200' height='60' fill='#b7410e'/><rect x='5' y='5' width='190' height='50' fill='none' stroke='#1b2430' stroke-width='3'/><text x='100' y='40' font-family='display' font-size='26' text-anchor='middle' fill='#1b2430'>KEEP SHUT</text></svg>"
+cage-w:
+  children: [{feetPosition: {x: 0, y: 0, z: -1.4545454545454546}, id: b0, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: -1.1636363636363636}, id: b1, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: -0.8727272727272727}, id: b2, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: -0.5818181818181818}, id: b3, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: -0.2909090909090908}, id: b4, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 2.220446049250313e-16}, id: b5, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 0.290909090909091}, id: b6, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 0.581818181818182}, id: b7, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 0.872727272727273}, id: b8, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 1.163636363636364}, id: b9, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 0, z: 1.454545454545455}, id: b10, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {height: 2.8, kind: cylinder, radialSegments: 6, radiusBottom: 0.035, radiusTop: 0.035}}, {feetPosition: {x: 0, y: 2.7199999999999998, z: 0}, id: rail-top, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {depth: 3.2, height: 0.1, kind: box, width: 0.1}}, {feetPosition: {x: 0, y: 1.2, z: 0}, id: rail-mid, material: {color: oklch(0.36 0.04 45), metalness: 0.85, roughness: 0.6, texture: cdn/texture-heavily-rusted-iron-flaking.png}, primitive: {depth: 3.2, height: 0.06, kind: box, width: 0.08}}]
+  feetPosition: {x: 22.4, y: 0.3, z: -31}
+  id: cage-w
+  physics: {body: static, collider: box}
+  primitive: {depth: 3.2, height: 2.8, kind: box, width: 0.12}
+  render: false
+  tags: [cage]
+cannery:
+  castShadow: true
+  children: [{feetPosition: {x: -4.7, y: 4.85, z: 0}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}}, {feetPosition: {x: 10.3, y: 4.85, z: -1}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: 0, y: 0, z: -22}
+  id: cannery
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/cannery.js}
+  receiveShadow: true
+  tags: [building]
+coalstore:
+  castShadow: true
+  children: [{feetPosition: {x: -4.5, y: 3.4, z: 0}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: 70, y: 0, z: 86}
+  id: coalstore
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/boatshed.js}
+  receiveShadow: true
+  tags: [building]
+containers:
+  children: [{feetPosition: {x: 0.2, y: 2.6, z: 0.1}, id: c2-top, physics: static, primitive: {kind: scripted, params: {paint: 1}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: 4}}, {feetPosition: {x: -0.4, y: 0, z: 3.75}, id: c3-open, physics: static, primitive: {kind: scripted, params: {aDoorA: 105, aDoorB: 70, droop: 0.12, open: true, paint: 2}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: -3}}, {feetPosition: {x: 1, y: 0, z: -3.75}, id: c4, physics: static, primitive: {kind: scripted, params: {paint: 0}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: 6}}, {feetPosition: {x: -0.6, y: 0.3, z: -7.9}, id: c5-lean, physics: static, primitive: {kind: scripted, params: {paint: 1}, script: scripts/gen/container.js, seed: 1}, rotation: {pitch: -11, yaw: -4}}]
+  feetPosition: {x: 4, y: 0, z: 8}
+  id: containers
+  physics: static
+  primitive: {kind: scripted, params: {paint: 0}, script: scripts/gen/container.js, seed: 1}
+  tags: [cover]
+containers-e:
+  children: [{feetPosition: {x: 0.2, y: 2.6, z: 0.1}, id: c2-top, physics: static, primitive: {kind: scripted, params: {paint: 1}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: 4}}, {feetPosition: {x: -0.4, y: 0, z: 3.75}, id: c3-open, physics: static, primitive: {kind: scripted, params: {aDoorA: 105, aDoorB: 70, droop: 0.12, open: true, paint: 2}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: -3}}, {feetPosition: {x: 1, y: 0, z: -3.75}, id: c4, physics: static, primitive: {kind: scripted, params: {paint: 0}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: 6}}, {feetPosition: {x: -0.6, y: 0.3, z: -7.9}, id: c5-lean, physics: static, primitive: {kind: scripted, params: {paint: 1}, script: scripts/gen/container.js, seed: 1}, rotation: {pitch: -11, yaw: -4}}]
+  feetPosition: {x: 88, y: 0, z: 34}
+  id: containers-e
+  physics: static
+  primitive: {kind: scripted, params: {paint: 0}, script: scripts/gen/container.js, seed: 1}
+  tags: [cover]
+containers-e2:
+  children: [{feetPosition: {x: 0.2, y: 2.6, z: 0.1}, id: c2-top, physics: static, primitive: {kind: scripted, params: {paint: 1}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: 4}}, {feetPosition: {x: -0.4, y: 0, z: 3.75}, id: c3-open, physics: static, primitive: {kind: scripted, params: {aDoorA: 105, aDoorB: 70, droop: 0.12, open: true, paint: 2}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: -3}}, {feetPosition: {x: 1, y: 0, z: -3.75}, id: c4, physics: static, primitive: {kind: scripted, params: {paint: 0}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: 6}}, {feetPosition: {x: -0.6, y: 0.3, z: -7.9}, id: c5-lean, physics: static, primitive: {kind: scripted, params: {paint: 1}, script: scripts/gen/container.js, seed: 1}, rotation: {pitch: -11, yaw: -4}}]
+  feetPosition: {x: 56, y: 0, z: -22}
+  id: containers-e2
+  physics: static
+  primitive: {kind: scripted, params: {paint: 0}, script: scripts/gen/container.js, seed: 1}
+  tags: [cover]
+containers-n:
+  children: [{feetPosition: {x: 0.2, y: 2.6, z: 0.1}, id: c2-top, physics: static, primitive: {kind: scripted, params: {paint: 1}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: 4}}, {feetPosition: {x: -0.4, y: 0, z: 3.75}, id: c3-open, physics: static, primitive: {kind: scripted, params: {aDoorA: 105, aDoorB: 70, droop: 0.12, open: true, paint: 2}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: -3}}, {feetPosition: {x: 1, y: 0, z: -3.75}, id: c4, physics: static, primitive: {kind: scripted, params: {paint: 0}, script: scripts/gen/container.js, seed: 1}, rotation: {yaw: 6}}, {feetPosition: {x: -0.6, y: 0.3, z: -7.9}, id: c5-lean, physics: static, primitive: {kind: scripted, params: {paint: 1}, script: scripts/gen/container.js, seed: 1}, rotation: {pitch: -11, yaw: -4}}]
+  feetPosition: {x: -8, y: 0, z: 66}
+  id: containers-n
+  physics: static
+  primitive: {kind: scripted, params: {paint: 0}, script: scripts/gen/container.js, seed: 1}
+  tags: [cover]
+decoy-b0:
+  overrides:
+    feetPosition: {x: -16.884872458649493, y: 0, z: -13.189444183338619}
+  template: templates/props.js#decoyBarrel
+decoy-b10:
+  overrides:
+    feetPosition: {x: 7.806514442810974, y: 0, z: -7.184298669744779}
+  template: templates/props.js#decoyBarrel
+decoy-b12:
+  overrides:
+    feetPosition: {x: -38.937347639666136, y: 0, z: 25.74925256249967}
+  template: templates/props.js#decoyBarrel
+decoy-b14:
+  overrides:
+    feetPosition: {x: 11.112575204597997, y: 0, z: 24.449640316379355}
+  template: templates/props.js#decoyBarrel
+decoy-b16:
+  overrides:
+    feetPosition: {x: -15.153556427552886, y: 0, z: -34.19013462413174}
+  template: templates/props.js#decoyBarrel
+decoy-b2:
+  overrides:
+    feetPosition: {x: 1.1402791103502354, y: 0, z: -21.626150363783946}
+  template: templates/props.js#decoyBarrel
+decoy-b4:
+  overrides:
+    feetPosition: {x: 18.7668041122536, y: 0, z: 0.8228765239202103}
+  template: templates/props.js#decoyBarrel
+decoy-b6:
+  overrides:
+    feetPosition: {x: 27.088374504569412, y: 0, z: 6.780345408188539}
+  template: templates/props.js#decoyBarrel
+decoy-b8:
+  overrides:
+    feetPosition: {x: -22.872935583963756, y: 0, z: 0.41197791458387445}
+  template: templates/props.js#decoyBarrel
+decoy-c0:
+  overrides:
+    feetPosition: {x: -14.75, y: 0, z: -14}
+    rotation: {yaw: 0}
+  template: templates/props.js#decoyCrate
+decoy-c1:
+  overrides:
+    feetPosition: {x: 14.368942369250178, y: 0, z: -28.920988291688907}
+    rotation: {yaw: 53}
+  template: templates/props.js#decoyCrate
+decoy-c10:
+  overrides:
+    feetPosition: {x: 7.3153384247196644, y: 0, z: -4.95418045182993}
+    rotation: {yaw: 80}
+  template: templates/props.js#decoyCrate
+decoy-c12:
+  overrides:
+    feetPosition: {x: -36.752826273261086, y: 0, z: 25.084010090656847}
+    rotation: {yaw: 6}
+  template: templates/props.js#decoyCrate
+decoy-c13:
+  overrides:
+    feetPosition: {x: 37.297850905148564, y: 0, z: -28.965840124255777}
+    rotation: {yaw: 59}
+  template: templates/props.js#decoyCrate
+decoy-c15:
+  overrides:
+    feetPosition: {x: -28.754415115553595, y: 0, z: -29.895031930385315}
+    rotation: {yaw: 75}
+  template: templates/props.js#decoyCrate
+decoy-c16:
+  overrides:
+    feetPosition: {x: -15.719438097751679, y: 0, z: -31.97779218184195}
+    rotation: {yaw: 38}
+  template: templates/props.js#decoyCrate
+decoy-c3:
+  overrides:
+    feetPosition: {x: -15.750176704520731, y: 0, z: -29.97898262439456}
+    rotation: {yaw: 69}
+  template: templates/props.js#decoyCrate
+decoy-c4:
+  overrides:
+    feetPosition: {x: 18.350889182354145, y: 0, z: 3.0682486351103506}
+    rotation: {yaw: 32}
+  template: templates/props.js#decoyCrate
+decoy-c6:
+  overrides:
+    feetPosition: {x: 29.249293231876255, y: 0, z: 6.042028809026423}
+    rotation: {yaw: 48}
+  template: templates/props.js#decoyCrate
+decoy-c7:
+  overrides:
+    feetPosition: {x: -32.6669804832364, y: 0, z: 13.057183538928667}
+    rotation: {yaw: 11}
+  template: templates/props.js#decoyCrate
+decoy-c9:
+  overrides:
+    feetPosition: {x: -12.751590040945622, y: 0, z: 19.06302835975852}
+    rotation: {yaw: 27}
+  template: templates/props.js#decoyCrate
+decoy-e0:
+  overrides:
+    feetPosition: {x: 66, y: 0, z: -30}
+    rotation: {yaw: 20}
+  template: templates/props.js#decoyCrate
+decoy-e1:
+  overrides:
+    feetPosition: {x: 90, y: 0, z: 8}
+    rotation: {yaw: 70}
+  template: templates/props.js#decoyCrate
+decoy-e2:
+  overrides:
+    feetPosition: {x: 52, y: 0, z: 46}
+    rotation: {yaw: 15}
+  template: templates/props.js#decoyCrate
+decoy-e3:
+  overrides:
+    feetPosition: {x: 76, y: 0, z: 58}
+    rotation: {yaw: 88}
+  template: templates/props.js#decoyCrate
+decoy-e4:
+  overrides:
+    feetPosition: {x: 64, y: 0, z: 94}
+    rotation: {yaw: 40}
+  template: templates/props.js#decoyCrate
+decoy-e5:
+  overrides:
+    feetPosition: {x: 88, y: 0, z: 78}
+    rotation: {yaw: 5}
+  template: templates/props.js#decoyCrate
+decoy-eb0:
+  overrides:
+    feetPosition: {x: 73, y: 0, z: -26}
+  template: templates/props.js#decoyBarrel
+decoy-eb1:
+  overrides:
+    feetPosition: {x: 54, y: 0, z: 48}
+  template: templates/props.js#decoyBarrel
+decoy-eb2:
+  overrides:
+    feetPosition: {x: 90, y: 0, z: 80}
+  template: templates/props.js#decoyBarrel
+decoy-eb3:
+  overrides:
+    feetPosition: {x: 84, y: 0, z: -6}
+  template: templates/props.js#decoyBarrel
+decoy-n0:
+  overrides:
+    feetPosition: {x: 29.2, y: 0, z: 66.4}
+    rotation: {yaw: 48}
+  template: templates/props.js#decoyCrate
+decoy-n1:
+  overrides:
+    feetPosition: {x: -32.7, y: 0, z: 69.4}
+    rotation: {yaw: 11}
+  template: templates/props.js#decoyCrate
+decoy-n2:
+  overrides:
+    feetPosition: {x: -12.8, y: 0, z: 85.1}
+    rotation: {yaw: 27}
+  template: templates/props.js#decoyCrate
+decoy-n3:
+  overrides:
+    feetPosition: {x: 38.7, y: 0, z: 44.6}
+    rotation: {yaw: 0}
+  template: templates/props.js#decoyCrate
+decoy-n4:
+  overrides:
+    feetPosition: {x: -4, y: 0, z: 90}
+    rotation: {yaw: 32}
+  template: templates/props.js#decoyCrate
+decoy-n5:
+  overrides:
+    feetPosition: {x: 14, y: 0, z: 58}
+    rotation: {yaw: 80}
+  template: templates/props.js#decoyCrate
+decoy-nb0:
+  overrides:
+    feetPosition: {x: 39, y: 0, z: 42.6}
+  template: templates/props.js#decoyBarrel
+decoy-nb1:
+  overrides:
+    feetPosition: {x: -20, y: 0, z: 40}
+  template: templates/props.js#decoyBarrel
+decoy-nb2:
+  overrides:
+    feetPosition: {x: 6, y: 0, z: 76}
+  template: templates/props.js#decoyBarrel
+drain-bulb-1:
+  children: [{behavior: scripts/flicker.js, id: light, light: {color: oklch(0.78 0.14 65), distance: 9, intensity: 6, kind: point, shadow: {enabled: false}}, state: {base: 6, distance: 9}}]
+  feetPosition: {x: -50, y: 2.75, z: 26}
+  id: drain-bulb-1
+  material: {color: oklch(0.9 0.1 75), emissive: oklch(0.85 0.14 70), emissiveIntensity: 3}
+  primitive: {kind: sphere, radius: 0.07}
+drain-bulb-7:
+  children: [{behavior: scripts/flicker.js, id: light, light: {color: oklch(0.78 0.14 65), distance: 9, intensity: 6, kind: point, shadow: {enabled: false}}, state: {base: 6, distance: 9}}]
+  feetPosition: {x: -60, y: 2.75, z: 10}
+  id: drain-bulb-7
+  material: {color: oklch(0.9 0.1 75), emissive: oklch(0.85 0.14 70), emissiveIntensity: 3}
+  primitive: {kind: sphere, radius: 0.07}
+drain-bulb-8:
+  children: [{behavior: scripts/flicker.js, id: light, light: {color: oklch(0.78 0.14 65), distance: 9, intensity: 6, kind: point, shadow: {enabled: false}}, state: {base: 6, distance: 9}}]
+  feetPosition: {x: -60, y: 2.75, z: -8}
+  id: drain-bulb-8
+  material: {color: oklch(0.9 0.1 75), emissive: oklch(0.85 0.14 70), emissiveIntensity: 3}
+  primitive: {kind: sphere, radius: 0.07}
+drain-gate-mouth:
+  overrides:
+    feetPosition: {x: -47, y: 0, z: 27.95}
+    primitive: {kind: scripted, params: {h: 2.9, kind: grate, w: 3.9}, script: scripts/gen/door.js}
+    rotation: {yaw: 90}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: grate
+    state.open: false
+    state.swing: 95
+    state.w: 3.9
+    state.yaw0: 90
+  template: templates/door.js#door
+drain-gate-south:
+  overrides:
+    feetPosition: {x: -61.95, y: 0, z: 20}
+    primitive: {kind: scripted, params: {h: 2.9, kind: grate, w: 3.9}, script: scripts/gen/door.js}
+    rotation: {yaw: 0}
+    state.barredUntil: 0
+    state.broken: false
+    state.cur: 0
+    state.hp: 3
+    state.kind: grate
+    state.open: false
+    state.swing: 95
+    state.w: 3.9
+    state.yaw0: 0
+  template: templates/door.js#door
+drains:
+  feetPosition: {x: 0, y: 0, z: 0}
+  id: drains
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, script: scripts/gen/drain.js}
+  receiveShadow: true
+  tags: [drain]
+east-drums-1:
+  feetPosition: {x: 90, y: 0, z: -32}
+  id: east-drums-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 6, seed: 11, tipped: true}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+east-drums-2:
+  feetPosition: {x: 60, y: 0, z: 18}
+  id: east-drums-2
+  physics: static
+  primitive: {kind: scripted, params: {n: 5, seed: 13, tipped: true}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+east-drums-3:
+  feetPosition: {x: 76, y: 0, z: 76}
+  id: east-drums-3
+  physics: static
+  primitive: {kind: scripted, params: {n: 4, seed: 12}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+east-dumpster:
+  feetPosition: {x: 92, y: 0, z: 56}
+  id: east-dumpster
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/dumpster.js, seed: 1}
+  rotation: {yaw: -6}
+  state: {inside: {x: 0, y: 0.15, z: 0}, kind: dumpster, occupant: null}
+  tags: [cover, hidespot]
+east-pallets-1:
+  feetPosition: {x: 84, y: 0, z: -4}
+  id: east-pallets-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 8, seed: 2}, script: scripts/gen/pallets.js, seed: 1}
+  rotation: {yaw: -15}
+  tags: [cover]
+east-pallets-2:
+  feetPosition: {x: 52, y: 0, z: 84}
+  id: east-pallets-2
+  physics: static
+  primitive: {kind: scripted, params: {n: 9, seed: 9}, script: scripts/gen/pallets.js, seed: 1}
+  rotation: {yaw: 40}
+  tags: [cover]
+east-tyres-1:
+  feetPosition: {x: 92, y: 0, z: 44}
+  id: east-tyres-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 4, seed: 15}, script: scripts/gen/tyres.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+east-tyres-2:
+  feetPosition: {x: 66, y: 0, z: 64}
+  id: east-tyres-2
+  physics: static
+  primitive: {kind: scripted, params: {n: 4, seed: 15}, script: scripts/gen/tyres.js, seed: 1}
+  rotation: {yaw: 60}
+  tags: [cover]
+engineshed:
+  castShadow: true
+  children: [{feetPosition: {x: -4.5, y: 3.4, z: 0}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: 64, y: 0, z: 40}
+  id: engineshed
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/boatshed.js}
+  receiveShadow: true
+  tags: [building]
+fence:
+  feetPosition: {x: 0, y: 0, z: 0}
+  id: fence
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/fence.js}
+  tags: [fence]
+harbour-ambience:
+  audience: all
+  audio: {bus: Ambience, clip: cdn/sfx-night-harbour-ambience-water-lapping-pilings-distant-buoy-bell-creaking-ropes-loop.mp3, gain: 0.18, loop: true, spatial: false}
+  feetPosition: {x: 0, y: 0, z: -30}
+  id: harbour-ambience
+hide-dinghy-1:
+  castShadow: true
+  feetPosition: {x: 8, y: 0, z: 14}
+  id: hide-dinghy-1
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/dinghy.js, seed: 13}
+  rotation: {yaw: 70}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: boat, occupant: null}
+  tags: [hidespot]
+hide-dinghy-2:
+  castShadow: true
+  feetPosition: {x: -34, y: 0, z: 21}
+  id: hide-dinghy-2
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/dinghy.js, seed: 13}
+  rotation: {yaw: 10}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: boat, occupant: null}
+  tags: [hidespot]
+hide-dinghy-3:
+  castShadow: true
+  feetPosition: {x: -36, y: 0, z: 94}
+  id: hide-dinghy-3
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/dinghy.js, seed: 13}
+  rotation: {yaw: -20}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: boat, occupant: null}
+  tags: [hidespot]
+hide-dinghy-4:
+  castShadow: true
+  feetPosition: {x: 92, y: 0, z: 96}
+  id: hide-dinghy-4
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/dinghy.js, seed: 13}
+  rotation: {yaw: -20}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: boat, occupant: null}
+  tags: [hidespot]
+hide-locker-1:
+  castShadow: true
+  feetPosition: {x: -19.4, y: 0, z: -14}
+  id: hide-locker-1
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: -90}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-locker-2:
+  castShadow: true
+  feetPosition: {x: -19.4, y: 0, z: -15}
+  id: hide-locker-2
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: -90}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-locker-3:
+  castShadow: true
+  feetPosition: {x: 34.4, y: 0, z: 2}
+  id: hide-locker-3
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: 90}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-locker-4:
+  castShadow: true
+  feetPosition: {x: -34.4, y: 0, z: 0}
+  id: hide-locker-4
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: -90}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-locker-5:
+  castShadow: true
+  feetPosition: {x: 34.4, y: 0, z: 62}
+  id: hide-locker-5
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: 90}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-locker-6:
+  castShadow: true
+  feetPosition: {x: -34.4, y: 0, z: 56}
+  id: hide-locker-6
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: -90}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-locker-7:
+  castShadow: true
+  feetPosition: {x: 78.4, y: 0, z: -20}
+  id: hide-locker-7
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: 90}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-locker-8:
+  castShadow: true
+  feetPosition: {x: 57.6, y: 0, z: 34}
+  id: hide-locker-8
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/locker.js, seed: 13}
+  rotation: {yaw: -90}
+  state: {inside: {x: 0, y: 0.12, z: 0}, kind: locker, occupant: null}
+  tags: [hidespot]
+hide-tarp-1:
+  castShadow: true
+  feetPosition: {x: -24, y: 0, z: -8}
+  id: hide-tarp-1
+  physics: none
+  primitive: {kind: scripted, params: {}, script: scripts/gen/tarp.js, seed: 11}
+  rotation: {yaw: 20}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: tarp, occupant: null}
+  tags: [hidespot]
+hide-tarp-2:
+  castShadow: true
+  feetPosition: {x: 16, y: 0, z: -2}
+  id: hide-tarp-2
+  physics: none
+  primitive: {kind: scripted, params: {}, script: scripts/gen/tarp.js, seed: 11}
+  rotation: {yaw: 140}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: tarp, occupant: null}
+  tags: [hidespot]
+hide-tarp-3:
+  castShadow: true
+  feetPosition: {x: -10, y: 0, z: 50}
+  id: hide-tarp-3
+  physics: none
+  primitive: {kind: scripted, params: {}, script: scripts/gen/tarp.js, seed: 11}
+  rotation: {yaw: 35}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: tarp, occupant: null}
+  tags: [hidespot]
+hide-tarp-4:
+  castShadow: true
+  feetPosition: {x: 32, y: 0, z: 92}
+  id: hide-tarp-4
+  physics: none
+  primitive: {kind: scripted, params: {}, script: scripts/gen/tarp.js, seed: 11}
+  rotation: {yaw: -15}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: tarp, occupant: null}
+  tags: [hidespot]
+hide-tarp-5:
+  castShadow: true
+  feetPosition: {x: 88, y: 0, z: -28}
+  id: hide-tarp-5
+  physics: none
+  primitive: {kind: scripted, params: {}, script: scripts/gen/tarp.js, seed: 11}
+  rotation: {yaw: 20}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: tarp, occupant: null}
+  tags: [hidespot]
+hide-tarp-6:
+  castShadow: true
+  feetPosition: {x: 62, y: 0, z: 72}
+  id: hide-tarp-6
+  physics: none
+  primitive: {kind: scripted, params: {}, script: scripts/gen/tarp.js, seed: 11}
+  rotation: {yaw: 140}
+  state: {inside: {x: 0, y: 0, z: 0}, kind: tarp, occupant: null}
+  tags: [hidespot]
+icehouse:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: 1.9, y: 4.6, z: 0}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}, state: {base: 30, distance: 16}}]
+  feetPosition: {x: 26, y: 0, z: 70}
+  id: icehouse
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/warehouse.js}
+  receiveShadow: true
+  tags: [building]
+lamp-1:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: -10, y: 0, z: 6}
+  id: lamp-1
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 200}
+  state: {}
+  tags: [lamp]
+lamp-10:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: 4, y: 0, z: 88}
+  id: lamp-10
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 20}
+  state: {}
+  tags: [lamp]
+lamp-11:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: 60, y: 0, z: -26}
+  id: lamp-11
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 200}
+  state: {}
+  tags: [lamp]
+lamp-12:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: 76, y: 0, z: 2}
+  id: lamp-12
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 200}
+  state: {}
+  tags: [lamp]
+lamp-13:
+  behavior: scripts/lamp-flicker.js
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: 58, y: 0, z: 60}
+  id: lamp-13
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 240}
+  state: {base: 25}
+  tags: [lamp]
+lamp-14:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: 80, y: 0, z: 46}
+  id: lamp-14
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 200}
+  state: {}
+  tags: [lamp]
+lamp-15:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: 86, y: 0, z: 92}
+  id: lamp-15
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 200}
+  state: {}
+  tags: [lamp]
+lamp-2:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: 14, y: 0, z: -4}
+  id: lamp-2
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 150}
+  state: {}
+  tags: [lamp]
+lamp-3:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -30, y: 0, z: -20}
+  id: lamp-3
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 120}
+  state: {}
+  tags: [lamp]
+lamp-4:
+  behavior: scripts/lamp-flicker.js
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: 30, y: 0, z: -20}
+  id: lamp-4
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 240}
+  state: {base: 25}
+  tags: [lamp]
+lamp-5:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: 0, y: 0.25, z: -38}
+  id: lamp-5
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 0}
+  state: {}
+  tags: [lamp]
+lamp-6:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -24, y: 0, z: 26}
+  id: lamp-6
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 210}
+  state: {}
+  tags: [lamp]
+lamp-7:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: -4, y: 0, z: 44}
+  id: lamp-7
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 180}
+  state: {}
+  tags: [lamp]
+lamp-8:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: 10, y: 0, z: 62}
+  id: lamp-8
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 90}
+  state: {}
+  tags: [lamp]
+lamp-9:
+  children: [{feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 22, intensity: 25, kind: point, shadow: {enabled: true}}}]
+  feetPosition: {x: -14, y: 0, z: 74}
+  id: lamp-9
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 250}
+  state: {}
+  tags: [lamp]
+loot-0:
+  overrides:
+    feetPosition: {x: -16, y: 0, z: -14}
+    rotation: {yaw: 0}
+  template: templates/props.js#lootCrate
+loot-1:
+  overrides:
+    feetPosition: {x: 15, y: 0, z: -30}
+    rotation: {yaw: 37}
+  template: templates/props.js#lootCrate
+loot-10:
+  overrides:
+    feetPosition: {x: 8, y: 0, z: -6}
+    rotation: {yaw: 10}
+  template: templates/props.js#lootCrate
+loot-11:
+  overrides:
+    feetPosition: {x: -8, y: 0, z: -4}
+    rotation: {yaw: 47}
+  template: templates/props.js#lootCrate
+loot-12:
+  overrides:
+    feetPosition: {x: -38, y: 0, z: 25}
+    rotation: {yaw: 84}
+  template: templates/props.js#lootCrate
+loot-13:
+  overrides:
+    feetPosition: {x: 38, y: 0, z: -30}
+    rotation: {yaw: 121}
+  template: templates/props.js#lootCrate
+loot-14:
+  overrides:
+    feetPosition: {x: 10, y: 0, z: 24}
+    rotation: {yaw: 158}
+  template: templates/props.js#lootCrate
+loot-15:
+  overrides:
+    feetPosition: {x: -30, y: 0, z: -30}
+    rotation: {yaw: 195}
+  template: templates/props.js#lootCrate
+loot-16:
+  overrides:
+    feetPosition: {x: -15, y: 0, z: -33}
+    rotation: {yaw: 232}
+  template: templates/props.js#lootCrate
+loot-17:
+  overrides:
+    feetPosition: {x: 4, y: 0, z: -34}
+    rotation: {yaw: 269}
+  template: templates/props.js#lootCrate
+loot-18:
+  overrides:
+    feetPosition: {x: 28, y: 0, z: 66}
+    rotation: {yaw: 222}
+  template: templates/props.js#lootCrate
+loot-19:
+  overrides:
+    feetPosition: {x: -32, y: 0, z: 68}
+    rotation: {yaw: 259}
+  template: templates/props.js#lootCrate
+loot-2:
+  overrides:
+    feetPosition: {x: 0, y: 0, z: -22}
+    rotation: {yaw: 74}
+  template: templates/props.js#lootCrate
+loot-20:
+  overrides:
+    feetPosition: {x: -16, y: 0, z: 85}
+    rotation: {yaw: 333}
+  template: templates/props.js#lootCrate
+loot-21:
+  overrides:
+    feetPosition: {x: 40, y: 0, z: 44}
+    rotation: {yaw: 121}
+  template: templates/props.js#lootCrate
+loot-22:
+  overrides:
+    feetPosition: {x: 74, y: 0, z: -24}
+    rotation: {yaw: 40}
+  template: templates/props.js#lootCrate
+loot-23:
+  overrides:
+    feetPosition: {x: 86, y: 0, z: 22}
+    rotation: {yaw: 130}
+  template: templates/props.js#lootCrate
+loot-24:
+  overrides:
+    feetPosition: {x: 60, y: 0, z: 52}
+    rotation: {yaw: 210}
+  template: templates/props.js#lootCrate
+loot-25:
+  overrides:
+    feetPosition: {x: 78, y: 0, z: 92}
+    rotation: {yaw: 300}
+  template: templates/props.js#lootCrate
+loot-3:
+  overrides:
+    feetPosition: {x: -17, y: 0, z: -30}
+    rotation: {yaw: 111}
+  template: templates/props.js#lootCrate
+loot-4:
+  overrides:
+    feetPosition: {x: 19, y: 0, z: 2}
+    rotation: {yaw: 148}
+  template: templates/props.js#lootCrate
+loot-5:
+  overrides:
+    feetPosition: {x: 33, y: 0, z: 19}
+    rotation: {yaw: 185}
+  template: templates/props.js#lootCrate
+loot-6:
+  overrides:
+    feetPosition: {x: 28, y: 0, z: 6}
+    rotation: {yaw: 222}
+  template: templates/props.js#lootCrate
+loot-7:
+  overrides:
+    feetPosition: {x: -32, y: 0, z: 12}
+    rotation: {yaw: 259}
+  template: templates/props.js#lootCrate
+loot-8:
+  overrides:
+    feetPosition: {x: -24, y: 0, z: 0}
+    rotation: {yaw: 296}
+  template: templates/props.js#lootCrate
+loot-9:
+  overrides:
+    feetPosition: {x: -14, y: 0, z: 19}
+    rotation: {yaw: 333}
+  template: templates/props.js#lootCrate
+loot-drain-3:
+  overrides:
+    feetPosition: {x: -60, y: 0, z: -14}
+    rotation: {yaw: 40}
+  template: templates/props.js#lootCrate
+netloft:
+  castShadow: true
+  children: [{feetPosition: {x: 3.1, y: 1.45, z: 1.15}, light: {color: oklch(0.82 0.12 70), distance: 12, intensity: 20, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -14, y: 0, z: 84}
+  id: netloft
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/office.js}
+  receiveShadow: true
+  tags: [building]
+office:
+  castShadow: true
+  children: [{feetPosition: {x: 3.1, y: 1.45, z: 1.15}, light: {color: oklch(0.82 0.12 70), distance: 12, intensity: 20, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -12, y: 0, z: 18}
+  id: office
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/office.js}
+  receiveShadow: true
+  tags: [building]
+pier:
+  children: [{feetPosition: {x: -8, y: 0.25, z: -2}, id: crane, physics: static, primitive: {kind: scripted, script: scripts/gen/crane.js}}, {feetPosition: {x: 29.6, y: -3.7, z: 0}, id: boat, physics: static, primitive: {kind: scripted, script: scripts/gen/boat.js}, rotation: {pitch: 5, roll: 8, yaw: 0}}, {feetPosition: {x: -3, y: 0.25, z: -6}, id: net-a, physics: static, primitive: {kind: scripted, params: {seed: 2, w: 4.5}, script: scripts/gen/net-rack.js, seed: 1}}, {feetPosition: {x: 22.5, y: 0.25, z: 5}, id: net-b, physics: static, primitive: {kind: scripted, params: {seed: 5, w: 4}, script: scripts/gen/net-rack.js, seed: 1}, rotation: {yaw: 90}}, {feetPosition: {x: 8, y: 0.25, z: -1}, id: drums, physics: static, primitive: {kind: scripted, params: {n: 5, seed: 3, tipped: true}, script: scripts/gen/drums.js, seed: 1}}, {feetPosition: {x: -19, y: 0.25, z: 2}, id: tyres, physics: static, primitive: {kind: scripted, params: {n: 5, seed: 4}, script: scripts/gen/tyres.js, seed: 1}}, {feetPosition: {x: 13.5, y: 0.25, z: 7}, id: pallets, physics: static, primitive: {kind: scripted, params: {n: 7, seed: 6}, script: scripts/gen/pallets.js, seed: 1}, rotation: {yaw: 17}}, {feetPosition: {x: -21, y: 0.25, z: 6}, id: crates-0, physics: static, primitive: {kind: scripted, params: {nx: 3, ny: 3, nz: 2, seed: 2}, script: scripts/gen/fish-crates.js, seed: 1}, rotation: {yaw: 10}}, {feetPosition: {x: -11, y: 0.25, z: 7}, id: crates-1, physics: static, primitive: {kind: scripted, params: {nx: 2, ny: 4, nz: 2, seed: 5}, script: scripts/gen/fish-crates.js, seed: 1}, rotation: {yaw: -6}}, {feetPosition: {x: 6, y: 0.25, z: 4}, id: crates-2, physics: static, primitive: {kind: scripted, params: {nx: 3, ny: 3, nz: 2, seed: 7}, script: scripts/gen/fish-crates.js, seed: 1}, rotation: {yaw: 20}}, {feetPosition: {x: 16, y: 0.25, z: 1.5}, id: crates-3, physics: static, primitive: {kind: scripted, params: {nx: 2, ny: 2, nz: 3, seed: 9}, script: scripts/gen/fish-crates.js, seed: 1}, rotation: {yaw: 0}}, {feetPosition: {x: -24, y: 0.25, z: -6}, id: crates-4, physics: static, primitive: {kind: scripted, params: {nx: 2, ny: 3, nz: 2, seed: 11}, script: scripts/gen/fish-crates.js, seed: 1}, rotation: {yaw: 75}}, {feetPosition: {x: 2, y: 0.25, z: -7}, id: crates-5, physics: static, primitive: {kind: scripted, params: {nx: 3, ny: 2, nz: 1, seed: 13}, script: scripts/gen/fish-crates.js, seed: 1}, rotation: {yaw: 4}}]
+  feetPosition: {x: 0, y: 0, z: -46}
+  id: pier
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/pier.js}
+  tags: [dock]
+pumphouse:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: 1.9, y: 4.6, z: 0}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}, state: {base: 30, distance: 16}}]
+  feetPosition: {x: 82, y: 0, z: 14}
+  id: pumphouse
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/warehouse.js}
+  receiveShadow: true
+  tags: [building]
+railway:
+  feetPosition: {x: 0, y: 0, z: 0}
+  id: railway
+  spline: {kind: railway, points: [[50, 0, -34], [50, 0, 20], [50, 0, 60], [52, 0, 80], [58, 0, 92], [66, 0, 97]], width: 2.4}
+row-drums-1:
+  feetPosition: {x: 38, y: 0, z: 48}
+  id: row-drums-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 6, seed: 11, tipped: true}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 30}
+  tags: [cover]
+row-drums-2:
+  feetPosition: {x: -40, y: 0, z: 78}
+  id: row-drums-2
+  physics: static
+  primitive: {kind: scripted, params: {n: 4, seed: 12}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+row-drums-3:
+  feetPosition: {x: -2, y: 0, z: 76}
+  id: row-drums-3
+  physics: static
+  primitive: {kind: scripted, params: {n: 3, seed: 14}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 10}
+  tags: [cover]
+row-dumpster:
+  feetPosition: {x: 8, y: 0, z: 92}
+  id: row-dumpster
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/dumpster.js, seed: 1}
+  rotation: {yaw: -6}
+  state: {inside: {x: 0, y: 0.15, z: 0}, kind: dumpster, occupant: null}
+  tags: [cover, hidespot]
+row-pallets-1:
+  feetPosition: {x: 8, y: 0, z: 54}
+  id: row-pallets-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 8, seed: 2}, script: scripts/gen/pallets.js, seed: 1}
+  rotation: {yaw: -15}
+  tags: [cover]
+row-pallets-2:
+  feetPosition: {x: -38, y: 0, z: 92}
+  id: row-pallets-2
+  physics: static
+  primitive: {kind: scripted, params: {n: 9, seed: 9}, script: scripts/gen/pallets.js, seed: 1}
+  rotation: {yaw: 40}
+  tags: [cover]
+row-pallets-3:
+  feetPosition: {x: 12, y: 0, z: 80}
+  id: row-pallets-3
+  physics: static
+  primitive: {kind: scripted, params: {n: 5, seed: 7}, script: scripts/gen/pallets.js, seed: 1}
+  rotation: {yaw: 70}
+  tags: [cover]
+row-puddles:
+  feetPosition: {x: 0, y: 0.01, z: 0}
+  id: row-puddles
+  primitive: {kind: scripted, params: {spots: [[2, 40, 1.8], [-6, 56, 2.2], [4, 68, 1.5], [-2, 82, 2.4], [18, 52, 1.4], [-20, 76, 1.7], [30, 86, 1.9], [-36, 46, 1.3], [12, 96, 1.6]]}, script: scripts/gen/puddles.js, seed: 1}
+row-tyres-1:
+  feetPosition: {x: 38, y: 0, z: 96}
+  id: row-tyres-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 4, seed: 15}, script: scripts/gen/tyres.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+row-tyres-2:
+  feetPosition: {x: -20, y: 0, z: 48}
+  id: row-tyres-2
+  physics: static
+  primitive: {kind: scripted, params: {n: 4, seed: 15}, script: scripts/gen/tyres.js, seed: 1}
+  rotation: {yaw: 60}
+  tags: [cover]
+saltshed:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: 1.9, y: 4.6, z: 0}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}, state: {base: 30, distance: 16}}]
+  feetPosition: {x: 70, y: 0, z: -12}
+  id: saltshed
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/warehouse.js}
+  receiveShadow: true
+  tags: [building]
+sea-mist:
+  feetPosition: {x: 0, y: -1.4, z: -55}
+  fx: {script: "fx\npop mist n=?mobile:14|low:12|28 on=box(40,.5,15) life=9..16 v=<.35,0,-.05>*(.5..1.2) size=3..5 acc=curl(.08)*.2 sz=$size*(.7>1.1:1>1.2) col=<.55,.6,.66>><.45,.5,.56> a=0>.14:.11>.75:.09>0 rot=spin(.02) r=sprite(smoke-puff,alpha)\npop wisps n=?mobile:6|12 on=box(36,.3,13) life=6..10 v=<.5,.03,0>*(.6..1.4) size=1.5..2.5 acc=curl(.15)*.3 sz=$size*(.6>1.2) col=<.62,.66,.7> a=0>.18:.1>.7:.08>0 r=sprite(smoke-puff,alpha)"}
+  id: sea-mist
+signalbox:
+  castShadow: true
+  children: [{feetPosition: {x: 3.1, y: 1.45, z: 1.15}, light: {color: oklch(0.82 0.12 70), distance: 12, intensity: 20, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: 84, y: 0, z: 64}
+  id: signalbox
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/office.js}
+  receiveShadow: true
+  tags: [building]
+smokehouse:
+  castShadow: true
+  children: [{feetPosition: {x: -4.5, y: 3.4, z: 0}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -28, y: 0, z: 62}
+  id: smokehouse
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/boatshed.js}
+  receiveShadow: true
+  tags: [building]
+tallyhut:
+  castShadow: true
+  children: [{feetPosition: {x: 3.1, y: 1.45, z: 1.15}, light: {color: oklch(0.82 0.12 70), distance: 12, intensity: 20, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: 16, y: 0, z: 44}
+  id: tallyhut
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/office.js}
+  receiveShadow: true
+  tags: [building]
+town-lamp-7:
+  children: [{behavior: scripts/lamp-flicker.js, feetPosition: {x: 0, y: 7, z: -2.08}, id: light, light: {color: oklch(0.78 0.16 60), distance: 20, intensity: 22, kind: point, shadow: {enabled: false}}}]
+  feetPosition: {x: -60, y: 4, z: -18}
+  id: town-lamp-7
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/lamp-post.js}
+  rotation: {yaw: 220}
+  tags: [lamp]
+warehouse:
+  castShadow: true
+  children: [{behavior: scripts/flicker.js, feetPosition: {x: 1.9, y: 4.6, z: 0}, light: {color: oklch(0.82 0.12 70), distance: 16, intensity: 30, kind: point, shadow: {enabled: false}}, state: {base: 30, distance: 16}}]
+  feetPosition: {x: 26, y: 0, z: 10}
+  id: warehouse
+  material: {pbr: true}
+  physics: static
+  primitive: {kind: scripted, script: scripts/gen/warehouse.js}
+  receiveShadow: true
+  tags: [building]
+yard-drums-1:
+  feetPosition: {x: 30, y: 0, z: -33}
+  id: yard-drums-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 6, seed: 11, tipped: true}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+yard-drums-2:
+  feetPosition: {x: -40, y: 0, z: 2}
+  id: yard-drums-2
+  physics: static
+  primitive: {kind: scripted, params: {n: 4, seed: 12}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+yard-drums-3:
+  feetPosition: {x: 39, y: 0, z: 27}
+  id: yard-drums-3
+  physics: static
+  primitive: {kind: scripted, params: {n: 5, seed: 13, tipped: true}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+yard-drums-4:
+  feetPosition: {x: -5, y: 0, z: 26}
+  id: yard-drums-4
+  physics: static
+  primitive: {kind: scripted, params: {n: 3, seed: 14}, script: scripts/gen/drums.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+yard-dumpster:
+  feetPosition: {x: 12, y: 0, z: -8.6}
+  id: yard-dumpster
+  physics: {body: static, collider: mesh}
+  primitive: {kind: scripted, params: {}, script: scripts/gen/dumpster.js, seed: 1}
+  rotation: {yaw: 4}
+  state: {inside: {x: 0, y: 0.15, z: 0}, kind: dumpster, occupant: null}
+  tags: [cover, hidespot]
+yard-forklift:
+  feetPosition: {x: -6, y: 0, z: -8}
+  id: yard-forklift
+  physics: static
+  primitive: {kind: scripted, params: {}, script: scripts/gen/forklift.js, seed: 1}
+  rotation: {yaw: 32}
+  tags: [cover]
+yard-pallets-1:
+  feetPosition: {x: -12, y: 0, z: 8}
+  id: yard-pallets-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 8, seed: 2}, script: scripts/gen/pallets.js, seed: 1}
+  rotation: {yaw: 20}
+  tags: [cover]
+yard-pallets-2:
+  feetPosition: {x: 23, y: 0, z: -24}
+  id: yard-pallets-2
+  physics: static
+  primitive: {kind: scripted, params: {n: 5, seed: 7}, script: scripts/gen/pallets.js, seed: 1}
+  rotation: {yaw: -10}
+  tags: [cover]
+yard-pallets-3:
+  feetPosition: {x: -39, y: 0, z: -8}
+  id: yard-pallets-3
+  physics: static
+  primitive: {kind: scripted, params: {n: 9, seed: 9}, script: scripts/gen/pallets.js, seed: 1}
+  rotation: {yaw: 60}
+  tags: [cover]
+yard-puddles:
+  feetPosition: {x: 0, y: 0.01, z: 0}
+  id: yard-puddles
+  primitive: {kind: scripted, params: {spots: [[-2, -9, 1.6], [6, 0, 2.2], [-14, 4, 1.3], [16, 10, 1.8], [-6, 18, 2.4], [26, -26, 1.5], [-28, -24, 2], [2, 28, 1.4], [36, 0, 1.7], [-38, 18, 1.2]]}, script: scripts/gen/puddles.js, seed: 1}
+yard-tyres-1:
+  feetPosition: {x: 15, y: 0, z: -4.5}
+  id: yard-tyres-1
+  physics: static
+  primitive: {kind: scripted, params: {n: 4, seed: 15}, script: scripts/gen/tyres.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+yard-tyres-2:
+  feetPosition: {x: -40, y: 0, z: -30}
+  id: yard-tyres-2
+  physics: static
+  primitive: {kind: scripted, params: {n: 6, seed: 16}, script: scripts/gen/tyres.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]
+yard-tyres-3:
+  feetPosition: {x: 40, y: 0, z: 8}
+  id: yard-tyres-3
+  physics: static
+  primitive: {kind: scripted, params: {n: 3, seed: 17}, script: scripts/gen/tyres.js, seed: 1}
+  rotation: {yaw: 0}
+  tags: [cover]

@@ -1,0 +1,24 @@
+# who you can wake up as. "own" keeps your Spawn avatar. The mimic picks too: it wears its pick until revealed.
+- id: own
+  name: Yourself
+  blurb: your own face, in the wrong dream
+- id: dockhand
+  name: Mara, dockhand
+  blurb: first off the boats, last to leave
+  model: cdn/character-young-dockhand-woman-orange-rain-jacket-rubber-boots-short-black-hair.glb
+  pic: /cdn/value.6cb803a144e8dd18b3a23c2f1cf351dd5d0ce0469f0124bf74b98d610b0f8591.png
+- id: gutter
+  name: Bram, gutter
+  blurb: forty years at the fish line
+  model: cdn/character-bearded-cannery-worker-man-blue-boilersuit-stained-rubber-apron-beanie.glb
+  pic: /cdn/value.fce122319f704d4476d5fbad63eddd131340c1a95b2a6fc10a1eb318bc787130.png
+- id: runaway
+  name: Pip, runaway
+  blurb: slept in the net loft. shouldn't have
+  model: cdn/character-teen-boy-green-hoodie-wool-beanie-small-backpack.glb
+  pic: /cdn/value.bc42099340067aaa1bad68d0e2d671a74887fc8bd67cf1959e2f01496956529f.png
+- id: watch
+  name: Edda, night watch
+  blurb: she has walked this yard every night
+  model: cdn/character-old-night-watchwoman-long-grey-greatcoat-flat-cap.glb
+  pic: /cdn/value.09b16531f4be4ad07496370be83f32cc1bbb6d3b9319e1f31d0c0a6c752d26e7.png
