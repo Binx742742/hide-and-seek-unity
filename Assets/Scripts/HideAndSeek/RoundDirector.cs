@@ -61,6 +61,7 @@ namespace HideAndSeek
         public readonly List<HidingSpot> Spots = new List<HidingSpot>();
         public readonly List<FishPile> Food = new List<FishPile>();
         public readonly List<PlacedHazard> Hazards = new List<PlacedHazard>();
+        public readonly List<KitPiece> Kit = new List<KitPiece>();
         public readonly List<YardDoor> Doors = new List<YardDoor>();
         public readonly List<ClueShard> CluesList = new List<ClueShard>();
         public readonly List<DreamerNpc> Dreamers = new List<DreamerNpc>();
@@ -113,7 +114,11 @@ namespace HideAndSeek
                 ClawLockRemaining = Mathf.Max(0f, ClawLockRemaining - dt);
 
             if (simulateMatch)
+            {
                 CatchUpLateJoiners();
+                if (Phase == RoundPhase.Hide || Phase == RoundPhase.Hunt)
+                    MaintainSmoke();
+            }
 
             if (Phase == RoundPhase.Lobby && simulateMatch && EligibleHumans().Count == 0)
                 return;
@@ -324,6 +329,7 @@ namespace HideAndSeek
         {
             Prune();
             JudgeTraps();
+            JudgeKit();
             JudgeDark();
             float now = Time.time;
             var snapshot = Actors.ToArray();
@@ -576,7 +582,9 @@ namespace HideAndSeek
                 if (!victim.Revealed)
                 {
                     victim.Revealed = true;
-                    PostFeed("the trap caught " + victim.DisplayName + ". THEY ARE THE MIMIC");
+                    PostFeed(string.IsNullOrEmpty(victim.DisplayName)
+                        ? "the trap caught it"
+                        : "the trap caught " + victim.DisplayName + ". THEY ARE THE MIMIC");
                     PlaySfx("unmorph", victim.transform.position);
                     RaiseRevealed(victim);
                     victim.NotifyVisuals();
@@ -585,6 +593,122 @@ namespace HideAndSeek
                     victim.ChangeDisguise(DisguiseForm.None);
                 PlaySfx("mimicHurt", victim.transform.position);
                 Destroy(t.gameObject);
+            }
+        }
+
+        void JudgeKit()
+        {
+            float now = Time.time;
+            var pieces = Kit.ToArray();
+            for (int i = 0; i < pieces.Length; i++)
+            {
+                var wire = pieces[i];
+                if (wire == null || wire.Kind != KitKind.Tripwire || now < wire.ArmAt)
+                    continue;
+                Actor victim = null;
+                Vector3 origin = wire.transform.position;
+                Vector3 axis = wire.transform.right;
+                Vector3 side = wire.transform.forward;
+                float half = rules.tripwireLength * 0.5f + 0.2f;
+                for (int m = 0; m < Actors.Count; m++)
+                {
+                    var a = Actors[m];
+                    if (a == null || a.Role != RoleKind.Mimic || a.Dead)
+                        continue;
+                    Vector3 d = a.transform.position - origin;
+                    float along = d.x * axis.x + d.z * axis.z;
+                    float lateral = d.x * side.x + d.z * side.z;
+                    if (Mathf.Abs(along) <= half
+                        && Mathf.Abs(lateral) < rules.tripwireReach
+                        && Mathf.Abs(d.y) < 1.2f)
+                    {
+                        victim = a;
+                        break;
+                    }
+                }
+                if (victim == null)
+                    continue;
+                Vector3 at = wire.transform.position;
+                Destroy(wire.gameObject);
+                PlaySfx("wire", at);
+                PlaySfx("bell", at);
+                victim.RootUntil = now + rules.tripwireRoot;
+                victim.MarkedUntil = now + rules.tripwireMark;
+                if (victim.Disguise != DisguiseForm.None)
+                    victim.ChangeDisguise(DisguiseForm.None);
+                if (!victim.Revealed)
+                {
+                    victim.Revealed = true;
+                    PostFeed(string.IsNullOrEmpty(victim.DisplayName)
+                        ? "the tripwire rang. it's there, see it through the walls"
+                        : "the tripwire rang on " + victim.DisplayName + ". THE MIMIC");
+                    RaiseRevealed(victim);
+                    victim.NotifyVisuals();
+                }
+                else
+                    PostFeed("a tripwire rang. it's there, see it through the walls");
+            }
+
+            pieces = Kit.ToArray();
+            for (int i = 0; i < pieces.Length; i++)
+            {
+                var snare = pieces[i];
+                if (snare == null || snare.Kind != KitKind.Snare || now < snare.ArmAt)
+                    continue;
+                Actor prey = null;
+                for (int p = 0; p < Actors.Count; p++)
+                {
+                    var a = Actors[p];
+                    if (a == null || a.Dead || a.Role != RoleKind.Hider || a.HiddenIn != null)
+                        continue;
+                    if (YardMath.Flat(a.transform.position, snare.transform.position) < rules.snareReach
+                        && Mathf.Abs(a.transform.position.y - snare.transform.position.y) < 1.2f)
+                    {
+                        prey = a;
+                        break;
+                    }
+                }
+                if (prey == null)
+                    continue;
+                Vector3 at = snare.transform.position;
+                Destroy(snare.gameObject);
+                prey.Hp -= rules.snareDamage;
+                prey.HurtAt = now;
+                prey.RootUntil = now + rules.snareRoot;
+                PlaySfx("snare", at);
+                RaiseHit(new HitInfo { Source = null, Target = prey, Amount = rules.snareDamage, Point = at, Cause = "snare" });
+                MakeNoise(at, rules.snareRing, "snare");
+            }
+        }
+
+        void MaintainSmoke()
+        {
+            float now = Time.time;
+            for (int i = 0; i < Actors.Count; i++)
+            {
+                var a = Actors[i];
+                if (a == null || now < a.SmokeCheckAt)
+                    continue;
+                a.SmokeCheckAt = now + BodyTune.SmokeSampleSeconds;
+                bool inside = false;
+                if (a.Role == RoleKind.Hider)
+                {
+                    for (int s = 0; s < Kit.Count; s++)
+                    {
+                        var cloud = Kit[s];
+                        if (cloud == null || cloud.Kind != KitKind.Smoke || now >= cloud.Until)
+                            continue;
+                        if (YardMath.Flat(a.transform.position, cloud.transform.position) < cloud.Radius)
+                        {
+                            inside = true;
+                            break;
+                        }
+                    }
+                }
+                if (a.Smoked == inside)
+                    continue;
+                a.Smoked = inside;
+                a.NotifyVisuals();
             }
         }
 
@@ -690,6 +814,11 @@ namespace HideAndSeek
             p.ClawReadyAt = 0f;
             p.Power = 0;
             p.ScentReadyAt = p.LungeReadyAt = p.WailReadyAt = p.FadeReadyAt = 0f;
+            p.EchoReadyAt = p.SnareReadyAt = p.StealReadyAt = 0f;
+            p.FaceOf = null;
+            p.FaceName = null;
+            p.Smoked = false;
+            p.MarkedUntil = 0f;
             p.FadeUntil = 0f;
             p.LungeUntil = 0f;
             p.Disguise = DisguiseForm.None;
@@ -946,6 +1075,35 @@ namespace HideAndSeek
         public void UnregisterFood(FishPile f) { Food.Remove(f); }
         public void RegisterHazard(PlacedHazard h) { Add(Hazards, h); }
         public void UnregisterHazard(PlacedHazard h) { Hazards.Remove(h); }
+        public void RegisterKit(KitPiece k) { Add(Kit, k); }
+        public void UnregisterKit(KitPiece k) { Kit.Remove(k); }
+
+        public void DropOldestKit(KitKind kind, string owner, int max)
+        {
+            int count = 0;
+            KitPiece oldest = null;
+            for (int i = 0; i < Kit.Count; i++)
+            {
+                var k = Kit[i];
+                if (k == null || k.Kind != kind || k.OwnerId != owner)
+                    continue;
+                count++;
+                if (oldest == null || k.SpawnedAt < oldest.SpawnedAt)
+                    oldest = k;
+            }
+            if (count >= max && oldest != null)
+                Destroy(oldest.gameObject);
+        }
+
+        public GameObject SpawnKitRoot(string name, Vector3 pos, float yaw)
+        {
+            var go = new GameObject(name);
+            go.transform.position = pos;
+            go.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+            Transform parent = RoundRoot != null ? RoundRoot : transform;
+            go.transform.SetParent(parent, true);
+            return go;
+        }
         public void RegisterDoor(YardDoor d) { Add(Doors, d); }
         public void UnregisterDoor(YardDoor d) { Doors.Remove(d); }
         public void RegisterClue(ClueShard c) { Add(CluesList, c); }

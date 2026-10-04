@@ -47,7 +47,21 @@ namespace HideAndSeek
         Trap,
         Bait,
         Lure,
-        Flash
+        Flash,
+        Tripwire,
+        Barricade,
+        Smoke,
+        Scarecrow
+    }
+
+    /// <summary>Creative kit pieces from templates/props.js. Gameplay stays on the root.</summary>
+    public enum KitKind
+    {
+        Tripwire,
+        Barricade,
+        Smoke,
+        Scarecrow,
+        Snare
     }
 
     /// <summary>Scene state.kind on hidespot rows. Boat is an upturned dinghy.</summary>
@@ -132,6 +146,15 @@ namespace HideAndSeek
         // dreamer.js wander.
         public const float DreamerShuffleSpeed = 0.7f;
         public const float DreamerWakeHideDelay = 2.6f;
+
+        // player.js arms a tripwire and a gut snare 1500 ms after they are placed. Not a rules.yml field.
+        public const float KitArmSeconds = 1.5f;
+
+        // player.js samples smoke every 300 ms.
+        public const float SmokeSampleSeconds = 0.3f;
+
+        // player.js pickTarget: a smoked hider is only found by touch inside 1.6 m.
+        public const float SmokeTouchRange = 1.6f;
     }
 
     public struct FeedLine

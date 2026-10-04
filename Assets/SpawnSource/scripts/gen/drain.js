@@ -3,7 +3,7 @@
 // three stairs up through holes in the town ground: west (x -111.4..-103.6), chapel (z 77.6..85.4), south (z -29.4..-21.6).
 // Built on a 1 m cell grid: every corridor or stair cell gets a floor; a side with no neighbour gets a wall.
 import { T, paint, box, quad } from "./kit.js";
-const H = 3, TOP = 4.05, WT = 0.35;
+const H = 3, TOP = 3.98, WT = 0.35;
 // corridors [x0, x1, z0, z1]
 const RUNS = [[-104, -43, 24, 28], [-84, -80, 28, 78], [-62, -58, -22, 24]];
 // stairs: cells rise from y 0 to 4 along a direction: [x0, x1, z0, z1, axis, sign] (sign: which way is up)
@@ -45,6 +45,7 @@ function build(ctx, coll) {
   for (const c of m.values()) for (const [dx, dz] of dirs) {
     if (m.has(key(c.x + dx, c.z + dz))) continue;
     if (dx === 1 && c.x + 1 > MOUTH) continue; // the mouth stays open
+    if (c.stair && c.i === c.n - 1 && (c.ax === "x" ? dx === c.sg : dz === c.sg)) continue; // the top step walks out onto the town
     const top = c.stair ? TOP : (c.x >= -49 ? H + 1.2 : H);
     if (dx === 1) box(ctx, c.x + 1, 0, c.z, c.x + 1 + WT, top, c.z + 1);
     if (dx === -1) box(ctx, c.x - WT, 0, c.z, c.x, top, c.z + 1);

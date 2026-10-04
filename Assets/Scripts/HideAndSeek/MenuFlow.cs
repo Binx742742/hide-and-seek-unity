@@ -164,7 +164,7 @@ namespace HideAndSeek
             GUILayout.Label("BEFORE YOU PLAY");
             GUILayout.Label("One of you is the monster. They look like a player until they hurt someone, or someone sees it.");
             GUILayout.Label("On a human round, their claws stay locked for 30 seconds.");
-            GUILayout.Label("Hiding: sneak. E searches loot. 1–4 crafts a trap. Hide in a locker, a tarp, a dinghy, or the dumpster — E in, E out.");
+            GUILayout.Label("Hiding: sneak. E searches loot. 1–8 crafts: traps, tripwires, barricades, smoke, scarecrows. Hide in a locker, a tarp, a dinghy, or the dumpster — E in, E out.");
             GUILayout.Label("Win by lasting until dawn, waking the dreamers, or killing every true mimic.");
             GUILayout.Label("WASD moves. Left click or F stabs. E uses what's in front of you. M opens the menu.");
             if (GUILayout.Button("CONTINUE"))

@@ -3,7 +3,8 @@
 // Hits are judged here, on the striker's machine, and written to the target's state (hp -= d).
 import PLAYER from "./lib/data/player.yml";
 import RULES from "./lib/data/rules.yml";
-import { FORMS, bearTrap, baitCrate, lureCan, fakeLoot } from "../templates/props.js";
+import { FORMS, bearTrap, baitCrate, lureCan, fakeLoot, tripwire, barricade, smokeCloud, SMOKE_FX, gutSnare } from "../templates/props.js";
+const TR = RULES.tricks;
 const H = RULES.hunger;
 import { SFX } from "./lib/sfx.js";
 import DREAM from "./lib/data/dream.yml";
@@ -38,6 +39,7 @@ function enemies(ctx) {
     if (role === "hider" && (p.state.role === "mimic" || p.state.role === "hider")) out.push(p);
   }
   if (role === "mimic") for (const b of ctx.query({ tags: ["npc-hider"], radius: 30 })) if (!b.state.dead) out.push(ctx.getObject(b.id) ?? b);
+  if (role === "mimic") for (const b of ctx.query({ tags: ["scarecrow"], radius: 30 })) out.push(b);
   if (role === "hider") for (const b of ctx.query({ tags: ["mimic-bot"], radius: 30 })) if (!b.state.dead) out.push(ctx.getObject(b.id) ?? b);
   return out;
 }
@@ -48,6 +50,7 @@ function pickTarget(ctx, list, range, cone) {
   for (const t of list) {
     const dx = t.feetPosition.x - me.x, dz = t.feetPosition.z - me.z, d = Math.hypot(dx, dz);
     if (d > bestD || Math.abs(t.feetPosition.y - me.y) > 2) continue;
+    if (t.state?.smoked && d > 1.6) continue; // in the smoke you only find them by touch
     const ang = d < 1.7 ? 0 : (Math.acos(Math.max(-1, Math.min(1, (dx * f.x + dz * f.z) / d))) * 180) / Math.PI;
     if (ang > cone / 2) continue;
     best = t; bestD = d;
@@ -128,7 +131,12 @@ export function onInput(ctx, input) {
     if (input.pressed.fade) power(ctx, "fade");
     if (input.pressed.power) { const best = ["lunge", "scent", "wail", "fade"].find((k) => (s.power ?? 0) >= PW[k].at && ctx.now() >= (s.cd?.[k] ?? 0)); if (best) power(ctx, best); else say(ctx, (s.power ?? 0) ? "nothing ready" : "eat fish to grow powers"); }
   }
-  for (const [i, kind] of [[1, "trap"], [2, "bait"], [3, "lure"], [4, "flash"]])
+  if (s.role === "mimic" && ph === "hunt") {
+    if (input.pressed.echo) trick(ctx, "echo");
+    if (input.pressed.snare) trick(ctx, "snare");
+    if (input.pressed.steal) trick(ctx, "steal");
+  }
+  for (const [i, kind] of [[1, "trap"], [2, "bait"], [3, "lure"], [4, "flash"], [5, "tripwire"], [6, "barricade"], [7, "smoke"], [8, "scarecrow"]])
     if (input.pressed["craft" + i] && s.role === "hider" && !s.hiddenIn && (ph === "hide" || ph === "hunt")) craft(ctx, kind);
 }
 
@@ -158,6 +166,15 @@ function attack(ctx, ph) {
       sound(ctx, SFX.claw, at, 1); sound(ctx, SFX.hurt, at, 0.8);
       say(ctx, "dragged one out");
       return;
+    }
+  }
+  if (t && t.tags?.includes?.("scarecrow")) { popScarecrow(ctx, t, ctx.self); return; }
+  if (!t && s.role === "mimic") {
+    const me = ctx.self.feetPosition, f = forward(ctx);
+    for (const r of ctx.query({ tags: ["barricade"], radius: w.range + 1.6 })) {
+      const dx = r.feetPosition.x - me.x, dz = r.feetPosition.z - me.z, d = Math.hypot(dx, dz) || 1;
+      if (d > 1.7 && (dx * f.x + dz * f.z) / d < 0.3) continue;
+      hitBarricade(ctx, r.id); return;
     }
   }
   if (!t && s.role === "mimic") {
@@ -356,7 +373,29 @@ function craft(ctx, kind) {
       if (t.state.role === "mimic") ctx.emit("screenFlash", { color: "white", duration: 1.2, intensity: 0.9 }, { audience: { player: t.id } });
     }
   }
-  const names = { trap: "bear trap set", bait: "rigged fish set", lure: "rattle lure: 6s", flash: "FLASH" };
+  const yaw = (Math.atan2(-f.x, -f.z) * 180) / Math.PI;
+  if (kind === "tripwire") ctx.spawn({ ...tripwire(RULES.tripwire.length), feetPosition: at(1.2), rotation: { yaw }, state: { kind: "tripwire", owner: ctx.self.id, armAt: now + 1500, yaw } });
+  if (kind === "barricade") {
+    const mine = ctx.query({ tags: ["barricade"], radius: 400 }).filter((r) => r.state.owner === ctx.self.id);
+    if (mine.length >= RULES.barricade.max) ctx.destroy(mine.sort((a, b) => (a.state.at ?? 0) - (b.state.at ?? 0))[0].id);
+    ctx.spawn({ ...barricade(RULES.barricade.width), feetPosition: at(1.4), rotation: { yaw }, state: { kind: "barricade", owner: ctx.self.id, hp: RULES.barricade.hp, at: now } });
+    sound(ctx, SFX.hammer, at(1.4), 0.9);
+    noise(ctx, me, RULES.noise.door, "door");
+  }
+  if (kind === "smoke") {
+    const p = at(0.5);
+    ctx.spawn({ ...smokeCloud, feetPosition: p, lifetime: RULES.smoke.seconds, fx: { script: SMOKE_FX, params: { r: RULES.smoke.radius } }, state: { kind: "smoke", radius: RULES.smoke.radius, until: now + RULES.smoke.seconds * 1000 } });
+    sound(ctx, SFX.smoke, p, 1);
+  }
+  if (kind === "scarecrow") {
+    const mine = ctx.query({ tags: ["scarecrow"], radius: 400 }).filter((r) => r.state.owner === ctx.self.id);
+    if (mine.length >= RULES.scarecrow.max) ctx.destroy(mine.sort((a, b) => (a.state.at ?? 0) - (b.state.at ?? 0))[0].id);
+    const c = CHARS.find((x) => x.id === (s.character ?? "own")), model = c?.model ?? s.avatarModel ?? CHARS.find((x) => x.model)?.model;
+    ctx.spawn({ tags: ["scarecrow"], model, feetPosition: at(1.3), rotation: { yaw: yaw + 180 + (ctx.random() - 0.5) * 40 }, castShadow: true, mixer: { base: { clip: "Idle", loop: "loop" } },
+      children: [{ id: "lamp", feetPosition: { x: 0.35, y: 1.15, z: -0.3 }, light: { kind: "point", color: "oklch(0.85 0.1 75)", intensity: 1.6, distance: 7 } }],
+      state: { kind: "scarecrow", owner: ctx.self.id, at: now, role: "hider" } });
+  }
+  const names = { trap: "bear trap set", bait: "rigged fish set", lure: "rattle lure: 6s", flash: "FLASH", tripwire: "tripwire strung. it rings when it crosses", barricade: "planks nailed up", smoke: "SMOKE. you can't be seen in it", scarecrow: "a scarecrow wearing your face" };
   say(ctx, names[kind]);
 }
 
@@ -510,9 +549,9 @@ function plantFake(ctx) {
 
 // what the fish grew: each power level unlocks one, each with its own cooldown in state.cd
 const SNIFF = `fx
-pop ring burst=1 life=.9 size=1 col=oklch(.7 .18 25) a=.6>0 sz=$size*(1>30) r=sprite(soft-ring,add)`;
+pop ring burst=1 life=.9 size=1 col=oklch(.7 .18 25) a=.6>0 sz=$size*(1>30) r=sprite(soft-disc,add)`;
 const WAIL = `fx
-pop ring burst=3 life=.7..1 size=1 col=oklch(.75 .12 300) a=.7>0 sz=$size*(1>22) r=sprite(soft-ring,add)
+pop ring burst=3 life=.7..1 size=1 col=oklch(.75 .12 300) a=.7>0 sz=$size*(1>22) r=sprite(soft-disc,add)
 pop murk burst=14 life=.8..1.4 v=sdir()*(3..6) size=.4..0.8 acc=drag(2) col=oklch(.2 .05 300) a=0>.1:.5>1:0 sz=$size*(.6>2) r=sprite(smoke-puff,alpha)`;
 function power(ctx, k) {
   const s = ctx.self.state, now = ctx.now(), P = PW[k], me = ctx.self.feetPosition;
@@ -524,7 +563,7 @@ function power(ctx, k) {
   if (k === "scent") {
     let n = 0;
     for (const p of ctx.place.players) {
-      if (p.state.role !== "hider" || Math.hypot(p.feetPosition.x - me.x, p.feetPosition.z - me.z) > P.range) continue;
+      if (p.state.role !== "hider" || p.state.smoked || Math.hypot(p.feetPosition.x - me.x, p.feetPosition.z - me.z) > P.range) continue;
       const spot = p.state.hiddenIn ? ctx.getObject(p.state.hiddenIn) : null;
       ctx.emit("highlightSet", { target: spot ? spot.id : p.id, color: "oklch(0.7 0.2 25)", style: "xray", duration: P.seconds }, { audience: { player: ctx.self.id } });
       n++;
@@ -559,6 +598,69 @@ function power(ctx, k) {
   }
 }
 
+// ── the creative kit ──
+const POP = `fx
+pop powder burst=40 life=.6..1.2 v=sdir()*(2..5)+up(1..2) size=.15..0.35 acc=drag(2)+buoy(.2) col=<.85,.8,.7> a=0>.1:.8>1:0 sz=$size*(.6>2.2) r=sprite(smoke-puff,alpha)
+pop straw burst=24 life=.6..1.2 v=sdir()*(2..4)+up(2) size=.04..0.09 spin=-9..9 acc=grav()+drag(.6) col=oklch(.75 .1 85) a=1 sz=$size rot=$age*$spin floor=stick r=sprite(splinter,alpha)
+pop glow burst=1 life=.25 g=1>0 r=light(<1,.9,.7>,$g*60,10)`;
+const SPLINT = `fx
+pop chips burst=22 life=.6..1.2 v=sdir()*(2.5..5)+up(1..2.5) size=.04..0.12 spin=-9..9 acc=grav()+drag(.4) col=oklch(.3 .03 50) a=1 sz=$size rot=$age*$spin floor=bounce(.3) r=sprite(splinter,alpha)`;
+// the mimic claws a scarecrow: powder in its eyes, and everyone knows what clawed it
+export function popScarecrow(ctx, row, striker) {
+  const now = ctx.now(), p = row.feetPosition, at = { x: p.x, y: p.y + 1.1, z: p.z };
+  ctx.destroy(row.id);
+  ctx.emit("fx", { position: at, script: POP });
+  ctx.emit("playSound", { clip: SFX.pop, position: at, volume: 1, maxDistance: 45 });
+  ctx.emit("shockwave", { position: at, speed: 10, thickness: 0.8, intensity: 0.4 });
+  if (striker?.state) {
+    striker.state.stunUntil = now + RULES.scarecrow.stun * 1000;
+    if (striker.state.disguise && striker.state.disguise !== "none") striker.state.disguise = "none";
+    if (striker.isLocal) ctx.emit("screenFlash", { color: "oklch(0.9 0.05 85)", duration: 1, intensity: 0.7 }, { audience: { player: striker.id } });
+    if (striker.state.role === "mimic" && !striker.state.revealed && striker.displayName) {
+      striker.state.revealed = true;
+      const st = ctx.place.state; st.feed = [...(st.feed ?? []).slice(-3), { text: `${striker.displayName} clawed a scarecrow. THE MIMIC`, at: now }];
+    }
+  }
+  noise(ctx, p, RULES.noise.lure, "loot");
+  say(ctx, "a scarecrow. powder in your eyes");
+}
+function hitBarricade(ctx, id) {
+  const b = ctx.getObject(id); if (!b) return;
+  b.state.hp = (b.state.hp ?? RULES.barricade.hp) - 1;
+  const p = b.feetPosition, at = { x: p.x, y: p.y + 1, z: p.z };
+  ctx.emit("fx", { position: at, script: SPLINT });
+  noise(ctx, p, RULES.noise.door, "door");
+  if (b.state.hp <= 0) { ctx.destroy(id); ctx.emit("playSound", { clip: SFX.doorBreak, position: at, volume: 1, maxDistance: 40 }); say(ctx, "the planks give"); }
+  else { ctx.emit("shake", { target: id, intensity: 0.3, duration: 0.25 }); ctx.emit("playSound", { clip: SFX.doorHit, position: at, volume: 1, maxDistance: 30 }); say(ctx, `planks: ${b.state.hp} left`); }
+}
+function trick(ctx, k) {
+  const s = ctx.self.state, now = ctx.now(), T = TR[k], cd = s.cd ?? {}, me = ctx.self.feetPosition, f = forward(ctx);
+  if (now < (cd[k] ?? 0)) { say(ctx, `${k} in ${Math.ceil((cd[k] - now) / 1000)}s`); return; }
+  if (k === "echo") {
+    // the cry lands where the fog swallows it: ahead, short of the first wall
+    const o = { x: me.x, y: me.y + 1.4, z: me.z }, hit = raycast(ctx, o, { x: f.x, y: 0, z: f.z }, { distance: T.distance, bodies: "static", physicsOnly: true });
+    const d = hit ? Math.max(2, hit.distance - 0.8) : T.distance, p = { x: me.x + f.x * d, y: me.y + 1.2, z: me.z + f.z * d };
+    ctx.emit("playSound", { clip: SFX.echo, position: p, volume: 1, maxDistance: 40 });
+    say(ctx, "your voice, over there. someone will come");
+  } else if (k === "snare") {
+    const mine = ctx.query({ tags: ["snare"], radius: 400 }).filter((r) => r.state.owner === ctx.self.id);
+    if (mine.length >= T.max) ctx.destroy(mine.sort((a, b) => (a.state.at ?? 0) - (b.state.at ?? 0))[0].id);
+    ctx.spawn({ ...gutSnare, feetPosition: { x: me.x + f.x * 1.2, y: me.y + 0.02, z: me.z + f.z * 1.2 }, state: { kind: "snare", owner: ctx.self.id, at: now, armAt: now + 1500 } });
+    sound(ctx, SFX.morph, null, 0.3);
+    say(ctx, "a snare in the dirt. you'll hear it");
+  } else if (k === "steal") {
+    if (s.revealed) { say(ctx, "they've seen what you are. no face fits now"); return; }
+    let best = null, bd = T.reach;
+    for (const p of ctx.place.players) { if (p.id === ctx.self.id || p.state.role !== "hider") continue; const d = Math.hypot(p.feetPosition.x - me.x, p.feetPosition.z - me.z); if (d < bd) { best = p; bd = d; } }
+    if (!best) { say(ctx, "nobody close enough to wear"); return; }
+    s.faceOf = best.state.character ?? "own"; s.faceName = best.displayName;
+    ctx.emit("fx", { position: me, script: MORPH });
+    sound(ctx, SFX.steal, null, 0.5);
+    say(ctx, `you wear ${best.displayName}'s face now`);
+  }
+  s.cd = { ...cd, [k]: now + T.cooldown * 1000 };
+}
+
 function setDisguise(ctx, d) {
   const s = ctx.self.state;
   if (s.disguise === d) return;
@@ -578,7 +680,9 @@ function cycleDisguise(ctx) {
 // the body's look follows its state: a disguised mimic draws the form, a ghost draws nothing, a hider carries a lamp
 // the picked character: a model on the body; "own" gives the Spawn avatar back
 function wear(ctx) {
-  const s = ctx.self.state, want = s.character ?? "own";
+  const s = ctx.self.state;
+  if (s.faceOf && s.role !== "mimic") s.faceOf = null;
+  const want = (s.role === "mimic" && !s.revealed && s.faceOf) || s.character || "own";
   if (s.wearing === want) return;
   if (s.avatarModel === undefined) s.avatarModel = ctx.self.model ?? null;
   const c = CHARS.find((x) => x.id === want);
@@ -611,9 +715,9 @@ function dress(ctx) {
     if (w.beastId) { ctx.destroy(w.beastId); w.beastId = null; }
     if (beast) w.beastId = ctx.spawn({ parent: ctx.self.id, id: "beast", template: "templates/creature.js#mimicBody", feetPosition: { x: 0, y: 0, z: 0 } });
   }
-  const render = !(form || beast || faded || s.role === "ghost" || s.hiddenIn);
+  const render = !(form || beast || faded || s.role === "ghost" || s.hiddenIn || (s.smoked && s.role === "hider"));
   if (ctx.self.render !== render) ctx.self.render = render;
-  const lamp = (s.role === "hider" && !s.hiddenIn) || (s.role === "mimic" && !s.revealed && !form && !faded); // the hidden mimic carries a lamp like anyone
+  const lamp = (s.role === "hider" && !s.hiddenIn && !s.smoked) || (s.role === "mimic" && !s.revealed && !form && !faded); // the hidden mimic carries a lamp like anyone
   if (lamp !== !!w.lampId) {
     if (w.lampId) { ctx.destroy(w.lampId); w.lampId = null; }
     if (lamp) w.lampId = ctx.spawn({ parent: ctx.self.id, id: "lamp", feetPosition: { x: 0.35, y: 1.15, z: -0.3 }, light: { kind: "point", color: "oklch(0.85 0.1 75)", intensity: 1.6, distance: 7 } });
@@ -651,6 +755,11 @@ export function update(ctx, dt) {
   const vx = v.x + dx * k, vz = v.z + dz * k;
   if (!s.hiddenIn) ctx.self.velocity = { x: vx, y: v.y + ctx.place.gravity.y * dt, z: vz };
 
+  if (now > (w.smokeAt ?? 0)) {
+    w.smokeAt = now + 300;
+    const me = ctx.self.feetPosition, inSmoke = s.role === "hider" && ctx.query({ tags: ["smoke"], radius: 8 }).some((r) => (r.state.until ?? 0) > now && Math.hypot(r.feetPosition.x - me.x, r.feetPosition.z - me.z) < (r.state.radius ?? 4));
+    if (!!s.smoked !== inSmoke) s.smoked = inSmoke;
+  }
   if (s.role === "hider" && phase(ctx) !== "lobby") {
     // the search prompt, written when its target changes
     if (now > (w.promptAt ?? 0)) {

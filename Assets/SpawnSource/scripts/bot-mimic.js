@@ -65,12 +65,22 @@ export function update(ctx) {
   const hiders = ctx.place.players.filter((p) => p.state.role === "hider");
   for (const n of ctx.query({ tags: ["npc-hider"], radius: B.sight + 4 })) if (!n.state.dead) { const h = ctx.getObject(n.id); if (h) hiders.push(h); }
   let target = null, td = 99;
-  for (const p of hiders) { if (p.state.hiddenIn) continue; const d = flat(me, p.feetPosition); if (d < td && (s.disguise === "none" ? sees(ctx, p) : d < 3.5)) { target = p; td = d; } }
+  for (const c of ctx.query({ tags: ["scarecrow"], radius: B.sight })) { const h = ctx.getObject(c.id); if (h) hiders.push(h); }
+  for (const p of hiders) { if (p.state.hiddenIn || p.state.smoked) continue; const d = flat(me, p.feetPosition); if (d < td && (s.disguise === "none" ? sees(ctx, p) : d < 3.5)) { target = p; td = d; } }
 
   if (target) {
     if (s.disguise !== "none") { s.disguise = "none"; ctx.emit("playSound", { clip: SFX.unmorph, position: me, volume: 1, maxDistance: 30 }); ctx.emit("screenShake", { intensity: 0.4, duration: 0.3 }, { audience: { player: target.id } }); }
     if (s.mode !== "hunt" && now > (s.darkAt ?? 0)) { s.darkAt = now + RULES.dreamMaster.blackoutCooldown * 1000; ctx.place.state.blackout = { until: now + RULES.dreamMaster.blackout * 1000, at: now }; }
     s.mode = "hunt"; s.last = { x: target.feetPosition.x, y: target.feetPosition.y, z: target.feetPosition.z }; s.lastAt = now;
+    if (td < B.reach && now > (s.atkAt ?? 0) && target.tags?.includes?.("scarecrow")) {
+      const at = { x: target.feetPosition.x, y: target.feetPosition.y + 1.1, z: target.feetPosition.z };
+      ctx.destroy(target.id); s.atkAt = now + B.cooldown * 1000;
+      s.stunUntil = now + RULES.scarecrow.stun * 1000; s.mode = "search";
+      ctx.emit("playSound", { clip: SFX.pop, position: at, volume: 1, maxDistance: 45 });
+      ctx.emit("fx", { position: at, script: `fx\npop powder burst=40 life=.6..1.2 v=sdir()*(2..5)+up(1..2) size=.15..0.35 acc=drag(2)+buoy(.2) col=<.85,.8,.7> a=0>.1:.8>1:0 sz=$size*(.6>2.2) r=sprite(smoke-puff,alpha)` });
+      ctx.place.state.feed = [...(ctx.place.state.feed ?? []).slice(-3), { text: "it clawed a scarecrow. powder everywhere", at: now }];
+      return;
+    }
     if (td < B.reach && now > (s.atkAt ?? 0)) {
       s.atkAt = now + B.cooldown * 1000;
       target.state.hp = (target.state.hp ?? 100) - B.damage - (s.power ?? 0) * RULES.hunger.clawPer; target.state.hurtAt = now;

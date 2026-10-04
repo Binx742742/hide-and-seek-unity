@@ -23,9 +23,9 @@ atmosphere:
     kind: realistic
     model: hosek
   stars:
-    density: 0.4
+    density: 0.18
     enabled: true
-    milkyWay: 0.2
+    milkyWay: 0.08
   timeOfDay: 1.5
   wind:
     direction: 230

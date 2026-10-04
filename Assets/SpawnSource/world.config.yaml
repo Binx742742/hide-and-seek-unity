@@ -10,6 +10,7 @@ engine:
   networking:
     mode: multiplayer
   ui:
+    referenceHeight: 1080
     theme:
       font: Geist Pixel Square
 routing:
@@ -53,6 +54,20 @@ inputs:
       keys: ["3"]
     craft4:
       keys: ["4"]
+    craft5:
+      keys: ["5"]
+    craft6:
+      keys: ["6"]
+    craft7:
+      keys: ["7"]
+    craft8:
+      keys: ["8"]
+    echo:
+      keys: [b]
+    snare:
+      keys: [h]
+    steal:
+      keys: [j]
   axes:
     moveX:
       keys: a/d
@@ -79,6 +94,9 @@ inputs:
           - { action: blackout, slot: 5, label: DARK }
           - { action: falseclue, slot: 6, label: LIE }
           - { action: power, slot: 7, label: POWER }
+          - { action: echo, slot: 8, label: VOICE }
+          - { action: snare, slot: 9, label: SNARE }
+          - { action: steal, slot: 10, label: FACE }
       ghost:
         sticks: [{ x: moveX, y: moveZ }]
         buttons:

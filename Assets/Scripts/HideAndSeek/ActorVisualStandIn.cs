@@ -53,11 +53,17 @@ namespace HideAndSeek
         {
             if (_a == null || HookOwns())
                 return;
-            bool hide = _a.IsFaded || _a.Role == RoleKind.Ghost;
+            bool hide = BodyHidden();
             if (hide == _hidden)
                 return;
             _hidden = hide;
             SetVisualEnabled(!hide);
+        }
+
+        bool BodyHidden()
+        {
+            // A hider inside smoke loses the body. The child stays; only its renderers toggle.
+            return _a.IsFaded || _a.Role == RoleKind.Ghost || (_a.Role == RoleKind.Hider && _a.Smoked);
         }
 
         void Refresh()
@@ -76,7 +82,7 @@ namespace HideAndSeek
             }
 
             string key = LookKey();
-            bool hide = _a.IsFaded || _a.Role == RoleKind.Ghost;
+            bool hide = BodyHidden();
             if (_weBuilt && key == _shown && transform.Find(ChildName) != null)
             {
                 _hidden = hide;

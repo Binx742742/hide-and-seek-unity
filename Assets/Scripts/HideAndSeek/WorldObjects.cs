@@ -82,6 +82,117 @@ namespace HideAndSeek
         void OnDisable() { RoundDirector.Instance?.UnregisterHazard(this); }
     }
 
+    /// <summary>
+    /// Tripwire, barricade, smoke, scarecrow, and gut snare. The component stays on the root.
+    /// A child named Visual is the stand-in mesh. A later model replaces that child.
+    /// </summary>
+    public class KitPiece : MonoBehaviour
+    {
+        public KitKind Kind;
+        public string OwnerId;
+        public float SpawnedAt;
+        public float ArmAt;
+        public float Until;
+        public int Hp;
+        public float Radius;
+
+        void OnEnable() { RoundDirector.Instance?.RegisterKit(this); }
+        void OnDisable() { RoundDirector.Instance?.UnregisterKit(this); }
+
+        void Update()
+        {
+            if (Kind == KitKind.Smoke && Until > 0f && Time.time >= Until)
+                Destroy(gameObject);
+        }
+    }
+
+    /// <summary>
+    /// Primitive stand-ins for templates/props.js kit pieces. No CDN textures.
+    /// Unity has no cone or torus, so the bell is a short cylinder and the snare is a flat disc.
+    /// </summary>
+    public static class KitVisuals
+    {
+        public static Transform AddVisual(GameObject host)
+        {
+            var vis = new GameObject("Visual");
+            vis.transform.SetParent(host.transform, false);
+            return vis.transform;
+        }
+
+        public static void Tripwire(GameObject host, float length)
+        {
+            var vis = AddVisual(host);
+            // Stakes are cylinders of height 0.45. Unity's cylinder is 2 tall and 1 across.
+            Stake(vis, -length * 0.5f);
+            Stake(vis, length * 0.5f);
+            var wire = Part(vis, PrimitiveType.Cube, new Vector3(0f, 0.3f, 0f), new Vector3(length, 0.012f, 0.012f));
+            Tint(wire, new Color(0.72f, 0.66f, 0.5f));
+            var bell = Part(vis, PrimitiveType.Cylinder, new Vector3(0f, 0.2f, 0f), new Vector3(0.12f, 0.05f, 0.12f));
+            Tint(bell, new Color(0.72f, 0.62f, 0.35f));
+        }
+
+        public static void Barricade(GameObject host, float width)
+        {
+            var box = host.AddComponent<BoxCollider>();
+            box.center = new Vector3(0f, 0.95f, 0f);
+            box.size = new Vector3(width, 1.9f, 0.12f);
+            var vis = AddVisual(host);
+            var wood = new Color(0.45f, 0.36f, 0.26f);
+            Tint(Part(vis, PrimitiveType.Cube, new Vector3(-width * 0.5f + 0.1f, 0.95f, 0.1f), new Vector3(0.12f, 1.9f, 0.12f)), wood);
+            Tint(Part(vis, PrimitiveType.Cube, new Vector3(width * 0.5f - 0.1f, 0.95f, 0.1f), new Vector3(0.12f, 1.9f, 0.12f)), wood);
+            Tint(Part(vis, PrimitiveType.Cube, new Vector3(0f, 0.35f, 0f), new Vector3(width, 0.24f, 0.05f)), wood);
+            Tint(Part(vis, PrimitiveType.Cube, new Vector3(0f, 0.85f, 0f), new Vector3(width * 0.95f, 0.22f, 0.05f)), wood);
+            Tint(Part(vis, PrimitiveType.Cube, new Vector3(0f, 1.4f, 0f), new Vector3(width * 0.9f, 0.24f, 0.05f)), wood);
+        }
+
+        public static void SmokeMarker(GameObject host)
+        {
+            // The cloud itself is an FX script in props.js. This marker is the swappable child, not a solid volume.
+            var vis = AddVisual(host);
+            Tint(Part(vis, PrimitiveType.Sphere, new Vector3(0f, 0.4f, 0f), Vector3.one * 0.35f), new Color(0.45f, 0.46f, 0.48f));
+        }
+
+        public static void Scarecrow(GameObject host)
+        {
+            // The body is a CDN character model. The capsule stands in for it.
+            var vis = AddVisual(host);
+            Tint(Part(vis, PrimitiveType.Capsule, new Vector3(0f, 1f, 0f), Vector3.one), new Color(0.55f, 0.48f, 0.32f));
+        }
+
+        public static void Snare(GameObject host)
+        {
+            var vis = AddVisual(host);
+            Tint(Part(vis, PrimitiveType.Cylinder, new Vector3(0f, 0.02f, 0f), new Vector3(0.64f, 0.02f, 0.64f)), new Color(0.18f, 0.08f, 0.07f));
+        }
+
+        static void Stake(Transform vis, float x)
+        {
+            Tint(Part(vis, PrimitiveType.Cylinder, new Vector3(x, 0.225f, 0f), new Vector3(0.06f, 0.225f, 0.06f)), new Color(0.28f, 0.22f, 0.16f));
+        }
+
+        static GameObject Part(Transform parent, PrimitiveType type, Vector3 localPos, Vector3 localScale)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            go.name = "part";
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPos;
+            go.transform.localRotation = Quaternion.identity;
+            go.transform.localScale = localScale;
+            var col = go.GetComponent<Collider>();
+            if (col != null)
+                UnityEngine.Object.Destroy(col);
+            return go;
+        }
+
+        static void Tint(GameObject go, Color color)
+        {
+            var rend = go.GetComponent<Renderer>();
+            if (rend == null)
+                return;
+            rend.material.color = color;
+        }
+    }
+
     public class ClueShard : MonoBehaviour
     {
         public string ClueId;

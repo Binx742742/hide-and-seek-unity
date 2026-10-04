@@ -1,28 +1,40 @@
-// This is your game's look: the whole-screen pass between the rendered world and the
-// player's eyes. Out of the box it shows the world exactly as the engine renders it. If the
-// world has emissive/glow content, the engine uses the bloom defaults below; plain worlds keep
-// the bloom pass parked. Edit a number here and the game updates live.
-// The pass is mode-agnostic: a game converted to 2D keeps this script working unchanged.
-//
-// The whole vocabulary: color grades, vignettes, film grain, retro pixelation, depth of
-// field, scanlines: lives in the "looks" skill. Start by uncommenting a line below.
-import { grade, vignette, grain } from 'builtin/postfx';
+// Gullmouth's film stock: wet night fog the sodium lamps glow through, a cold drained grade, a deep vignette, grain.
+// High and ultra march real mist (lit by the moon and every lamp); lower tiers keep the grade and the place's height fog.
+import { grade, vignette, grain } from "builtin/postfx";
+import { vec2, vec3, vec4, float, Loop, mx_noise_float, cameraPosition, screenUV } from "builtin/tsl";
+import { sunDirection, sunRadiance, ambientRadiance, sunVisibility, lightsAt, windTravel } from "builtin/lighting";
+
+function mist(ctx) {
+  const air = ctx.target("air", { width: 640, height: 360 });
+  const fog = ctx.pass(air, (uv) => {
+    const ray = ctx.worldPosition(uv).sub(cameraPosition), dir = ray.normalize();
+    const dt = ray.length().min(55).div(20);
+    const start = uv.mul(air.size).dot(vec2(0.0671, 0.0058)).fract().mul(52.98).fract();
+    const toMoon = dir.dot(sunDirection).mul(0.5).add(0.5).pow(4).mul(0.5);
+    const wind = vec3(windTravel.x, 0, windTravel.y), light = vec3(0).toVar(), clear = float(1).toVar();
+    Loop(20, ({ i }) => {
+      const p = cameraPosition.add(dir.mul(float(i).add(start).mul(dt)));
+      const n = mx_noise_float(p.sub(wind).mul(0.18)).mul(0.6).add(mx_noise_float(p.sub(wind.mul(1.7)).mul(0.55)).mul(0.4)).add(1);
+      const d = ctx.param("density", 0.04).mul(p.y.max(0).div(-3).exp()).mul(n);
+      const through = d.mul(dt).negate().exp();
+      const lamp = lightsAt(p, { shadow: false }).mul(ctx.param("lampGlow", 0.12));
+      light.addAssign(sunRadiance.mul(sunVisibility(p)).mul(toMoon).add(ambientRadiance.mul(0.12)).add(lamp).mul(clear).mul(float(1).sub(through)));
+      clear.mulAssign(through);
+    });
+    return vec4(light, clear);
+  });
+  const half = vec2(0.5).div(air.size);
+  const f = fog.sample(screenUV.add(half)).add(fog.sample(screenUV.sub(half))).mul(0.5);
+  return ctx.scene.mul(f.w).add(f.rgb);
+}
 
 export function look(ctx) {
-  // Bloom is the engine's, baked into the finished frame before this pass runs. These three
-  // params drive that glow live: edit a number here and the bloom retunes with no recompile
-  // (a patchAtmosphere'd look param overrides the script's default). They're surfaced here so
-  // the dials sit where you can reach them; the look itself never re-blooms.
-  const bloomStrength = ctx.param('bloomStrength', 0.15);
-  const bloomRadius = ctx.param('bloomRadius', 0.6);
-  const bloomThreshold = ctx.param('bloomThreshold', 1);
-
-  let c = ctx.scene;
-  // Uncomment to start grading: a touch warmer, a little more contrast:
-  c = grade(c, { exposure: 1.45, saturation: 0.85, contrast: 1, temperature: -0.06 });
-  // Uncomment to darken the edges of the frame:
-  // c = vignette(c, ctx.param('vignette', 0.2), { color: [0.02, 0.02, 0.05] });
-  // Uncomment for a faint film grain:
-  c = grain(c, 0.03);
-  return c;
+  // the engine's bloom: the sodium bulbs, the cage lamps and the lit windows halo; walls never do (threshold stays at white)
+  ctx.param("bloomStrength", 0.55);
+  ctx.param("bloomRadius", 0.9);
+  ctx.param("bloomThreshold", 1);
+  const air = ctx.quality === "high" || ctx.quality === "ultra" ? mist(ctx) : ctx.scene;
+  let c = grade(air, { exposure: 1.5, saturation: 0.82, contrast: 1.08, temperature: -0.07, gamma: 1.06, lift: [0.004, 0.008, 0.016] });
+  c = vignette(c, ctx.param("vignette", 0.42), { color: "oklch(0.1 0.02 250)", feather: 0.55 });
+  return grain(c, 0.035);
 }
