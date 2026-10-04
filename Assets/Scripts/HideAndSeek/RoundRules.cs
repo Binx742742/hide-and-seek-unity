@@ -101,16 +101,152 @@ namespace HideAndSeek
         public float ambushDamage = 100f;
         public float ambushCooldown = 30f;
 
+        [Header("Dream master — rules.yml dreamMaster")]
+        public float blackoutSeconds = 8f;
+        public float blackoutCooldown = 35f;
+        public float falseClueCooldown = 20f;
+        public int falseClueMax = 2;
+        public float falseClueDamage = 25f;
+        public float falseClueStun = 1.5f;
+
+        [Header("Fish powers — rules.yml powers (unlocked at that many fish)")]
+        public int scentAt = 1;
+        public float scentCooldown = 25f;
+        public float scentRange = 32f;
+        public float scentSeconds = 4f;
+        public int lungeAt = 2;
+        public float lungeCooldown = 9f;
+        public float lungeSpeed = 22f;
+        public float lungeSeconds = 0.35f;
+        public int wailAt = 3;
+        public float wailCooldown = 40f;
+        public float wailRadius = 10f;
+        public float wailStun = 1.6f;
+        public int fadeAt = 4;
+        public float fadeCooldown = 45f;
+        public float fadeSeconds = 6f;
+        public int frenzyAt = 5;
+        public float frenzyHeal = 12f;
+
+        [Header("Door — rules.yml door")]
+        public float doorReach = 2.2f;
+        public float doorBarSeconds = 30f;
+        public float doorBarCooldown = 8f;
+        public int doorHp = 3;
+        // Present in rules.yml. door.js does not read it; kept so the number is not dropped.
+        public float doorClawGap = 0.6f;
+
+        [Header("Noise radii (m) and ping life (s) — rules.yml noise")]
+        public float noiseLoot = 34f;
+        public float noiseTalk = 28f;
+        public float noiseDoor = 22f;
+        public float noiseLure = 40f;
+        public float noiseLife = 4f;
+
+        [Header("Recipes — rules.yml recipes")]
+        public int trapScrap = 2;
+        public int baitScrap = 1;
+        public int baitPowder = 1;
+        public int lureWire = 1;
+        public int lureScrap = 1;
+        public int flashPowder = 1;
+        public int flashWire = 1;
+
         [Header("Spawn / cage positions — rules.yml")]
         public Vector2 spawnXZ = new Vector2(-4f, 2f);
         public Vector2 cageXZ = new Vector2(24f, -31f);
+        public float cageFloorY = 0.3f;
+
+        [Header("Fish pile spots (x,z) — rules.yml food")]
+        public Vector2[] foodSpots = FoodFromRules();
+
+        [Header("Loot / ambush spots (x,z) — rules.yml loot")]
+        public Vector2[] lootSpots = LootFromRules();
+
+        public Vector3 SpawnAt(int index, int count)
+        {
+            float a = (index / Mathf.Max(1f, count)) * Mathf.PI * 2f;
+            return new Vector3(spawnXZ.x + Mathf.Cos(a) * 2f, 0.5f, spawnXZ.y + Mathf.Sin(a) * 2f);
+        }
+
+        public Vector3 CagePosition()
+        {
+            return new Vector3(cageXZ.x, cageFloorY + 0.3f, cageXZ.y);
+        }
+
+        public bool TryCost(CraftKind kind, out int scrap, out int wire, out int powder)
+        {
+            scrap = wire = powder = 0;
+            switch (kind)
+            {
+                case CraftKind.Trap: scrap = trapScrap; return true;
+                case CraftKind.Bait: scrap = baitScrap; powder = baitPowder; return true;
+                case CraftKind.Lure: wire = lureWire; scrap = lureScrap; return true;
+                case CraftKind.Flash: powder = flashPowder; wire = flashWire; return true;
+                default: return false;
+            }
+        }
+
+        public int PowerAt(string key)
+        {
+            switch (key)
+            {
+                case "scent": return scentAt;
+                case "lunge": return lungeAt;
+                case "wail": return wailAt;
+                case "fade": return fadeAt;
+                case "frenzy": return frenzyAt;
+                default: return 99;
+            }
+        }
+
+        public float PowerCooldown(string key)
+        {
+            switch (key)
+            {
+                case "scent": return scentCooldown;
+                case "lunge": return lungeCooldown;
+                case "wail": return wailCooldown;
+                case "fade": return fadeCooldown;
+                default: return 0f;
+            }
+        }
 
         /// <summary>Runtime defaults matching rules.yml when no asset is assigned.</summary>
         public static RoundRules CreateRuntimeDefaults()
         {
             var r = CreateInstance<RoundRules>();
             r.name = "RoundRules (runtime defaults from rules.yml)";
+            r.hideFlags = HideFlags.HideAndDontSave;
+            r.foodSpots = FoodFromRules();
+            r.lootSpots = LootFromRules();
             return r;
+        }
+
+        public static Vector2[] FoodFromRules()
+        {
+            return new[]
+            {
+                new Vector2(-6f, -16f), new Vector2(12f, -24f), new Vector2(24f, 0f), new Vector2(-28f, 2f),
+                new Vector2(-6f, 18f), new Vector2(14f, 8f), new Vector2(-20f, -26f), new Vector2(30f, -18f),
+                new Vector2(-20f, 72f), new Vector2(20f, 90f), new Vector2(4f, 48f), new Vector2(-36f, 44f),
+                new Vector2(-2f, 96f), new Vector2(66f, -28f), new Vector2(88f, 40f), new Vector2(60f, 80f),
+                new Vector2(80f, 70f),
+            };
+        }
+
+        public static Vector2[] LootFromRules()
+        {
+            return new[]
+            {
+                new Vector2(-16f, -14f), new Vector2(15f, -30f), new Vector2(0f, -22f), new Vector2(-17f, -30f),
+                new Vector2(19f, 2f), new Vector2(33f, 19f), new Vector2(28f, 6f), new Vector2(-32f, 12f),
+                new Vector2(-24f, 0f), new Vector2(-14f, 19f), new Vector2(8f, -6f), new Vector2(-8f, -4f),
+                new Vector2(-38f, 25f), new Vector2(38f, -30f), new Vector2(10f, 24f), new Vector2(-30f, -30f),
+                new Vector2(-15f, -33f), new Vector2(4f, -34f), new Vector2(28f, 66f), new Vector2(-32f, 68f),
+                new Vector2(-16f, 85f), new Vector2(40f, 44f), new Vector2(74f, -24f), new Vector2(86f, 22f),
+                new Vector2(60f, 52f), new Vector2(78f, 92f),
+            };
         }
     }
 }
