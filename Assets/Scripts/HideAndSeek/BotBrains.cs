@@ -2,6 +2,7 @@
 // Decisions run every 3th Update, matching updateSchedule.every = 3.
 // Spawn pathfinding (builtin/nav findPath) is not available here: the goal is still a straight line.
 // YardMotion.Slide only keeps that step out of walls. It does not pick a new goal.
+// Gravity is the same yard value as the player, so a goal written at y 0 still lands on the floor.
 
 using UnityEngine;
 
@@ -25,6 +26,7 @@ namespace HideAndSeek
         Actor _a;
         int _frame;
         Vector3 _vel;
+        float _vertical;
 
         void Awake() { _a = GetComponent<Actor>(); }
 
@@ -35,9 +37,11 @@ namespace HideAndSeek
                 return;
             if (++_frame % 3 == 0)
                 Think(dir);
+            if (_a.HiddenIn != null)
+                return;
+            Vector3 p = transform.position;
             if (_vel.sqrMagnitude > 0f && !_a.Dead)
             {
-                Vector3 p = transform.position;
                 Vector3 step = _vel * Time.deltaTime;
                 if (HasGoal)
                 {
@@ -49,11 +53,15 @@ namespace HideAndSeek
                         step = new Vector3(to.x, 0f, to.z);
                 }
                 p = YardMotion.Slide(p, step);
-                float vertical = 0f;
-                bool grounded = true;
-                YardMotion.Snap(ref p, ref vertical, ref grounded, _a.GroundY);
-                transform.position = p;
             }
+            // bot-mimic.js moveTo keeps a downward velocity. Without it a goal at y 0
+            // never reaches a floor that is above or below the spawn height.
+            float dt = Time.deltaTime;
+            _vertical += BodyTune.YardGravity * dt;
+            p.y += _vertical * dt;
+            bool grounded = false;
+            YardMotion.Snap(ref p, ref _vertical, ref grounded, _a.GroundY);
+            transform.position = p;
         }
 
         void Think(RoundDirector dir)
@@ -317,6 +325,7 @@ namespace HideAndSeek
                 fake.Fake = true;
                 fake.OwnerId = _a.ActorId;
                 fake.SpawnedAt = now;
+                YardForms.Dress(go, "loot");
             }
             var forms = YardLayout.BotForms;
             var form = forms[UnityEngine.Random.Range(0, forms.Length)];
@@ -380,6 +389,7 @@ namespace HideAndSeek
         Actor _a;
         int _frame;
         Vector3 _vel;
+        float _vertical;
 
         // Speeds and radii are literals in scripts/bot-hider.js, not rules.yml.
         const float Sight = 16f;
@@ -400,14 +410,15 @@ namespace HideAndSeek
                 Think(dir);
             if (_a.HiddenIn != null)
                 return;
+            Vector3 p = transform.position;
             if (_vel.sqrMagnitude > 0f)
-            {
-                Vector3 p = YardMotion.Slide(transform.position, _vel * Time.deltaTime);
-                float vertical = 0f;
-                bool grounded = true;
-                YardMotion.Snap(ref p, ref vertical, ref grounded, _a.GroundY);
-                transform.position = p;
-            }
+                p = YardMotion.Slide(p, _vel * Time.deltaTime);
+            float dt = Time.deltaTime;
+            _vertical += BodyTune.YardGravity * dt;
+            p.y += _vertical * dt;
+            bool grounded = false;
+            YardMotion.Snap(ref p, ref _vertical, ref grounded, _a.GroundY);
+            transform.position = p;
         }
 
         void Think(RoundDirector dir)

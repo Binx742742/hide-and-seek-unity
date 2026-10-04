@@ -2,8 +2,9 @@
 // keeps a capsule from tunnelling through walls and from falling through the ground.
 // Floors and ramps (normal.y > 0.45) are ignored by the side casts so a stair tread
 // does not read as a wall. A short riser is climbed by the ground snap.
-// If the downward ray misses, the body falls back to Actor.GroundY so a round still
-// runs when the yard file is absent.
+// Actor.GroundY is the rest height only when no collider is under the body, so a
+// round still runs when the yard file is absent. A floor that was actually hit is
+// never replaced by that fallback.
 
 using UnityEngine;
 
@@ -44,6 +45,11 @@ namespace HideAndSeek
             return p;
         }
 
+        // Close enough to count as standing. A jump clears about 1.2 m, so this band
+        // does not catch the body at the top of the jump. Spawn (0.5) and the bot cage
+        // (0.6) sit slightly above this and fall the rest of the way.
+        const float Stick = 0.45f;
+
         public static void Snap(ref Vector3 pos, ref float vertical, ref bool grounded, float floorY)
         {
             int mask = Physics.DefaultRaycastLayers;
@@ -64,12 +70,33 @@ namespace HideAndSeek
             }
 
             Vector3 from = pos + Vector3.up * 1.25f;
-            if (Physics.Raycast(from, Vector3.down, out RaycastHit ground, 3.6f, mask, QueryTriggerInteraction.Ignore)
-                && ground.normal.y > 0.4f
-                && pos.y <= ground.point.y + 0.45f
-                && pos.y >= ground.point.y - 1.6f)
+            bool cast = Physics.Raycast(from, Vector3.down, out RaycastHit ground, 3.6f, mask, QueryTriggerInteraction.Ignore);
+            if (cast && ground.normal.y > 0.4f)
             {
-                pos.y = ground.point.y;
+                float gap = pos.y - ground.point.y;
+                if (gap <= Stick && gap >= -1.6f)
+                {
+                    pos.y = ground.point.y;
+                    vertical = 0f;
+                    grounded = true;
+                    return;
+                }
+                // The floor is real and still below. Falling continues. GroundY must not
+                // pull a body at spawn height (0.5) back up off the yard at y 0.
+                grounded = false;
+                return;
+            }
+            if (cast)
+            {
+                grounded = false;
+                return;
+            }
+
+            // The near ray looks down, so the Saltgate bluff (y 4) is invisible to a body
+            // spawned at y 0 underneath it. Only the mesh named Terrain may lift them.
+            // A roof or a drain ceiling is a different object and is left alone.
+            if (LiftToTerrain(ref pos))
+            {
                 vertical = 0f;
                 grounded = true;
                 return;
@@ -83,6 +110,54 @@ namespace HideAndSeek
                 return;
             }
             grounded = false;
+        }
+
+        /// <summary>
+        /// Height of the baked Terrain mesh. sim.js spawnFood uses y: { terrain: 0 },
+        /// which is this surface. fallback is world y 0 when the yard is not loaded.
+        /// </summary>
+        public static float SurfaceY(float x, float z, float fallback)
+        {
+            if (TryTerrainY(new Vector3(x, 40f, z), 80f, out float y))
+                return y;
+            return fallback;
+        }
+
+        static bool LiftToTerrain(ref Vector3 pos)
+        {
+            Vector3 origin = pos + Vector3.up * 8f;
+            if (!TryTerrainY(origin, 10f, out float y))
+                return false;
+            float gap = y - pos.y;
+            if (gap <= 0.05f || gap > 6f)
+                return false;
+            pos.y = y;
+            return true;
+        }
+
+        static bool TryTerrainY(Vector3 origin, float distance, out float y)
+        {
+            y = 0f;
+            var hits = Physics.RaycastAll(origin, Vector3.down, distance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            float best = float.NegativeInfinity;
+            bool found = false;
+            for (int i = 0; i < hits.Length; i++)
+            {
+                var h = hits[i];
+                if (h.normal.y <= 0.4f || h.collider == null)
+                    continue;
+                if (h.collider.gameObject.name != "Terrain")
+                    continue;
+                if (h.point.y > best)
+                {
+                    best = h.point.y;
+                    found = true;
+                }
+            }
+            if (!found)
+                return false;
+            y = best;
+            return true;
         }
 
         static bool Blocked(Vector3 feet, Vector3 dir, float dist, out RaycastHit best)

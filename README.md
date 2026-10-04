@@ -89,4 +89,7 @@ If that file is missing, `LocalRoundDriver` falls back to the loot, hiding-spot,
 
 - No third-party packages. No Netcode, no proximity-voice implementation, no downloaded CDN models or audio.
 - Do not commit secrets, `Library/`, or `node_modules`.
+- Feet rest on a floor the downward ray actually hit. `Actor.GroundY` is only the rest height when that ray hits nothing. A body under the Saltgate bluff is lifted onto the object named Terrain; roofs and drain floors are other objects. Fish piles use that same terrain height (`y: { terrain: 0 }` in sim.js).
+- A dreamer scream and a false clue do not spawn an ear ping. `player.js` only writes `place.state.noise`, and the bot never reads it. A lure's ear ping is `noise.lure` (40 m). The 30 m lure radius is the rattle's audio distance.
+- `ActorVisualStandIn` rebuilds its child only when the disguise or the revealed-mimic form changes. Assigning `visualHook` removes that generated child once and does not turn the root renderer back on. Yard meshes stay on a child named `Visual`.
 - This was checked by reading the C# against the Spawn sources and by baking the yard file. Play Mode was not run here: this environment has no Unity editor.

@@ -555,7 +555,8 @@ namespace HideAndSeek
                 _a.ReadPicture = null;
                 _a.ReadAt = now;
                 dir.PlaySfx("wrong", clue.transform.position);
-                dir.MakeNoise(clue.transform.position, rules.noiseLoot, "loot");
+                // player.js writes place.state.noise here and does not call noise().
+                // The bot's ears only hear ping objects, so this is not a 34 m loot ping.
                 dir.RaiseHit(new HitInfo { Target = _a, Amount = rules.falseClueDamage, Point = clue.transform.position, Cause = "falseclue" });
                 Destroy(clue.gameObject);
                 return;
@@ -645,9 +646,7 @@ namespace HideAndSeek
                     npc.Talker = null;
                     _a.Talk = null;
                     dir.PlaySfx("scream", npc.transform.position);
-                    dir.MakeNoise(npc.transform.position, dir.Rules.noiseLoot, "loot");
-                    // player.js writes place.state.noise directly (the bot's investigate ping is a NoisePing).
-                    // The scream also sets that noise point. MakeNoise already spawns the ping the bot hears.
+                    // player.js writes place.state.noise and does not call noise(). The bot never reads that field.
                     _a.Say(npc.DisplayName + " screams. it heard that");
                     return;
                 }

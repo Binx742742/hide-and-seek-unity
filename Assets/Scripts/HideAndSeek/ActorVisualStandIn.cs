@@ -1,7 +1,10 @@
-// Swaps a child mesh when VisualsChanged or DisguiseChanged fires.
-// The Actor stays on this object. Nothing gameplay-related is stored on the mesh,
-// so a later Animator or CDN model can replace the child "StandInVisual".
-// If RoundDirector.visualHook implements IActorVisuals, this stand-in steps aside.
+// Swaps a child mesh when the disguise or the revealed-mimic form actually changes.
+// The Actor stays on this object. Nothing gameplay-related is stored on the mesh.
+// Yard pieces use a child named "Visual". This stand-in uses "StandInVisual", and
+// it is only rebuilt when the look key changes, so an Animator on that child
+// survives reveal, hurt, and the other VisualsChanged events.
+// If RoundDirector.visualHook implements IActorVisuals, this stand-in removes only
+// the child it created and then leaves every renderer alone.
 
 using UnityEngine;
 
@@ -15,6 +18,8 @@ namespace HideAndSeek
         Actor _a;
         Renderer _root;
         bool _hidden;
+        bool _weBuilt;
+        string _shown;
 
         void Awake()
         {
@@ -52,10 +57,7 @@ namespace HideAndSeek
             if (hide == _hidden)
                 return;
             _hidden = hide;
-            if (hide)
-                SetVisualEnabled(false);
-            else
-                Refresh();
+            SetVisualEnabled(!hide);
         }
 
         void Refresh()
@@ -64,30 +66,49 @@ namespace HideAndSeek
                 return;
             if (HookOwns())
             {
-                ClearChild();
-                if (_root != null)
-                    _root.enabled = true;
+                if (_weBuilt)
+                {
+                    ClearChild();
+                    _weBuilt = false;
+                    _shown = null;
+                }
                 return;
             }
 
-            ClearChild();
-            string alias = null;
-            // Revealed, undisguised mimic uses scripts/gen/mimic.js. Ordinary bodies stay capsules.
-            // Fisherman is a CDN model in the Spawn templates, so it stays the capsule.
-            if (_a.Role == RoleKind.Mimic && _a.Revealed && _a.Disguise == DisguiseForm.None)
-                alias = "mimic";
-            else
-                alias = Alias(_a.Disguise);
+            string key = LookKey();
+            bool hide = _a.IsFaded || _a.Role == RoleKind.Ghost;
+            if (_weBuilt && key == _shown && transform.Find(ChildName) != null)
+            {
+                _hidden = hide;
+                SetVisualEnabled(!hide);
+                if (_root != null)
+                    _root.enabled = false;
+                return;
+            }
 
+            if (_weBuilt)
+                ClearChild();
+            _shown = key;
+            string alias = key == "capsule" ? null : key;
             bool dressed = alias != null && YardForms.Dress(gameObject, alias);
             if (!dressed)
                 MakeCapsule();
+            _weBuilt = true;
             if (_root != null)
                 _root.enabled = false;
 
-            _hidden = _a.IsFaded || _a.Role == RoleKind.Ghost;
+            _hidden = hide;
             if (_hidden)
                 SetVisualEnabled(false);
+        }
+
+        string LookKey()
+        {
+            // Revealed, undisguised mimic uses scripts/gen/mimic.js. Ordinary bodies stay capsules.
+            // Fisherman is a CDN model in the Spawn templates, so it stays the capsule.
+            if (_a.Role == RoleKind.Mimic && _a.Revealed && _a.Disguise == DisguiseForm.None)
+                return "mimic";
+            return Alias(_a.Disguise) ?? "capsule";
         }
 
         static string Alias(DisguiseForm form)

@@ -528,7 +528,8 @@ namespace HideAndSeek
                     {
                         t.Fired = true;
                         PlaySfx("rattle", t.transform.position);
-                        MakeNoise(t.transform.position, rules.lureRadius, "lure");
+                        // sim.js: playSound maxDistance is lure.radius (30). The ear ping is noise.lure (40).
+                        // place.state.noise is also written there; nothing in the bot reads it.
                         MakeNoise(t.transform.position, rules.noiseLure, "loot");
                     }
                     if (t.Fired && now - t.FireAt > BodyTune.LureLinger)
@@ -774,6 +775,7 @@ namespace HideAndSeek
             a.Hp = rules.botHp;
             a.MaxHp = rules.botHp;
             a.RoundJoined = RoundIndex;
+            a.GroundY = go.transform.position.y;
             a.Bind(this);
             go.AddComponent<BotMimic>();
             Tint(go, new Color(0.55f, 0.12f, 0.1f));
@@ -877,7 +879,9 @@ namespace HideAndSeek
             if (free.Count == 0)
                 return;
             var spot = free[UnityEngine.Random.Range(0, free.Count)];
-            var go = SpawnMarker("fish", new Vector3(spot.x, 0f, spot.y), PrimitiveType.Sphere, 0.35f, true);
+            // sim.js: feetPosition y is { terrain: 0 }, the ground under the spot, not world y 0.
+            float y = YardMotion.SurfaceY(spot.x, spot.y, 0f);
+            var go = SpawnMarker("fish", new Vector3(spot.x, y, spot.y), PrimitiveType.Sphere, 0.35f, true);
             go.AddComponent<FishPile>();
             Tint(go, new Color(0.75f, 0.45f, 0.25f));
             YardForms.Dress(go, "fish");
