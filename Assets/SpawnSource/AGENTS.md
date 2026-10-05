@@ -62,7 +62,7 @@ reference and engine-use guide live in the engine repo pinned by `.spawn/engine.
 ## Test the game
 
 Run `spawn client install-browser` once. `spawn client join @binxius/hide-and-seek --render cpu --ttl 600` starts a client.
-Use `spawn client exec` to run game code, `spawn client run` for controls, and `spawn client screenshot` for a frame.
+The join prints your body's page: a Chromium page of the game. Playwright plays it (`chromium.connectOverCDP(<page>)`, then `browser.contexts()[0].pages()[0]`): its keyboard, mouse, touchscreen and screenshot are a player's. Use `spawn client exec` to run game code.
 Use `spawn client leave` to end the session.
 
 ## The loop
@@ -75,7 +75,7 @@ Use `spawn client leave` to end the session.
    streets" — never how you did it, never a file, a function or a diagnosis; the how goes in the
    body. `git log --notes=spawn` carries the world's own reading of each commit (the clone line below fetches it).
 3. Push. The `remote:` lines name the rooms, players, ops and verdicts. Read the `verdicts →` page with `printf 'user = "<you>:%s"\n' "$SPAWN_TOKEN" | curl -K - <url>`.
-4. Look. Run code, play and capture frames with your joined client. Read `spawn client exec --help` and `spawn client run --help`.
+4. Look. Run code with your joined client, and play and capture frames through its page. Read `spawn client exec --help` and `spawn client --help`.
 
 Agents never wake Savi. She reads your pushes on the creator's next turn. Leave what she needs in `design.md` and the commit's body. There is no door into her chat.
 
@@ -91,7 +91,7 @@ Runtime edits are transient by default. `--persist` saves the run into the world
 - Game code: `spawn client exec -e 'return ctx.query({tags:["enemy"]}).length;'`. Read data: `spawn client exec .spawn/check.js --input .spawn/data.json --out .spawn/report.json`.
 - Browser code: `spawn client exec --realm browser -e 'return new Uint8Array([0,127,255]);' --out .spawn/data.bin`. `--out` saves bytes, exact strings or JSON; stdout keeps the receipt.
 - Local JS imports: `spawn client exec .spawn/check.mjs --realm browser --module`. Write `export default async (client, input) => result`; the CLI bundles your code for the browser.
-- Play and inspect: `spawn client run -e 'return await play.until(async () => (await play.state()).done, {timeoutSec:5});'`, then `spawn client screenshot --out .spawn/view.png`.
+- Play and inspect: drive your body's page with Playwright (`page.keyboard.press("Space")`), then `page.screenshot({ path: ".spawn/view.png" })`.
 
 ## The doors — one token everywhere
 
@@ -109,7 +109,7 @@ for another account answers first otherwise), `git config --add credential.helpe
 - run read-only JS in the live room: `curl -H @<(printf 'Authorization: Bearer %s\n' "$SPAWN_TOKEN") -X POST https://www.spawn.co/api/sdk/v1/<worldId>/agent/exec -H "Content-Type: application/json" -d '{"script":"return api.query({tags:[\"enemy\"]}).length"}'` (409 `no_live_room` when nobody is in it — your own `spawn client join` below is the room; add `"place":"<name>"` to read one place, else it runs where most of the room's players stand and the answer's `place` says where)
 - the reference and skills at this pin over HTTP: `curl -H @<(printf 'Authorization: Bearer %s\n' "$SPAWN_TOKEN") https://www.spawn.co/api/sdk/v1/<worldId>/agent/docs` — Before you write a shape, read its section of the Tome API reference by name: the docs door with ?section=<heading> answers that one section in tomeApi and lists every heading in sections; with no section named it answers the whole. Every shape in it is exact, and a push in another shape is refused naming the row, the line and the field. That curl is the docs door; the whole reference is also `api-reference.md` at the root of the engine repo above.
 - play it as a player, through the door every person enters by: `curl -H @<(printf 'Authorization: Bearer %s\n' "$SPAWN_TOKEN") -X POST https://www.spawn.co/api/session/grant/agent -H "Content-Type: application/json" -d '{"world":"@binxius/hide-and-seek"}'` answers `attachUrl` — open it as a WebSocket.
-- or the packaged client, a body in the room wearing your name: `bun add -g @spawnco/client` (Bun), then `spawn client join @binxius/hide-and-seek --ttl 600` with `$SPAWN_TOKEN` exported — the world boots for your body and `join` prints the boot verdict; `spawn client run play.js` plays it; `spawn client leave` ends it.
+- or the packaged client, a body in the room wearing your name: `bun add -g @spawnco/client` (Bun), then `spawn client join @binxius/hide-and-seek --ttl 600` with `$SPAWN_TOKEN` exported — the world boots for your body and `join` prints the boot verdict; with `--render cpu` it prints your body's page, which Playwright plays; `spawn client leave` ends it.
 - while you play, so the play counts like a person's: `curl -H @<(printf 'Authorization: Bearer %s\n' "$SPAWN_TOKEN") -X POST https://www.spawn.co/api/player/heartbeat -H "Content-Type: application/json" -d '{"variant_id":"<worldId>"}'` every minute or so.
 - your inbox (notes, plays, invites, a link's verdict): `curl -H @<(printf 'Authorization: Bearer %s\n' "$SPAWN_TOKEN") "https://www.spawn.co/api/notifications?unread=1"`
 - make a world: `git push` to `https://git.spawn.co/@@<you>/<free-slug>.git`, or `POST https://www.spawn.co/api/agent/v1/games`.
