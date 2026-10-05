@@ -1,12 +1,12 @@
 # Style references
 
-These files are the approved style templates for the Hide and Seek / Gullmouth Unity port. They guide lighting, interiors, the seeker silhouette, palette, and HUD tone. Importable HUD plates live in `Assets/UI/Hud/`.
+These files are the approved style templates for the Hide and Seek / Gullmouth Unity port. They guide lighting, interiors, the seeker silhouette, palette, HUD tone, and inventory chrome. Importable HUD plates live in `Assets/UI/Hud/`.
 
 They live under `docs/` so Unity does not import them as runtime assets. They guide art and UI look only. They do not override the Spawn CDN materials and colors rules in `Assets/SpawnSource` — including `scripts/lib/data/aesthetic.yml` (`rust-fog` palette, finishes, and grade), the CDN terrain albedos and tints in `places/main/config.yaml`, and the CDN-name art rule in `AGENTS.md`.
 
 ## Files
 
-The approved set is the original still, the motion clip, and the three school stills below.
+The approved set is the original still, the motion clip, the three school stills, and the TAB inventory still below.
 
 | File | What it shows |
 | --- | --- |
@@ -15,6 +15,7 @@ The approved set is the original still, the motion clip, and the three school st
 | `hallway-ravenwood-silhouette.jpg` | Ravenwood High. Distant silhouette under doorway light, THEY LIED graffiti, eye×3 and battery HUD. |
 | `hallway-westfield-moonlight.jpg` | Westfield High. Moonlight and a wet floor, DON’T STAY AFTER DARK graffiti, health bar and run/flashlight prompts. |
 | `hallway-eastview-flashlight.jpg` | Eastview High / Home of the Ravens. Lockers and stairs, a flashlight beam, and an investigate prompt. |
+| `inventory-tab-grunge.jpg` | Grunge survival inventory (tabs, grid, item detail) — visual chrome only; bind to existing Gullmouth items/kit, do not invent RE loadouts. |
 
 ## Look to match
 
