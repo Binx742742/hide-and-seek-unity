@@ -2,7 +2,7 @@
 
 This folder is a **Unity 6** project for **Gullmouth / Hide and Seek**, carried over from the live Spawn world [@binxius/hide-and-seek](https://spawn.co). Gameplay is callable from C#. The yard is the Spawn generators and cell scenes, baked into stand-in meshes at the source coordinates. Character models, sounds, and CDN art are not in this project. The original Spawn text is under `Assets/SpawnSource`.
 
-**Editor target:** Unity **6000.0.23f1**. Open this folder in that editor (or a close 6000.0.x). Unity generates `Library/` on first open. Built-in modules only — no URP, no Netcode package.
+**Editor target:** Unity **6000.0.23f1**. Open this folder in that editor (or a close 6000.0.x). Unity generates `Library/` on first open. Built-in modules only — no URP, no Netcode package, no EOS package.
 
 ## How to play the stand-in round
 
@@ -42,7 +42,7 @@ Numbers come from `Assets/SpawnSource/scripts/lib/data/rules.yml`, `dream.yml`, 
 | Ported (call it from Unity) | Still Spawn-only |
 | --- | --- |
 | Round phases: lobby 15s (10 eligible humans pull a long lobby to 5s), bot-only hide 30s, human rounds skip hide and lock claws for 30s, hunt 420s, end 8s | Proximity voice. `IProximityVoice` is an empty hook. The scripts never defined a distance model. |
-| Draw, roles (hider, mimic, risen, ghost), mask transfer, late join, NPC takeover | The live room list. `sim.js` posts the SQL `lobbies` table every 4s and drops rows older than 20s. `ILobbyDirectory` is the hook. The menu says the list is missing instead of inventing rooms. |
+| Draw, roles (hider, mimic, risen, ghost), mask transfer, late join, NPC takeover | The live room list. `sim.js` posts the SQL `lobbies` table every 4s and drops rows older than 20s. `ILobbyDirectory` is the hook. The menu says the list is missing instead of inventing rooms. EOS scaffolding (`docs/eos-setup.md`) is a second named hook and does not fill that list. |
 | Combat: claw, stab, ambush, drag-out, reveal (survivor or a witness with line of sight), frenzy heal | CDN character models, dreamer models, clue pictures, sound files, and music tracks. `IActorVisuals` replaces the child `StandInVisual` when assigned. `Actor.VisualsChanged`, `DisguiseChanged`, `SwingStarted`, and `PowerPerformed` are the animator events. `SfxPlayed` carries the `sfx.js` clip id. `MusicCue` is `"lobby"`, `"hunt"`, or `"stop"`. Those names stay a named interface. The files are at `https://www.spawn.co/cdn/<name>` (the filename after `cdn/` in `scripts/lib/sfx.js`, and the lobby and hunt tracks in `places/main/sim.js`). |
 | The yard from `scripts/gen` and the three cell scenes, including Saltgate and the storm drains: combined meshes on a child named `Visual`, colliders on `Collision` or a primitive collider. Gameplay stays on the root (`HidingSpot`, `LootCrate`, `YardDoor`, `CageGate`, `Actor`). `YardDoor` swings that root. The cage gate starts closed at `cageFloorY` (the scene pose is the open one). Drain stairs end on the town ground (`TOP` 3.98, top step open). | Harbour ambience (CDN mp3), sea-mist particles, and the cage-sign SVG. Those nodes are not spawned. Fisherman disguise stays a capsule because that body is a CDN model. |
 | Terrain from `flat-starter-terrain.js` `heightAt`, with the four drain holes from `places/main/config.yaml`, and a sea plane at y −1.6 with no collider. Lamps `lamp-1`..`15` go to intensity 25 or 0. Bulb stutter and sodium burst use `flicker.js` and `lamp-flicker.js`. A point light is soft when that scene light had shadows enabled. | Light cookies and lightmaps. NavMesh. Bot goals are a straight line (`builtin/nav` is not here). `YardMotion` slides that step off walls and does not choose a new goal. |
@@ -67,6 +67,7 @@ Numbers come from `Assets/SpawnSource/scripts/lib/data/rules.yml`, `dream.yml`, 
   - `MenuFlow.cs`, `RoundHud.cs`, `LocalPlayerInput.cs`, `StandInCamera.cs`
   - `LocalRoundDriver.cs` — Bootstrap entry that spawns the stand-ins and the yard
   - `SpawnOnly.cs` — `ILobbyDirectory`, `IProximityVoice`, `IActorVisuals`, `IYardLamps`
+  - `EOS/` — `IEosAuth`, `IEosLobby`, `EosConfig`, `EosBootstrap`. Offline until `docs/eos-setup.md` is filled. Solo and bot play skip it.
   - `GameTypes.cs` — shared enums and the small constants that live in JS rather than YAML (stab cone fallback 80°, drag stun 0.8s, talk break 4m, lobby walk 6, yard gravity −24)
 
 ## Round behaviour
@@ -88,9 +89,13 @@ node --import ./tools/register-yard.mjs tools/bake-yard.mjs
 
 If that file is missing, `LocalRoundDriver` falls back to the loot, hiding-spot, and cage cubes.
 
+## Epic Online Services
+
+Scaffolding only. The Epic plugin is not installed, and this project still builds without it. Portal IDs live in `Assets/Settings/EosConfig.asset` as `YOUR_*` placeholders, and the client secret field is empty. Solo and bot play (`LocalRoundDriver.humanPlayers` below 2) never log in. Fill `docs/eos-setup.md` before expecting a lobby. `EosLobbyDirectory` is the EOS stand-in for the SQL room list and does not invent rooms. `Bootstrap.unity` does not reference it.
+
 ## Notes
 
-- No third-party packages. No Netcode, no proximity-voice implementation, no downloaded CDN models or audio.
+- No third-party packages. No Netcode, no proximity-voice implementation, no EOS plugin, no downloaded CDN models or audio.
 - Do not commit secrets, `Library/`, or `node_modules`.
 - Feet rest on a floor the downward ray actually hit. `Actor.GroundY` is only the rest height when that ray hits nothing. A body under the Saltgate bluff is lifted onto the object named Terrain; roofs and drain floors are other objects. Fish piles use that same terrain height (`y: { terrain: 0 }` in sim.js).
 - A dreamer scream and a false clue do not spawn an ear ping. `player.js` only writes `place.state.noise`, and the bot never reads it. A lure's ear ping is `noise.lure` (40 m). The 30 m lure radius is the rattle's audio distance.
