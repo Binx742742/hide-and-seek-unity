@@ -64,3 +64,7 @@ token
 .env
 .env.*
 node_modules/
+
+# Local EOS credentials. The committed Assets/Settings/EosConfig.asset stays placeholder-only.
+Assets/Settings/EosConfig.local.asset
+Assets/Settings/EosConfig.local.asset.meta

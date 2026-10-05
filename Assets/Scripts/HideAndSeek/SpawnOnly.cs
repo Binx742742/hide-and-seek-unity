@@ -14,7 +14,9 @@ namespace HideAndSeek
 
     /// <summary>
     /// places/main/sim.js postBoard writes the SQL table `lobbies` every 4 s and drops rows older than 20 s.
-    /// This Unity project has no Spawn room directory. Leave this unassigned.
+    /// This Unity project has no Spawn room directory and does not query that table.
+    /// HideAndSeek.EOS.EosLobbyDirectory is the EOS-shaped stand-in. It stays empty until the plugin
+    /// and portal IDs are filled (docs/eos-setup.md). Leave this unassigned until then.
     /// </summary>
     public interface ILobbyDirectory
     {
