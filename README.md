@@ -58,6 +58,7 @@ Numbers come from `Assets/SpawnSource/scripts/lib/data/rules.yml`, `dream.yml`, 
 
 - **`Assets/SpawnSource/`** — original Spawn sources (`design.md`, `scripts/`, `places/`, `rules.yml`).
 - **`Assets/UI/Hud/`** — grimdark HUD chrome plates (objective, hider HP, kit cooldown, hunt clock, role ring, warning). Bind notes are in that folder's `README.md`. Not wired into `RoundHud` yet.
+- **`docs/style-references/inventory-tab-grunge.jpg`** — grunge survival inventory (tabs, grid, item detail). Visual chrome only; bind to existing Gullmouth items/kit. Do not invent RE loadouts.
 - **`Assets/Scripts/HideAndSeek/`** — the C# port:
   - `RoundRules.cs`, `DreamCatalog.cs`, `CharacterCatalog.cs` — data
   - `RoundDirector.cs` — referee (`places/main/sim.js`)
