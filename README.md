@@ -57,6 +57,7 @@ Numbers come from `Assets/SpawnSource/scripts/lib/data/rules.yml`, `dream.yml`, 
 ## Where to look
 
 - **`Assets/SpawnSource/`** — original Spawn sources (`design.md`, `scripts/`, `places/`, `rules.yml`).
+- **`Assets/UI/Hud/`** — grimdark HUD chrome plates (objective, hider HP, kit cooldown, hunt clock, role ring, warning). Bind notes are in that folder's `README.md`. Not wired into `RoundHud` yet.
 - **`Assets/Scripts/HideAndSeek/`** — the C# port:
   - `RoundRules.cs`, `DreamCatalog.cs`, `CharacterCatalog.cs` — data
   - `RoundDirector.cs` — referee (`places/main/sim.js`)
