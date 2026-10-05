@@ -22,3 +22,7 @@ The approved set is the original still, the motion clip, and the three school st
 - Lanky pale seeker silhouette at the end of the hall or in a lit doorway.
 - Blood stains, warning graffiti, lockers, and stairs. Muted gray and brown palette.
 - Sparse HUD: OBJECTIVE, flashlight or battery meter, health, eye count, and short keybind or action prompts.
+
+## Related
+
+Systems pillars (asymmetrical roles, sanity and voice, shared inventory, director pacing) are in [Design references](../design-references.md). Those notes are separate from this look. `rules.yml` stays the numbers sheet until a pillar is designed into it.

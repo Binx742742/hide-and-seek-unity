@@ -56,6 +56,8 @@ Numbers come from `Assets/SpawnSource/scripts/lib/data/rules.yml`, `dream.yml`, 
 
 ## Where to look
 
+- **`docs/design-references.md`** — systems pillars for Gullmouth / Hide and Seek (asymmetrical roles, sanity and voice, shared inventory, director pacing). Reference only. `rules.yml` stays the sheet until a pillar is designed into it.
+- **`docs/style-references/`** — approved lighting, interior, seeker, and HUD stills. Look only.
 - **`Assets/SpawnSource/`** — original Spawn sources (`design.md`, `scripts/`, `places/`, `rules.yml`).
 - **`Assets/Scripts/HideAndSeek/`** — the C# port:
   - `RoundRules.cs`, `DreamCatalog.cs`, `CharacterCatalog.cs` — data
