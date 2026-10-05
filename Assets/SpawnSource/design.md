@@ -11,6 +11,7 @@ a bot mimic hunts you. Joiners mid-round watch as ghosts.
 **Win / lose.**
 - Mimic wins: every hider is dead.
 - Hiders win: the clock runs out with anyone alive, OR the mimic's 200 hp hits 0.
+- Salt-touched still counts as a hider for those two. Their own win flips once they commit a sabotage (below).
 
 **Hider loop.** sneak → E search loot crate (1–2 of scrap / wire / powder, crate refills in 45 s) → craft:
 1 bear trap (2 scrap): 35 dmg + roots 2.5 s · 2 bait crate (scrap + powder): a fake loot crate, blows for 45 + stun
@@ -48,6 +49,7 @@ Mimic needs 3 claws a hider = 12 claws in 240 s.
 - 2026-10-03 (binxius): basic tutorial page at the start: a first arrival reads it before the menu (the monster looks like a player until they hurt someone or get spotted, claws locked 30s, sneak / search / craft / hide, how a round is won, and the keys that already exist); CONTINUE stores it on player.state so M does not show it again; the menu's TUTORIAL button opens it; a join still skips both.
 
 - 2026-10-03: Saltgate (#2971): a bluff town west of the yard (x -112..-60, ground y 4): ten cottages and a chapel, every door a plank door hiders can bar (R) and the monster claws through; cot-8 has a sliding secret panel out the back. Under it, storm drains (floor y 0) run from a culvert mouth in the yard (x -43, z 26) to three stairs up into the town, each behind an iron grate. Doors ring the monster's noise rings like loot and talk.
+- 2026-10-05: Salt-touched. One human hider, marked quietly at hunt start, still a hider. Sabotage only: unbar a player-barred door once (silent to them, a soft creak on noise.door), bleed a Saltgate hatch open for 45 s, or drop one false heartbeat for 10 s. Any of those is Committed; none is Clean. Clean wins and loses with the hiders. Committed loses if the hiders win, and wins if the mimic wipes them. No badge for anyone else. The first sabotage whispers one line to the mimic, no name. A scarecrow or a smoke flickers wrong 15% of the time. A committed death chimes for the mimic. 0 seats in a 1v1, against bots, in the tutorial, and in the solo demo. 1 seat at 4 players. Never two. Numbers in rules.yml saltTouched.
 
 ## Creative kit (2026-10-04, binxius: "expand the amount of abilities for the monster and hiders, allow players to be creative")
 Hiders craft 8 things now (keys 1–8, HUD buttons):
@@ -61,3 +63,31 @@ The mimic gets 3 tricks with no fish needed:
 - J Steal face (30 s): wear the nearest hider's character and name tag until revealed.
 Combos the kit is built for: tripwire behind a barricade, smoke to break a chase into a hiding spot, a scarecrow by a rigged fish; the mimic's voice thrown past a snare.
 Numbers: scripts/lib/data/rules.yml (tripwire, barricade, smoke, scarecrow, tricks).
+
+## Salt-touched
+
+One human hider is marked quietly when the hunt starts. Nobody else is told. They stay a hider for damage, hiding, and crafts. Only the secret win changes. An NPC hider is never the mark. The mimic is never the mark.
+
+Sabotage only. None of it kills.
+- **Unbar.** Once a round, they lift a bar another player set, for free. Silent on them. Everyone in range of a door hears a soft creak. The creak rides `noise.door`. It is not a new radius.
+- **Bleed a drain.** Hold interact on a Saltgate hatch (a drain grate). It is forced open and floods for 45 s, which blocks or exposes that route. A wet sheen stays for the mimic and for careful eyes.
+- **Salt ping.** Once a round, they drop a false hider heartbeat on a tile for 10 s. The mimic hears it as a real heartbeat. Hiders hear nothing.
+
+Doing any of these marks them **Committed**. Doing none keeps them **Clean**.
+
+| | Hiders survive, or the timer | The mimic wipes them, or eats them all |
+| --- | --- | --- |
+| **Clean** | Wins with the hiders | Loses |
+| **Committed** | Loses with the hiders | Wins with the mimic |
+
+Waking the dreamers, or killing the true mimic, is a hider win: the left column. The round itself still ends as hiders or mimic. This table is only the marked person's result.
+
+Tells stay thin.
+- No lasting badge on anyone else's screen.
+- The first sabotage gives the mimic one private line and no name. A drain says "something salt-touched the west drain". A door or a heartbeat uses that same shape of line.
+- If they craft a scarecrow or a smoke, 15% of the time the prop flickers wrong for allies. Suspicion, not proof. It does not commit them.
+- Dying Clean is an ordinary hider death. Dying Committed: the mimic hears a salt chime, so a traitor was real. Still no name.
+
+Lobby dials. 0 seats in a 1v1, against the bot, in the tutorial, and in the solo demo. 1 seat at 4 or more human players. Never two. NPC fillers in a full lobby do not add a second mark, and they do not clear the one seat. A tiny salt icon may sit on their own HUD only. It is optional. The Unity stub leaves it on, so the mark is visible to the person who has it.
+
+Numbers: scripts/lib/data/rules.yml (`saltTouched`).

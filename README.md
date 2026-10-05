@@ -68,6 +68,7 @@ Numbers come from `Assets/SpawnSource/scripts/lib/data/rules.yml`, `dream.yml`, 
   - `LocalRoundDriver.cs` — Bootstrap entry that spawns the stand-ins and the yard
   - `SpawnOnly.cs` — `ILobbyDirectory`, `IProximityVoice`, `IActorVisuals`, `IYardLamps`
   - `GameTypes.cs` — shared enums and the small constants that live in JS rather than YAML (stab cone fallback 80°, drag stun 0.8s, talk break 4m, lobby walk 6, yard gravity −24)
+  - `SaltTouched.cs` — the quiet hider mark (`rules.yml` `saltTouched`)
 
 ## Round behaviour
 
@@ -96,4 +97,5 @@ If that file is missing, `LocalRoundDriver` falls back to the loot, hiding-spot,
 - A dreamer scream and a false clue do not spawn an ear ping. `player.js` only writes `place.state.noise`, and the bot never reads it. A lure's ear ping is `noise.lure` (40 m). The 30 m lure radius is the rattle's audio distance.
 - `ActorVisualStandIn` rebuilds its child only when the disguise or the revealed-mimic form changes. Assigning `visualHook` removes that generated child once and does not turn the root renderer back on. Yard meshes and kit pieces stay on a child named `Visual`. Smoke hides that child's renderers for a hider; a visual hook is left to read `Actor.Smoked` itself.
 - `Assets/SpawnSource` is the Spawn tree at main `e0f3bb7`. The drain generator uses `TOP` 3.98 and leaves the top stair step open onto the town. The yard gzip was rebaked from that generator. Saltgate cottages, plank doors, and the drain runs were already in the cell scenes.
+- Salt-touched is documented in `design.md` and `rules.yml` (`saltTouched`) and stubbed in C#. Solo and bot rounds leave the seat count at 0, so those matches never mark a hider.
 - This was checked by reading the C# against the Spawn sources and by baking the yard file. Play Mode was not run here: this environment has no Unity editor.

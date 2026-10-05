@@ -395,6 +395,8 @@ namespace HideAndSeek
             piece.Radius = rules.smokeRadius;
             KitVisuals.SmokeMarker(go);
             dir.PlaySfx("smoke", at);
+            // saltTouched.flicker. Suspicion for allies. Does not commit. No flicker mesh.
+            dir.Salt?.RollPropFlicker(_a, piece);
         }
 
         void PlaceScarecrow(RoundDirector dir, RoundRules rules, Vector3 me, Vector3 f, float now)
@@ -407,6 +409,8 @@ namespace HideAndSeek
             piece.OwnerId = _a.ActorId;
             piece.SpawnedAt = now;
             KitVisuals.Scarecrow(go);
+            // saltTouched.flicker. Suspicion for allies. Does not commit. No flicker mesh.
+            dir.Salt?.RollPropFlicker(_a, piece);
         }
 
         public void Trick(string key)

@@ -97,3 +97,13 @@ tricks:   # the mimic's own tricks, no fish needed
   echo: { cooldown: 16, distance: 14 }   # B: throws a cry for help ahead of it
   snare: { cooldown: 10, max: 3, reach: 0.75, root: 2.5, damage: 10, ring: 60 }   # H: a gut snare on the ground; a hider stepping in sticks and rings for the mimic
   steal: { cooldown: 30, reach: 5 }   # J: wear the face of the hider in front of you
+saltTouched:   # one human hider, marked quietly at hunt start. still a hider. sabotage only, no kill.
+  seats: { minPlayers: 4, count: 1, below: 0 }   # 1 seat at 4+ humans. 0 in 1v1, bots, tutorial, solo demo. never two
+  ownHud: true   # tiny salt icon on their HUD only. optional. the Unity stub defaults this on
+  unbar: { uses: 1 }   # free, once, on a player-barred door. silent to them. the creak rides noise.door
+  drain: { seconds: 45 }   # hold interact on a Saltgate grate: forced open/flood. wet sheen is a tell
+  ping: { uses: 1, seconds: 10 }   # false hider heartbeat on a tile. the mimic hears it as real. hiders hear nothing
+  flicker: 0.15   # scarecrow or smoke: chance the prop flickers wrong for allies. suspicion, not proof
+  win:   # the marked person's outcome. the round still ends hiders or mimic
+    clean: { hiders: withHiders, mimic: lose }
+    committed: { hiders: lose, mimic: withMimic }

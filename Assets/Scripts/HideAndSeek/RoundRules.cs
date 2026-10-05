@@ -182,6 +182,34 @@ namespace HideAndSeek
         public float stealCooldown = 30f;
         public float stealReach = 5f;
 
+        [Header("Salt-touched — rules.yml saltTouched")]
+        [Tooltip("saltTouched.seats.minPlayers. One seat only at this many humans or more.")]
+        public int saltTouchedMinPlayers = 4;
+        [Tooltip("saltTouched.seats.count. Design never allows two; SaltTouchedSeatCount clamps to 1.")]
+        public int saltTouchedSeats = 1;
+        [Tooltip("saltTouched.seats.below. 1v1, bots, tutorial, solo demo, and lobbies under minPlayers.")]
+        public int saltTouchedSeatsBelow = 0;
+        [Tooltip("saltTouched.ownHud. Tiny salt mark on their HUD only. Optional; default on.")]
+        public bool saltTouchedOwnHud = true;
+        [Tooltip("saltTouched.unbar.uses. Free unbar of a player-barred door, once.")]
+        public int saltTouchedUnbarUses = 1;
+        [Tooltip("saltTouched.drain.seconds. Saltgate hatch forced open and flooding.")]
+        public float saltTouchedDrainSeconds = 45f;
+        [Tooltip("saltTouched.ping.uses. One false heartbeat a round.")]
+        public int saltTouchedPingUses = 1;
+        [Tooltip("saltTouched.ping.seconds.")]
+        public float saltTouchedPingSeconds = 10f;
+        [Tooltip("saltTouched.flicker. Scarecrow or smoke flickers wrong for allies.")]
+        public float saltTouchedFlicker = 0.15f;
+        [Tooltip("saltTouched.win.clean.hiders")]
+        public string saltWinCleanHiders = SaltWin.WithHiders;
+        [Tooltip("saltTouched.win.clean.mimic")]
+        public string saltWinCleanMimic = SaltWin.Lose;
+        [Tooltip("saltTouched.win.committed.hiders")]
+        public string saltWinCommittedHiders = SaltWin.Lose;
+        [Tooltip("saltTouched.win.committed.mimic")]
+        public string saltWinCommittedMimic = SaltWin.WithMimic;
+
         [Header("Spawn / cage positions — rules.yml")]
         public Vector2 spawnXZ = new Vector2(-4f, 2f);
         public Vector2 cageXZ = new Vector2(24f, -31f);
@@ -232,6 +260,43 @@ namespace HideAndSeek
                 case "frenzy": return frenzyAt;
                 default: return 99;
             }
+        }
+
+        /// <summary>
+        /// rules.yml saltTouched.seats.
+        /// below (0) for a bot round, the tutorial, the solo demo, a 1v1, or any lobby under minPlayers.
+        /// Otherwise seats.count, and never more than one. NPC fillers do not change the count.
+        /// </summary>
+        public int SaltTouchedSeatCount(int humanPlayers, bool botRound, bool tutorialOrSoloDemo)
+        {
+            if (botRound || tutorialOrSoloDemo || humanPlayers < saltTouchedMinPlayers)
+                return saltTouchedSeatsBelow;
+            if (saltTouchedSeats <= 0)
+                return 0;
+            return saltTouchedSeats > 1 ? 1 : saltTouchedSeats;
+        }
+
+        /// <summary>
+        /// rules.yml saltTouched.win. A hider-side round (timer, dreamers, true mimic dead) reads the hiders cell.
+        /// A mimic wipe reads the mimic cell. withHiders and withMimic win; lose does not.
+        /// </summary>
+        public bool SaltTouchedWins(SaltMark mark, RoundWinner roundWinner)
+        {
+            if (mark == SaltMark.None || roundWinner == RoundWinner.None)
+                return false;
+            bool hidersWon = roundWinner == RoundWinner.Hiders;
+            string cell;
+            if (mark == SaltMark.Committed)
+                cell = hidersWon ? saltWinCommittedHiders : saltWinCommittedMimic;
+            else
+                cell = hidersWon ? saltWinCleanHiders : saltWinCleanMimic;
+            if (string.IsNullOrEmpty(cell))
+            {
+                cell = mark == SaltMark.Committed
+                    ? (hidersWon ? SaltWin.Lose : SaltWin.WithMimic)
+                    : (hidersWon ? SaltWin.WithHiders : SaltWin.Lose);
+            }
+            return cell == SaltWin.WithHiders || cell == SaltWin.WithMimic;
         }
 
         public float PowerCooldown(string key)

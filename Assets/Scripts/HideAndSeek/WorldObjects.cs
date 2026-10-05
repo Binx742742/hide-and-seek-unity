@@ -96,6 +96,9 @@ namespace HideAndSeek
         public int Hp;
         public float Radius;
 
+        // rules.yml saltTouched.flicker. Allies may notice. No flicker mesh in this stub.
+        public bool SaltFlicker;
+
         void OnEnable() { RoundDirector.Instance?.RegisterKit(this); }
         void OnDisable() { RoundDirector.Instance?.UnregisterKit(this); }
 
@@ -372,6 +375,12 @@ namespace HideAndSeek
         public float Cur;
         public Vector3 Home;
         public string LastBy;
+
+        // Salt-touched drain bleed. rules.yml saltTouched.drain.seconds (45).
+        // SaltWet stays after the flood so the mimic and careful eyes have a tell. No flood mesh.
+        public bool SaltWet;
+        public bool SaltForced;
+        public float SaltFloodUntil;
 
         void Awake()
         {

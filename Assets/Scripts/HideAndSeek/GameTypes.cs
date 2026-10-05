@@ -14,6 +14,25 @@ namespace HideAndSeek
         Ghost
     }
 
+    /// <summary>
+    /// Quiet mark on one hider. They stay <see cref="RoleKind.Hider"/> for damage, hiding, and crafts.
+    /// None is not the role. Clean and Committed are rules.yml saltTouched.win rows.
+    /// </summary>
+    public enum SaltMark
+    {
+        None,
+        Clean,
+        Committed
+    }
+
+    /// <summary>rules.yml saltTouched.win cell values.</summary>
+    public static class SaltWin
+    {
+        public const string WithHiders = "withHiders";
+        public const string WithMimic = "withMimic";
+        public const string Lose = "lose";
+    }
+
     public enum TeamKind
     {
         None,

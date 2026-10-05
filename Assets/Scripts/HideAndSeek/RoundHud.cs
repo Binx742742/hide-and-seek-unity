@@ -96,6 +96,7 @@ namespace HideAndSeek
             string plate = "HIDER · " + Mathf.Max(0f, me.Hp).ToString("0") + " HP";
             if (me.Smoked)
                 plate += " · in smoke";
+            plate = WithOwnSalt(plate, me, dir.Rules);
             GUILayout.Label(plate);
             GUILayout.Label("scrap " + me.Scrap + "   wire " + me.Wire + "   powder " + me.Powder);
             if (me.HiddenIn != null)
@@ -117,6 +118,19 @@ namespace HideAndSeek
             CraftButton(actions, CraftKind.Scarecrow, "8 Scarecrow");
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
+        }
+
+        /// <summary>
+        /// rules.yml saltTouched.ownHud. The local hider plate only. Other bodies never draw this.
+        /// </summary>
+        static string WithOwnSalt(string plate, Actor me, RoundRules rules)
+        {
+            if (rules == null || !rules.saltTouchedOwnHud || me == null)
+                return plate;
+            var salt = me.GetComponent<SaltTouched>();
+            if (salt == null || !salt.IsMarked)
+                return plate;
+            return plate + " · salt";
         }
 
         static float MarkedMimic(RoundDirector dir)

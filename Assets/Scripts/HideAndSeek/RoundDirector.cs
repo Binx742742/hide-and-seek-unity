@@ -83,6 +83,9 @@ namespace HideAndSeek
         public event Action<string> MusicCue;
         public event Action<Component, float, string> Highlighted;
 
+        /// <summary>Salt-touched service. Null only before Awake. Solo and bot rounds mark nobody.</summary>
+        public SaltTouchedRound Salt { get; private set; }
+
         readonly List<string> _lastMimicUsers = new List<string>();
         readonly List<float> _regrowAt = new List<float>();
         float _blackoutUntil;
@@ -94,6 +97,7 @@ namespace HideAndSeek
                 rules = RoundRules.CreateRuntimeDefaults();
             if (dream == null)
                 dream = DreamCatalog.CreateRuntimeDefaults();
+            Salt = new SaltTouchedRound(this);
         }
 
         void OnDestroy()
@@ -110,6 +114,7 @@ namespace HideAndSeek
         void Update()
         {
             float dt = Time.deltaTime;
+            Salt?.Tick();
             if (ClawLockRemaining > 0f)
                 ClawLockRemaining = Mathf.Max(0f, ClawLockRemaining - dt);
 
@@ -148,6 +153,7 @@ namespace HideAndSeek
             Phase = RoundPhase.Lobby;
             PhaseTimeRemaining = rules.lobbySeconds;
             ClawLockRemaining = 0f;
+            Salt?.ClearMarks();
             Winner = RoundWinner.None;
             Why = null;
             Debug.Log($"[RoundDirector] Lobby ({rules.lobbySeconds}s)");
@@ -315,6 +321,9 @@ namespace HideAndSeek
             _blackoutUntil = 0f;
             Dark = false;
 
+            // Hunt start for a human round (the next call). A bot round has saltTouched.seats.below = 0.
+            AssignSalt(botRound, players);
+
             if (botRound)
                 EnterHide();
             else
@@ -341,6 +350,8 @@ namespace HideAndSeek
                 if (p.Role == RoleKind.Hider && p.Hp <= 0f)
                 {
                     PlaySfx("death", p.transform.position);
+                    // Clean: ordinary death. Committed: salt chime for the mimic, no name.
+                    Salt?.NotifyDied(p);
                     ResetBody(p, RoleKind.Mimic);
                     p.Hp = rules.risenHp;
                     p.MaxHp = rules.risenHp;
@@ -1164,9 +1175,32 @@ namespace HideAndSeek
             var me = LocalActor;
             if (me == null || Winner == RoundWinner.None)
                 return false;
+            // saltTouched.win. Personal result. A risen salt-touched body does not use the mimic-team check.
+            if (Salt != null && Salt.TryPersonalWin(me, Winner, out bool saltWon))
+                return saltWon;
             if (Winner == RoundWinner.Mimic)
                 return me.Role == RoleKind.Mimic || me.Team == TeamKind.Mimic;
             return me.Role == RoleKind.Hider || (me.Role == RoleKind.Ghost && me.Team != TeamKind.Mimic);
+        }
+
+        void AssignSalt(bool botRound, List<Actor> players)
+        {
+            if (Salt == null)
+                return;
+            // Tutorial page and the solo demo take seats.below (0), same as a bot round and a 1v1.
+            bool tutorialOrSolo = botRound;
+            var hiders = new List<Actor>();
+            for (int i = 0; i < players.Count; i++)
+            {
+                var p = players[i];
+                if (p == null)
+                    continue;
+                if (p.ShowTutorial)
+                    tutorialOrSolo = true;
+                if (p.Role == RoleKind.Hider)
+                    hiders.Add(p);
+            }
+            Salt.AssignAtHuntStart(hiders, players.Count, botRound, tutorialOrSolo);
         }
 
         void Prune()
