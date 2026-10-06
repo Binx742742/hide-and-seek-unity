@@ -12,6 +12,7 @@ import CHARS from "./lib/data/characters.yml";
 import { FAKE_NAMES } from "../templates/dream.js";
 import { raycast } from "builtin/physics";
 import { noise } from "./lib/noise.js";
+import { SALT, SALT_TUNE, saltOf, canSabotage, commit } from "./lib/salt.js";
 const RV = RULES.reveal;
 const PW = RULES.powers;
 
@@ -93,6 +94,8 @@ function menuInput(ctx, input) {
 export function onInput(ctx, input) {
   const w = walkOf(ctx), s = ctx.self.state;
   if (input.pressed.menu) return menuInput(ctx, input);
+  // salt: a held E on a drain grate; let go early and it was only a tap (the grate opens or shuts as usual)
+  if (s.bleed && (input.released?.interact || (input.held && !input.held.interact && !input.pressed.interact))) endBleed(ctx, true);
   if (s.menu) { w.moveIntent = { x: 0, z: 0 }; return; }
   w.aimSin = input.axes.aimYawSin ?? 0; w.aimCos = input.axes.aimYawCos ?? 1;
   const mx = input.axes.moveX ?? 0, mz = input.axes.moveZ ?? 0, mag = Math.hypot(mx, mz);
@@ -115,7 +118,13 @@ export function onInput(ctx, input) {
   else if (input.pressed.attack && !s.hiddenIn) attack(ctx, ph);
   if (input.pressed.interact && s.role === "hider") { if (s.hiddenIn) leaveHide(ctx); else if (s.talk) judgeTalk(ctx); else search(ctx); }
   if (input.pressed.disguise && s.role === "mimic" && ph !== "end") cycleDisguise(ctx);
-  if (input.pressed.plant && s.role === "hider" && !s.hiddenIn) { if (!useDoor(ctx, "bar")) say(ctx, "no shut door to bar"); }
+  if (input.pressed.plant && s.role === "hider" && !s.hiddenIn) {
+    // salt: R on a door someone barred lifts it (once); anyone else just bars
+    const d = doorAhead(ctx, RULES.door.reach, true), m = saltOf(ctx.self, ctx.place.state.roundId);
+    if (d && m && (m.unbar ?? 0) > 0 && canSabotage(ctx.self, ctx.place.state) && (d.state.barredUntil ?? 0) > ctx.now()) ctx.emit("press", { by: ctx.self.id, act: "unbar" }, { to: d.id });
+    else if (!useDoor(ctx, "bar")) say(ctx, "no shut door to bar");
+  }
+  if (input.pressed.saltping && s.role === "hider" && ph === "hunt") saltPing(ctx);
   if (input.pressed.interact && s.role !== "hider") {
     const food = s.role === "mimic" && ph === "hunt" && ctx.query({ tags: ["food"], radius: H.reach + 0.5 }).some((r) => !r.tags.includes("bait"));
     if (!food && !(s.disguise && s.disguise !== "none")) useDoor(ctx, "toggle");
@@ -314,7 +323,10 @@ function search(ctx) {
     say(ctx, wasMan ? "THAT WASN'T A FISHERMAN" : wasSpot ? "THE HIDING PLACE HAD TEETH" : "IT WAS THE MIMIC");
     return;
   }
-  if (hit.kind === "door") { useDoor(ctx, "toggle"); return; }
+  if (hit.kind === "door") {
+    if (hit.row.state.kind === "grate" && (hit.row.state.floodUntil ?? 0) <= now && canSabotage(ctx.self, ctx.place.state)) { s.bleed = { door: hit.row.id, at: now }; return; }
+    useDoor(ctx, "toggle"); return;
+  }
   if (hit.kind === "hide") { enterHide(ctx, hit.row.id); return; }
   if (hit.kind === "clue") { takeClue(ctx, hit.row.id); return; }
   if (hit.kind === "dreamer") { startTalk(ctx, hit.row.id); return; }
@@ -354,6 +366,8 @@ function craft(ctx, kind) {
   s.inv = inv;
   const me = ctx.self.feetPosition, f = forward(ctx), now = ctx.now();
   const at = (d, y = 0) => ({ x: me.x + f.x * d, y: me.y + y, z: me.z + f.z * d });
+  // salt: now and then what they make flickers wrong for the others (places/main/sim.js shows it to their allies only)
+  const flick = (kind === "smoke" || kind === "scarecrow") && !!saltOf(ctx.self, ctx.place.state.roundId) && ctx.random() < SALT.flicker;
   sound(ctx, SFX.craft, null, 0.6);
   ctx.emit("stat", { name: "crafted " + kind });
   if (kind === "trap") ctx.spawn({ ...bearTrap, feetPosition: at(1.1, 0.04), state: { kind: "trap", owner: ctx.self.id, armAt: now + 1000 } });
@@ -384,7 +398,7 @@ function craft(ctx, kind) {
   }
   if (kind === "smoke") {
     const p = at(0.5);
-    ctx.spawn({ ...smokeCloud, feetPosition: p, lifetime: RULES.smoke.seconds, fx: { script: SMOKE_FX, params: { r: RULES.smoke.radius } }, state: { kind: "smoke", radius: RULES.smoke.radius, until: now + RULES.smoke.seconds * 1000 } });
+    ctx.spawn({ ...smokeCloud, feetPosition: p, lifetime: RULES.smoke.seconds, fx: { script: SMOKE_FX, params: { r: RULES.smoke.radius } }, state: { kind: "smoke", radius: RULES.smoke.radius, until: now + RULES.smoke.seconds * 1000, owner: ctx.self.id, saltFlicker: flick } });
     sound(ctx, SFX.smoke, p, 1);
   }
   if (kind === "scarecrow") {
@@ -393,7 +407,7 @@ function craft(ctx, kind) {
     const c = CHARS.find((x) => x.id === (s.character ?? "own")), model = c?.model ?? s.avatarModel ?? CHARS.find((x) => x.model)?.model;
     ctx.spawn({ tags: ["scarecrow"], model, feetPosition: at(1.3), rotation: { yaw: yaw + 180 + (ctx.random() - 0.5) * 40 }, castShadow: true, mixer: { base: { clip: "Idle", loop: "loop" } },
       children: [{ id: "lamp", feetPosition: { x: 0.35, y: 1.15, z: -0.3 }, light: { kind: "point", color: "oklch(0.85 0.1 75)", intensity: 1.6, distance: 7 } }],
-      state: { kind: "scarecrow", owner: ctx.self.id, at: now, role: "hider" } });
+      state: { kind: "scarecrow", owner: ctx.self.id, at: now, role: "hider", saltFlicker: flick } });
   }
   const names = { trap: "bear trap set", bait: "rigged fish set", lure: "rattle lure: 6s", flash: "FLASH", tripwire: "tripwire strung. it rings when it crosses", barricade: "planks nailed up", smoke: "SMOKE. you can't be seen in it", scarecrow: "a scarecrow wearing your face" };
   say(ctx, names[kind]);
@@ -661,6 +675,34 @@ function trick(ctx, k) {
   s.cd = { ...cd, [k]: now + T.cooldown * 1000 };
 }
 
+// ── salt-touched ──
+// the hold on a grate: done in update once it has lasted saltTuning.hold; a tap toggles the grate like anyone's E
+function endBleed(ctx, tap) {
+  const s = ctx.self.state, b = s.bleed;
+  s.bleed = null;
+  if (tap && b && ctx.now() - b.at < SALT_TUNE.hold * 1000) ctx.emit("press", { by: ctx.self.id, act: "toggle" }, { to: b.door });
+}
+function holdBleed(ctx) {
+  const s = ctx.self.state, b = s.bleed, now = ctx.now(), d = ctx.getObject(b.door), me = ctx.self.feetPosition;
+  if (!d || stunned(ctx) || !canSabotage(ctx.self, ctx.place.state) || Math.hypot(d.feetPosition.x - me.x, d.feetPosition.z - me.z) > RULES.door.reach + 2.6) { s.bleed = null; return; }
+  if (now - b.at < SALT_TUNE.hold * 1000) return;
+  s.bleed = null;
+  ctx.emit("press", { by: ctx.self.id, act: "bleed" }, { to: b.door });
+}
+// a false heartbeat on a tile ahead (short of the first wall), for the mimic's ears: once a round
+function saltPing(ctx) {
+  const s = ctx.self.state, ps = ctx.place.state, m = saltOf(ctx.self, ps.roundId), now = ctx.now();
+  if (!m || !canSabotage(ctx.self, ps)) return; // anyone else: the key does nothing, and says nothing
+  if ((m.ping ?? 0) <= 0) { say(ctx, "your one false heartbeat is spent"); return; }
+  const me = ctx.self.feetPosition, f = forward(ctx), o = { x: me.x, y: me.y + 1.2, z: me.z };
+  const hit = raycast(ctx, o, { x: f.x, y: 0, z: f.z }, { distance: SALT_TUNE.pingReach, bodies: "static", physicsOnly: true });
+  const d = hit ? Math.max(1, hit.distance - 0.8) : SALT_TUNE.pingReach;
+  const at = { x: Math.round(me.x + f.x * d), y: me.y, z: Math.round(me.z + f.z * d) }; // a tile: the 1 m grid
+  ctx.spawn({ tags: ["ping", "saltping"], lifetime: SALT.ping.seconds, audience: "all", feetPosition: { x: at.x, y: at.y + 1, z: at.z }, state: { kind: "heart", at: now, radius: SALT_TUNE.pingRadius, until: now + SALT.ping.seconds * 1000 } });
+  commit(ctx.self, "ping", at, { ping: m.ping - 1 });
+  say(ctx, `a false heartbeat, over there, ${SALT.ping.seconds}s. only it can hear`);
+}
+
 function setDisguise(ctx, d) {
   const s = ctx.self.state;
   if (s.disguise === d) return;
@@ -728,6 +770,19 @@ export function update(ctx, dt) {
   if (ctx.self.parent) return;
   const s = ctx.self.state, w = walkOf(ctx), now = ctx.now();
   if (ctx.self.isLocal) {
+    // a fresh visit (this page's first tick in this room) opens the menu; a lobby picked from the menu lands in play
+    const room = ctx.getRoomId?.() ?? "main";
+    if (ctx.session.visitRoom !== room) {
+      const fresh = !ctx.session.visitRoom;
+      ctx.session.visitRoom = room;
+      if (s.joining) { s.joining = false; s.menu = false; s.tutorial = false; }
+      else if (fresh) {
+        // a page that reloads mid-round (or a script save in the build room) goes back to its round, not the menu
+        const ps = ctx.place.state ?? {}, inRound = (ps.phase === "hide" || ps.phase === "hunt") && s.round === ps.roundId && (s.role === "hider" || s.role === "mimic");
+        if (!inRound) { s.menu = true; s.tutorial = !s.sawTutorial; }
+        else { s.menu = false; s.tutorial = false; } // the arrival hook opened the menu: a player mid-round goes straight back in
+      }
+    }
     // the menu's camera: a slow drift over the fogged yard
     if (s.menu) { const a = now / 26000; ctx.view.camera = { eye: { x: Math.cos(a) * 46, y: 26, z: 30 + Math.sin(a) * 46 }, aim: { x: 0, y: 2, z: 30 }, fov: 55 }; ctx.session.menuCam = true; }
     else if (ctx.session.menuCam) { ctx.view.camera = null; ctx.session.menuCam = false; }
@@ -760,6 +815,7 @@ export function update(ctx, dt) {
     const me = ctx.self.feetPosition, inSmoke = s.role === "hider" && ctx.query({ tags: ["smoke"], radius: 8 }).some((r) => (r.state.until ?? 0) > now && Math.hypot(r.feetPosition.x - me.x, r.feetPosition.z - me.z) < (r.state.radius ?? 4));
     if (!!s.smoked !== inSmoke) s.smoked = inSmoke;
   }
+  if (s.bleed) holdBleed(ctx);
   if (s.role === "hider" && phase(ctx) !== "lobby") {
     // the search prompt, written when its target changes
     if (now > (w.promptAt ?? 0)) {
@@ -767,8 +823,12 @@ export function update(ctx, dt) {
       const h = s.hiddenIn ? null : nearestSearchable(ctx), id = h ? h.row.id : null;
       const verb = h ? ({ hide: "Hide", clue: "Take", dreamer: "Wake " + (h.row.state.name ?? "them"), mimic: h.row.state.disguise === "fisherman" ? "Wake " + (h.row.state.name ?? "them") : SPOT_FORMS[Object.keys(SPOT_FORMS).find((k) => SPOT_FORMS[k] === h.row.state.disguise)] ? "Hide" : "Search", door: h.row.state.broken ? "Smashed" : h.row.state.open ? "Shut" : "Open" }[h.kind] ?? "Search") : null;
       if ((s.prompt ?? null) !== id || (s.promptVerb ?? null) !== verb) { s.prompt = id; s.promptVerb = verb; }
-      const door = h?.kind === "door" ? h.row : null, dw = door ? (door.state.broken ? "smashed" : door.state.open ? "open" : "shut") : null;
+      const door = h?.kind === "door" ? h.row : null, dw = door ? (door.state.broken ? "smashed" : door.state.open ? "open" : (door.state.barredUntil ?? 0) > now ? "barred" : "shut") : null;
       if ((s.promptDoor ?? null) !== dw) s.promptDoor = dw;
+      // salt: the verb only the bearer sees beside the prompt
+      const m = door && canSabotage(ctx.self, ctx.place.state) ? saltOf(ctx.self, ctx.place.state.roundId) : null;
+      const sv = !m ? null : door.state.kind === "grate" && (door.state.floodUntil ?? 0) <= now ? "bleed" : dw === "barred" && (m.unbar ?? 0) > 0 ? "unbar" : null;
+      if ((s.promptSalt ?? null) !== sv) s.promptSalt = sv;
       // dread: how close the nearest mimic is; the heartbeat only this hider hears
       let near = 99;
       for (const t of enemies(ctx)) if (t.state.role !== "hider" && (t.state.revealed || t.tags?.includes?.("mimic-bot") || (t.state.disguise && t.state.disguise !== "none"))) near = Math.min(near, Math.hypot(t.feetPosition.x - ctx.self.feetPosition.x, t.feetPosition.z - ctx.self.feetPosition.z));

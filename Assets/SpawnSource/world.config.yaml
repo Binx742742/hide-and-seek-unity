@@ -14,6 +14,7 @@ engine:
     theme:
       font: Geist Pixel Square
 routing:
+  script: scripts/routing.js
   maxPlayers: 10
   persistence: session
 inputs:
@@ -68,6 +69,8 @@ inputs:
       keys: [h]
     steal:
       keys: [j]
+    saltping:
+      keys: [y]
   axes:
     moveX:
       keys: a/d
