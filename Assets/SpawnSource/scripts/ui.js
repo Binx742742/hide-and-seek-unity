@@ -100,6 +100,13 @@ const STYLE = `<style>
 .read{position:absolute;left:50%;top:30%;transform:translateX(-50%);max-width:min(440px,80vw);font-size:16px;font-style:italic;text-align:center;animation:fadeo 6s forwards}
 @keyframes fadeo{0%{opacity:0}8%{opacity:1}80%{opacity:1}100%{opacity:0}}
 .lock-card .clock{font-size:48px}
+.salt{color:oklch(0.9 0.04 220)}.salt-plate{border-color:oklch(0.62 0.05 220);display:flex;flex-direction:column;gap:5px;min-width:190px}
+.salt-plate .cap{color:oklch(0.88 0.05 220)}.salt-plate .line{font-size:11px;letter-spacing:.06em}
+.salt-plate .spent{opacity:.4;text-decoration:line-through}
+.sbtn{pointer-events:auto;font:inherit;font-size:10px;letter-spacing:.12em;background:oklch(0.32 0.04 220);color:#fff;border:1px solid oklch(0.62 0.05 220);padding:4px 8px;box-shadow:2px 2px 0 var(--ink);cursor:pointer;text-transform:uppercase}
+.sbtn:disabled{opacity:.35;cursor:default}
+.hold{width:90px;height:5px;background:var(--ink);border:1px solid oklch(0.62 0.05 220);margin-top:4px}.hold i{display:block;height:100%;background:oklch(0.85 0.05 220)}
+.hintline{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:oklch(0.9 0.04 220);padding:6px 14px;background:rgba(11,15,21,.85);border-left:3px solid oklch(0.62 0.05 220);white-space:nowrap;animation:fadeo 8s forwards}
 @media (pointer:coarse),(max-width:760px){
  .dock{flex-direction:column;align-items:flex-start;bottom:auto;top:calc(16px + var(--spawn-safe-area-top,0px));left:calc(12px + var(--spawn-safe-area-left,0px))}
  .feed{top:auto;bottom:45%;left:12px;max-width:60vw}
@@ -110,6 +117,7 @@ const STYLE = `<style>
 </style>`;
 
 import CHARS from "./lib/data/characters.yml";
+import { SALT, SALT_TUNE, saltWon } from "./lib/salt.js";
 const LOGO = "/cdn/value.206d927e3c8ed2bbe34c1b8f143364fd3a811b2c47c346eacc3669db1a1b40fe.png";
 const PHASE = { lobby: "waiting", hide: "hiding", hunt: "hunting", end: "ending" };
 export function pick(id) { sendAction("menu", { op: "pick", char: id }); }
@@ -178,7 +186,7 @@ function menu(ctx, me) {
     <img class="logo" src="${LOGO}" alt="HIDE AND SEEK">
     <div class="mtag">a dead cannery, a dream nobody wakes from, and one of you is not who they look like.</div>
     <div><h3>WAKE UP AS</h3><div class="chars">${CHARS.map((c) => `<button class="ch ${c.id === mine ? "on" : ""}" onclick="pick('${c.id}')">${c.pic ? `<img src="${c.pic}">` : `<div class="own">☺</div>`}<div class="nm">${c.name}</div><div class="bl2">${c.blurb}</div></button>`).join("")}</div></div>
-    <div class="mrow"><button class="mb big" onclick="play()">PLAY HERE</button><button class="mb alt" onclick="showTutorial()">TUTORIAL</button><span class="here">this lobby · <b>${n}/10</b> · ${PHASE[s.phase ?? "lobby"]}</span></div>
+    <div class="mrow"><button class="mb big" onclick="play()">PLAY HERE</button><button class="mb alt" onclick="showTutorial()">TUTORIAL</button><span class="here">you are in <b>${here || "main"}</b> · <b>${n}/10</b> · ${PHASE[s.phase ?? "lobby"]}</span></div>
     <div><h3>OTHER LOBBIES</h3><div class="lobbies">${rooms.length ? rooms.map((r) => `<div class="lb"><span class="rn">${r.room}</span><span class="pc">${r.players}/10</span><span class="ph">${PHASE[r.phase] ?? r.phase}</span><button class="mb" ${r.players >= 10 ? "disabled" : ""} onclick="join('${r.room}')">JOIN</button></div>`).join("") : `<div class="here" style="opacity:.5">no other lobbies right now</div>`}
       <button class="mb alt" onclick="fresh()">+ START A NEW LOBBY</button></div></div>
     ${me.menuMsg && ctx.now() - me.menuMsg.at < 4000 ? `<div class="red" style="font-size:13px">${me.menuMsg.text}</div>` : ""}
@@ -193,6 +201,17 @@ function slot({ icon, key, name, sub, act, ok, cd, total, lock, coarse }) {
   const live = ok && !(cd > 0) && !lock;
   return `<button class="slot ${live ? "ok" : "off"}" ${act && live ? `onclick="sendAction('${act}')"` : "disabled"}><div class="face"><img src="${IC[icon]}" alt="">${cdTxt}${lk}${coarse || !key ? "" : `<span class="k">${key}</span>`}</div><div class="nm">${name}</div>${sub ? `<div class="cost">${sub}</div>` : ""}</button>`;
 }
+// the salt-touched's own mark: nobody else's HUD draws it (rules saltTouched.ownHud)
+function saltPlate(me, s, coarse) {
+  const m = me.salt;
+  if (!SALT.ownHud || !m || m.round !== s.roundId || s.phase !== "hunt") return "";
+  const u = m.unbar ?? 0, pg = m.ping ?? 0;
+  return `<div class="plate salt-plate"><div class="cap">✶ Salt-touched · ${m.committed ? "committed" : "clean"}</div>
+    <div class="line">${m.committed ? "you win only if the mimic wins" : "sabotage once and you win only with the mimic"}</div>
+    <div class="line ${u ? "" : "spent"}">${coarse ? "" : "R "}unbar a barred door ×${u}</div>
+    <div class="line">hold ${coarse ? "USE" : "E"} on a drain grate: bleed it ${SALT.drain.seconds}s</div>
+    <div class="line"><button class="sbtn" ${pg ? `onclick="sendAction('saltping')"` : "disabled"}>${coarse ? "" : "Y · "}false heartbeat ×${pg}</button></div></div>`;
+}
 export default function render(ctx, player) {
   const s = ctx.place.state ?? {}, me = player.state ?? {}, now = ctx.now();
   if (me.tutorial) return tutorial(typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches);
@@ -206,7 +225,7 @@ export default function render(ctx, player) {
   if (phase === "lobby") {
     const n = (ctx.place.players ?? []).length;
     h += `<div class="top"><div class="plate"><div class="cap">Gullmouth Cannery</div><div class="clock">${s.startAt ? clock(s.startAt - now) : "—"}</div><div class="sub">${n < 2 ? "alone · something else hunts you" : `${n} waiting · one of you is the mimic`}</div></div></div>`;
-    h += `<div class="dock"><div class="plate help"><div class="cap" style="margin-bottom:6px">How it goes</div>Everyone looks the same. One is the <span class="red">mimic</span>, revealed when someone sees it hurt someone, or a trap bites it.<br><span class="gold">Hiders</span> search crates for scrap, wire and powder, craft traps, wake the 5 dreamers or survive till dawn.<br><span class="red">Mimic</span> becomes crates and hiding spots, eats fish for powers, lays fake loot, throws its voice, steals faces.<br><span style="opacity:.7">Never trust a still crate.</span></div></div>`;
+    h += `<div class="dock"><div class="plate help"><div class="cap" style="margin-bottom:6px">How it goes</div>Everyone looks the same. One is the <span class="red">mimic</span>, revealed when someone sees it hurt someone, or a trap bites it.<br><span class="gold">Hiders</span> search crates for scrap, wire and powder, craft traps, and win by surviving till dawn, waking the 5 dreamers, or killing the mimic.<br><span class="red">Mimic</span> becomes crates and hiding spots, eats fish for powers, lays fake loot, throws its voice, steals faces.<br><span style="opacity:.7">Never trust a still crate.</span></div></div>`;
   } else if (phase === "hide" || phase === "hunt") {
     const left = s.endsAt - now;
     const dream = s.dreamerTotal ? `<div class="chips"><div class="chip blue">CLUES<b>${s.clues ?? 0}/${s.clueTotal}</b></div><div class="chip gold">AWAKE<b>${s.awake ?? 0}/${s.dreamerTotal}</b></div></div>` : "";
@@ -237,11 +256,15 @@ export default function render(ctx, player) {
     h += `<div class="dock"><div class="plate stat"><div class="cap">Hider${me.smoked ? ' · <span style="color:#9fb3c2">in smoke</span>' : ""}</div><div class="hp"><i style="width:${hp}%"></i></div>
       <div class="mats">${Object.keys(MAT).map((k) => `<span class="${inv[k] ? "" : "zero"}"><b>${inv[k]}</b>${k}</span>`).join("")}</div>
       ${coarse ? "" : `<div class="hint">E search · click stab · 1–8 craft</div>`}</div>
+      ${saltPlate(me, s, coarse)}
       <div class="bar">${RECIPES.map((r) => {
         const ok = Object.entries(r.cost).every(([k, n]) => inv[k] >= n);
         return slot({ icon: r.icon, key: r.key, name: r.name, sub: Object.entries(r.cost).map(([k, n]) => n + ABBR[k]).join(" "), act: r.act, ok, coarse });
       }).join("")}</div></div>`;
-    if (me.prompt) h += `<div data-world-anchor="${me.prompt}" data-anchor-offset="${me.promptDoor ? "0.6 1.4 0" : "0 1.2 0"}"><div class="prompt">${coarse ? "" : "<kbd>E</kbd>"}${me.promptVerb ?? "Search"}${me.promptDoor === "shut" ? (coarse ? `<button class="pbar" onclick="sendAction('plant')">BAR</button>` : " · <kbd>R</kbd>Bar") : ""}</div></div>`;
+    const sv = me.promptSalt === "unbar" ? (coarse ? `<button class="pbar sbtn" onclick="sendAction('plant')">UNBAR</button>` : ` · <kbd>R</kbd><span class="salt">Unbar</span>`)
+      : me.promptSalt === "bleed" ? ` · <span class="salt">hold ${coarse ? "USE" : "E"}: bleed</span>` : "";
+    const held = me.bleed ? `<div class="hold"><i style="width:${Math.min(100, ((now - me.bleed.at) / (SALT_TUNE.hold * 1000)) * 100)}%"></i></div>` : "";
+    if (me.prompt) h += `<div data-world-anchor="${me.prompt}" data-anchor-offset="${me.promptDoor ? "0.6 1.4 0" : "0 1.2 0"}"><div class="prompt">${coarse ? "" : "<kbd>E</kbd>"}${me.promptVerb ?? "Search"}${me.promptDoor === "shut" ? (coarse ? `<button class="pbar" onclick="sendAction('plant')">BAR</button>` : " · <kbd>R</kbd>Bar") : me.promptDoor === "barred" && !sv ? " · barred" : ""}${sv}</div>${held}</div>`;
   } else if (role === "mimic") {
     const hp = Math.max(0, me.hp ?? 200), top = me.risen ? 90 : 200, pw = me.power ?? 0;
     const c = (at) => Math.max(0, (at ?? 0) - now), cdk = (k) => c(me.cd?.[k]);
@@ -262,6 +285,7 @@ export default function render(ctx, player) {
     if ((me.clawReadyAt ?? 0) > now && !me.risen) h += `<div class="center lock-card" style="justify-content:flex-start;padding-top:11%"><div class="banner"><div class="big red">YOU ARE THE MIMIC</div><div class="sub">nobody knows · walk with them</div><div class="clock red">claws in ${clock((me.clawReadyAt ?? 0) - now)}</div><div class="hint" style="display:block;opacity:.7">your first claw kills · if anyone sees it, you're revealed</div></div></div>`;
     else if (!me.revealed && !me.risen) h += `<div style="position:absolute;left:50%;bottom:30%;transform:translateX(-50%);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#e8c170;padding:4px 10px;background:rgba(11,15,21,.7);border-left:3px solid #b7410e">${(me.ambushAt ?? 0) > now ? `killing strike in ${Math.ceil((me.ambushAt - now) / 1000)}s` : `<span class="red">killing strike ready</span>`}</div>`;
     for (const id of me.pings ?? []) h += `<div data-world-anchor="${id}"><div class="ping"><i></i><i></i><b></b></div></div>`;
+    if (me.saltHint && now - me.saltHint.at < SALT_TUNE.hintSeconds * 1000) h += `<div class="hintline" id="sh-${me.saltHint.at}">${me.saltHint.text}</div>`;
   } else if (role === "ghost" && phase !== "end") {
     h += `<div class="dock"><div class="plate stat"><div class="cap red">${me.team === "mimic" ? "Put to rest" : "Taken"}</div><div class="line" style="opacity:.8">you drift unseen. watch the others.</div></div></div>`;
   }
@@ -271,8 +295,13 @@ export default function render(ctx, player) {
 
   // the end
   if (phase === "end") {
-    const youWon = s.winner === "mimic" ? (role === "mimic" || me.team === "mimic") : (role === "hider" || (role === "ghost" && me.team !== "mimic"));
-    h += `<div class="center"><div class="banner"><div class="cap">${youWon ? "You won" : "You lost"}</div><div class="big ${s.winner === "mimic" ? "red" : "gold"}">${s.winner === "mimic" ? "THE MIMIC FEEDS" : "THE HIDERS LIVE"}</div><div class="line" style="opacity:.85">${s.why ?? ""}</div><div class="sub">next round soon</div></div></div>`;
+    // whose side you ended on: the mimic's (true, risen, or put to rest), the hiders', the salt's own rule, or nobody's (you watched)
+    const salt = me.salt && me.salt.round === s.roundId ? me.salt : null;
+    const watched = !salt && (role === "lobby" || (role === "ghost" && me.team !== "mimic"));
+    const youWon = salt ? saltWon(salt, s.winner) : s.winner === "mimic" ? (role === "mimic" || me.team === "mimic") : role === "hider";
+    const cap = watched ? "Round over" : youWon ? "You won" : "You lost";
+    const saltLine = salt ? `<div class="line salt">${salt.committed ? "you turned. the salt wins only with the mimic" : "you stayed clean. you stood with the hiders"}</div>` : "";
+    h += `<div class="center"><div class="banner"><div class="cap">${cap}</div><div class="big ${s.winner === "mimic" ? "red" : "gold"}">${s.winner === "mimic" ? "THE MIMIC FEEDS" : "THE HIDERS LIVE"}</div><div class="line" style="opacity:.85">${s.why ?? ""}</div>${saltLine}<div class="sub">back to the lobby in ${Math.max(0, Math.ceil(((s.endsAt ?? now) - now) / 1000))}s</div></div></div>`;
   }
   return h + `</div>`;
 }

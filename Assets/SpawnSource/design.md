@@ -4,13 +4,20 @@
 4 **hiders** scavenge loot crates and craft traps to hurt and kill the **mimic** (the seeker). The mimic
 disguises itself as crates, barrels and loot crates to trick hiders and kills them. Third-person camera.
 
-**Round.** lobby (15 s countdown once anyone is here) → **hide** 30 s (mimic caged on the pier, screen black)
-→ **hunt** 240 s → **end** 8 s → lobby. With 2+ humans one random human is the mimic; alone (or 1 player),
-a bot mimic hunts you. Joiners mid-round watch as ghosts.
+**Round.** (numbers live in scripts/lib/data/rules.yml; it wins over this page.) lobby (15 s countdown once anyone
+not in the menu is here, 5 s in a full room of 10) → **hunt** 420 s → **end** 8 s → lobby.
+- Human round (2+ players): one human per 5 is the mimic (last round's sit out the draw). No hide phase: everyone wakes
+  in the same ring, the mimic looks like anyone, and its claws are locked for the first 30 s of the hunt (reveal.startLock).
+  At 4+ players one human hider is quietly **Salt-touched** (section below).
+- Solo (1 player): a bot mimic waits in the cage on the pier for **hide** 30 s, then the cage opens and the 420 s hunt starts.
+- Empty seats up to 5 fill with npc hiders. A joiner mid-round takes an npc's place; with none left they watch as a ghost
+  (a spectator: their end screen reads "Round over"). A round nobody is left in ends quietly after 15 s.
 
 **Win / lose.**
-- Mimic wins: every hider is dead.
-- Hiders win: the clock runs out with anyone alive, OR the mimic's 200 hp hits 0.
+- Mimic team wins: no hider (human or npc) is left. Killed hiders rise as mimics and win with the mimic.
+- Hiders win: dawn (the clock runs out with anyone alive), OR every dreamer is woken, OR every true mimic is dead.
+- Salt-touched: Clean wins and loses with the hiders; Committed wins only if the mimic wins.
+- A true mimic who leaves passes the mask to a random hider; with fewer than 2 hiders left the hiders win.
 
 **Hider loop.** sneak → E search loot crate (1–2 of scrap / wire / powder, crate refills in 45 s) → craft:
 1 bear trap (2 scrap): 35 dmg + roots 2.5 s · 2 bait crate (scrap + powder): a fake loot crate, blows for 45 + stun
@@ -23,7 +30,7 @@ Hider 100 hp, walks 5.5 m/s.
 Mimic 200 hp, 6.4 m/s. Bot mimic chases at 5.2 (outrunnable), claws 25.
 
 **Numbers agree.** 4 hiders × ~2 traps each ≈ 8 × 35–45 ≈ 320 > 200: killing the mimic takes teamwork, not luck.
-Mimic needs 3 claws a hider = 12 claws in 240 s.
+Mimic needs 3 claws a hider = 12 claws in 420 s (fewer with its 30 s killing ambush and the risen helping).
 
 **Open questions.** voice proximity chat tuning; more mimic forms; hiding inside lockers.
 
@@ -61,3 +68,25 @@ The mimic gets 3 tricks with no fish needed:
 - J Steal face (30 s): wear the nearest hider's character and name tag until revealed.
 Combos the kit is built for: tripwire behind a barricade, smoke to break a chase into a hiding spot, a scarecrow by a rigged fish; the mimic's voice thrown past a snare.
 Numbers: scripts/lib/data/rules.yml (tripwire, barricade, smoke, scarecrow, tricks).
+- 2026-10-06 (binxius: "make sure all lobbies show in main menu of real people playing and you can join"): scripts/routing.js now honours the room a menu JOIN / START A NEW LOBBY names (before, a brand-new room name could fall back into the fullest open room). Plain links still fill the fullest open room. The lobby list shows up to 30 rooms with players seen in the last 20 s, and the menu names the room you're in.
+
+## Salt-touched (2026-10-06, binxius, designed with the user; same rules as the Unity port)
+One random HUMAN hider is quietly marked at hunt start. Seats: 0 under 4 players, 1 at 4+, never 2; 0 in bot/solo rounds
+(the tutorial is a page, never a round). They stay a normal hider for damage, hiding and crafts. They can sabotage, never kill:
+- **Unbar** (R on a door a player barred): the bar lifts, once a round, free. A soft creak and a door-noise ring (22 m).
+- **Bleed a drain** (hold E 1.5 s on a Saltgate drain grate; a tap still opens/shuts it): the grate swings open and floods
+  for 45 s; nobody can shut or bar it till then.
+- **Salt ping** (Y, or the button on their salt plate): once a round, a false hider heartbeat on a tile up to 12 m ahead
+  for 10 s. Only mimics hear it (and see its ring).
+Any sabotage makes them **Committed**; none leaves them **Clean**. Clean wins/loses with the hiders; Committed wins only if
+the mimic wins (their end screen says which).
+Tells: no public badge. Their own HUD shows the salt mark, clean/committed and what's left. After the first sabotage every
+mimic gets one private line naming the area (Saltgate, the drains, the Rail Siding, Fishermen's Row, the pier, the cannery
+yard), never the player. 15% of the scarecrows and smoke they craft glint wrong for the other hiders (mimics never see it).
+A Committed one dying plays a salt chime to the mimics.
+Where it lives: scripts/lib/salt.js (mark, commit, win rule, areas), places/main/sim.js (seat, hint, heartbeat, flicker, chime,
+end record in place.state.lastResult.salt), scripts/door.js (unbar, bleed), scripts/player.js (inputs, ping, flicker roll),
+scripts/ui.js (salt plate, prompts, mimic hint, end line). Numbers: rules.yml `saltTouched` (keys mirror the Unity port's;
+keep them in sync) and `saltTuning` (this port only: hold, ping reach, timings).
+Hooks: no salt-specific sounds exist yet. scripts/lib/sfx.js `saltChime` (reuses the glass-shard chime) and `saltBleed`
+(reuses the grate squeal) are named hooks; point them at real clips once someone generates them.

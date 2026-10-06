@@ -2,8 +2,8 @@
 // (state.joining, set before the cross) lands straight in play. The first visit also stops on the
 // tutorial (state.sawTutorial lives on the player's save, so M does not show it again).
 export function onArrive(ctx, player) {
+  // the joining flag is cleared by the player's own first tick (scripts/player.js), never here
   if (player.state.joining) {
-    player.state.joining = false;
     player.state.menu = false;
     player.state.tutorial = false;
   } else {

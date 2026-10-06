@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "basedOnSpecVersion": 136,
-  "updatedAt": "2026-10-04T17:08:43.632Z",
-  "summary": "Gullmouth is a multiplayer hide-and-seek horror game in a foggy cannery town and its storm drains. world.config.yaml and scripts/ui.js provide the multiplayer entry and responsive HUD; places/main/sim.js owns round truth, while player and bot behaviors run the hunt using shared rules, prop templates, sounds, and geometry generators.",
+  "basedOnSpecVersion": 148,
+  "updatedAt": "2026-10-06T02:04:58.746Z",
+  "summary": "Gullmouth is a multiplayer hide-and-seek horror game set in a foggy cannery town and its storm drains. world.config.yaml routes players into session-persistent rooms and binds the menu/HUD; places/main/sim.js owns each room's round truth while player and bot behaviors run the hunt using shared rules, props, sounds, and geometry generators.",
   "scriptPaths": [
     "scripts/arrival.js",
     "scripts/bot-hider.js",
@@ -53,6 +53,7 @@
     "scripts/places/main/sim.js",
     "scripts/player.js",
     "scripts/reed.js",
+    "scripts/routing.js",
     "scripts/sim.js",
     "scripts/templates/camera.js",
     "scripts/templates/creature.js",
@@ -70,9 +71,9 @@
     "places/main/cells/x-1z1.scene - Saltgate chapel, door, hide tarp, and northern drain loot/stair area."
   ],
   "roots": [
-    "world.config.yaml - multiplayer entry, arrival behavior, action/gamepad bindings, player/camera templates, and scripts/ui.js renderer; UI referenceHeight is 1080.",
+    "world.config.yaml - multiplayer entry, arrival behavior, actions, player/camera templates, scripts/ui.js renderer, and scripts/routing.js room selection; up to 10 players, session persistence.",
     "sim.js - world-scope cadence/tick entry, separate from places/main/sim.js round referee.",
-    "places/main/sim.js - referee for lobby/hide/hunt/end, role draw, round entities, deaths, outcomes, and room-board publishing.",
+    "places/main/sim.js - room referee for lobby/hide/hunt/end, role draw, round entities, deaths, outcomes, and room-board publishing.",
     "templates/player.js#player and templates/camera.js#camera - player body composition and custom orbit camera roots.",
     "places/main/config.yaml - arena terrain, night lighting/atmosphere, scripts/look-default.js post-process, and decorative layers.",
     "places/main/cells/x0z0.scene - authored central yard and dockyard structures, props, cage, and hiding spots."
@@ -94,11 +95,11 @@
     "scripts/dreamer.js - exports updateSchedule, update; scripts/clue.js - exports update.",
     "scripts/humanoid-locomotion.js - exports sit, onInput, update; scripts/camera.js - exports onInput, update.",
     "scripts/arrival.js - exports onArrive, onLeave; scripts/ui.js - exports pick, play, join, fresh, openMenu, showTutorial, closeTutorial, default; ui/nametag.js - exports default.",
-    "scripts/look-default.js - exports look; scripts/flat-starter-terrain.js - exports heightAt, materialAt; scripts/gen/kit.js - exports geometry helpers and scene generators export geometry, usually collider.",
+    "scripts/routing.js - exports pickRoom; scripts/look-default.js - exports look; scripts/flat-starter-terrain.js - exports heightAt, materialAt.",
     "templates/dream.js - exports dreamer, clue, fishermanForm, FAKE_NAMES; templates/creature.js exports mimicBody; templates/props.js exports FORMS and gameplay props."
   ],
   "ownership": [
-    "places/main/sim.js - ctx.place.state phase/timers, original mimicIds and draw/name, winner/feed/objectives/blackout; assigns/reset roles, spawns/removes NPC hiders, judges traps and kit snares/wires, resolves deaths/outcomes, and publishes room board.",
+    "places/main/sim.js - ctx.place.state phase/timers, room-qualified roundId, original mimicIds and draw/name, winner/feed/objectives/blackout; assigns/resets roles, spawns/removes NPC hiders, judges traps and kit snares/wires, resolves deaths/outcomes, and publishes room-board rows.",
     "scripts/player.js - each player's role actions, hp/inventory/disguise/reveal/ambush/claw lock, powers/cooldowns, stolen face/name, smoke membership, prompts/conversation/hiding, stun/root, and menu/character state.",
     "scripts/door.js - each door's open/broken/barred/hp/swing state; handles press events and synchronized leaf animation.",
     "scripts/bot-mimic.js - bot hunt mode/target, disguise, food powers, fake loot, attacks, and reactions to smoke/scarecrows; scripts/bot-hider.js - NPC hider mode/goal/hiddenIn and survival behavior.",
@@ -118,12 +119,12 @@
     "player, bot-hider, door, and lure sounds → scripts/lib/noise.js creates ping rows → bot-mimic.js reads fresh in-range pings and investigates.",
     "scripts/player.js E/R or mimic claw → emits press {by, act} to a door → scripts/door.js toggles, bars, or breaks it and animates its shared leaf; door sounds also emit noise.",
     "Player hider kit spawns tripwire/barricade/smoke/scarecrow; places/main/sim.js judges tripwire and mimic snare overlaps, while bot-mimic.js can be diverted by scarecrows and loses smoked hiders.",
-    "Mimic B/H/J actions in scripts/player.js → play echo, place referee-judged gut snare, or copy nearby hider face/name → player and ui/nametag.js use face state until reveal/round reset.",
-    "world.config.yaml actions → scripts/player.js handles menu/game actions and scripts/ui.js renders; arrival.js handles fresh/menu arrivals, while referee publishes and reads room-scoped SQL lobby rows."
+    "world.config.yaml actions → scripts/player.js handles menu/game actions and scripts/ui.js renders; arrival.js handles menu arrivals, while referee publishes/reads room-scoped SQL lobby rows for the menu.",
+    "Menu JOIN/START → requested room id → scripts/routing.js honors it unless rejected; plain links choose fullest room with space then a new name. sim.js publishes up to 30 nonempty lobby rows seen within 20 seconds; scripts/ui.js shows the current room and joins."
   ],
   "behaviorFamilies": [
     "scripts/gen/kit.js and scripts/gen/{boatshed,cannery,office,warehouse,cottage}.js - shared geometry kit builds walk-in structures; scene placements/params vary footprints, openings, materials, and detail.",
-    "scripts/gen/{boat,dinghy,crane,container,drums,drain,dumpster,fence,fish-crates,forklift,lamp-post,net-rack,pallets,pier,puddles,tarp,tyres,locker,fishpile}.js - dock, yard, drain, and hiding-place generators reused with placement/params varying location and form.",
+    "scripts/gen/{boat,dinghy,crane,container,drums,drain,dumpster,fence,fish-crates,forklift,lamp-post,net-rack,pallets,pier,puddles,tarp,tyres,locker,fishpile}.js - dock, yard, drain, and hiding-place generators reused with placement/params varying shapes and detail.",
     "scripts/gen/door.js with templates/door.js - shared hinged leaves and sliding secret panels; scene state varies kind, hinge/yaw, swing, and slide.",
     "templates/props.js#FORMS - crate, barrel, and loot silhouettes reused for real loot, decoys, and mimic disguises; tags, physics, and state distinguish gameplay.",
     "templates/dream.js#dreamer and #fishermanForm - mimic fisherman borrows dreamer model/UI and names; human/bot implementations vary disguise and animation handling.",
@@ -134,10 +135,10 @@
   "probableOrphans": [],
   "migrationNotes": [
     "Round truth and win adjudication belong to places/main/sim.js in ctx.place.state; root sim.js is a separate world tick. Human mimics start in the hider ring with a claw lock; solo bot rounds retain the caged hide phase.",
+    "s.roundId qualifies a round with room id, round counter, and start time because player.state follows players across rooms; use it for round membership and body resets, and include all room occupants (including menu players) in round resolution so opening a menu is not a walk-out.",
     "s.mimicIds records original seeker(s); risen mimics do not substitute for them in original-seeker survival checks. NPC hiders count alive until dead or taken over by a joining player.",
     "Door state lives on each tagged door: press is routed with {by, act}; timers use milliseconds, hp is counted, broken doors stay open during the round, and clearRound resets doors and round-spawned tagged kit.",
-    "Fresh arrival opens the menu; player.js marks menu-initiated room crosses with state.joining, and the referee excludes menu players from role draw. SQL lobby rows are room-scoped and freshness-limited.",
-    "Game timestamps are milliseconds (ctx.now() + seconds * 1000); dream convince period values are milliseconds, while rules durations/cooldowns are seconds. Preserve player.state.avatarModel as the own-character fallback.",
-    "Saltgate/drain coordinates extend west to x=-120: terrain, config holes, fence runs, and scene cells must align; scripts/gen/drain.js is world-coordinate geometry placed at origin, with terrain roofed by the y=4 bluff."
+    "Fresh arrival opens the menu; player.js marks menu-initiated room crosses with state.joining, and the referee excludes menu players from role draw. SQL lobby rows are room-scoped and freshness-limited; routing honors explicitly requested non-rejected rooms, while plain links choose an open room.",
+    "Game timestamps are milliseconds (ctx.now() + seconds * 1000); dream convince period values are milliseconds, while rules durations/cooldowns are seconds. Preserve player.state.avatarModel as the own-character fallback. Saltgate/drain coordinates extend west to x=-120: terrain, config holes, fence runs, and scene cells must align; scripts/gen/drain.js is world-coordinate geometry placed at origin, with terrain roofed by the y=4 bluff."
   ]
 }

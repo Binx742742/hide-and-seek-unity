@@ -8,6 +8,7 @@ import { noise } from "../../scripts/lib/noise.js";
 const NPC_NAMES = ["Mags", "Tobin", "Wren", "Iver", "Nell", "Corrie", "Abe", "Lotte", "Sim", "Hettie"];
 const NPC_LOOKS = ["dockhand", "gutter", "runaway", "watch"];
 import CHARS from "../../scripts/lib/data/characters.yml";
+import { SALT, SALT_TUNE, saltOf, saltSeats, saltWon, areaOf } from "../../scripts/lib/salt.js";
 
 export const cadence = "100ms";
 const MUSIC = {
@@ -31,14 +32,20 @@ const flat = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 function spawnAt(i, n) { const a = (i / Math.max(1, n)) * Math.PI * 2; return { x: RULES.spawn.x + Math.cos(a) * 2, y: 0.5, z: RULES.spawn.z + Math.sin(a) * 2 }; }
 
 function resetBody(p, role, round) {
-  if (p.state.hiddenIn) { p.state.hiddenIn = null; }
-  p.state.talk = null;
+  // out of a hiding place first: back where they climbed in, never left standing inside a locker (the referee frees the spot)
+  if (p.state.hiddenIn) { if (p.state.hideFrom) p.feetPosition = { ...p.state.hideFrom }; p.state.hiddenIn = null; }
+  p.state.talk = null; p.state.salt = null; p.state.bleed = null; p.state.saltHint = null;
   Object.assign(p.state, { role, risen: false, revealed: false, ambushAt: 0, clawReadyAt: 0, power: 0, cd: {}, fadeUntil: 0, faded: false, team: role === "mimic" ? "mimic" : role === "hider" ? "hiders" : role === "lobby" ? null : p.state.team, hp: role === "mimic" ? RULES.seekerHp : RULES.hiderHp, inv: { scrap: 0, wire: 0, powder: 0 }, disguise: "none", stunUntil: 0, rootUntil: 0, round, msg: null, prompt: null, dread: 0, faceOf: null, faceName: null, smoked: false });
 }
 function clearRound(ctx) {
-  for (const r of ctx.query({ anyTags: ["trap", "bait", "lure", "fake", "mimic-bot", "dreamer", "clue", "food", "npc-hider", "ping", "tripwire", "barricade", "smoke", "scarecrow", "snare"] })) ctx.destroy(r.id);
-  for (const r of ctx.query({ tags: ["door"] })) { const d = ctx.getObject(r.id); if (d) Object.assign(d.state, { open: false, broken: false, barredUntil: 0, barCoolUntil: 0, hp: RULES.door.hp }); }
+  for (const r of ctx.query({ anyTags: ["trap", "bait", "lure", "fake", "mimic-bot", "dreamer", "clue", "food", "npc-hider", "ping", "tripwire", "barricade", "smoke", "scarecrow", "snare", "flood"] })) ctx.destroy(r.id);
+  for (const r of ctx.query({ tags: ["door"] })) { const d = ctx.getObject(r.id); if (d) Object.assign(d.state, { open: false, broken: false, barredUntil: 0, barCoolUntil: 0, hp: RULES.door.hp, floodUntil: 0, barredBy: null }); }
   ctx.place.state.ate = null; ctx.place.state.blackout = null;
+  // a round that ended mid-blackout left the lamps dead through the lobby: light them again
+  if (ctx.place.state.dark) { ctx.place.state.dark = false; lamps(ctx, true); }
+  // last round's fish regrowth never spills into this one
+  ctx.place.state.regrowAt = []; ctx.place.state.ateSeen = null;
+  ctx.place.state.saltHinted = false; ctx.place.state.emptySince = null;
   ctx.place.state.clues = 0; ctx.place.state.awake = 0;
   for (const r of ctx.query({ tags: ["loot"] })) { const h = ctx.getObject(r.id); if (h) h.state.emptyUntil = 0; }
   delete ctx.place.state.noise;
@@ -57,7 +64,9 @@ function mimicBodies(ctx) {
 function finish(ctx, winner, why) {
   const s = ctx.place.state;
   s.phase = "end"; s.winner = winner; s.why = why + (s.mimicIds?.includes("bot") ? "" : `. the mimic was ${s.mimicName}`); s.endsAt = ctx.now() + RULES.endSeconds * 1000;
-  s.lastResult = { round: s.round, winner, why: s.why, at: ctx.now() };
+  // the salt-touched's own fate is theirs to read on their end screen (scripts/ui.js); the record keeps it for the next look
+  const salt = ctx.place.players.filter((p) => saltOf(p, s.roundId)).map((p) => ({ name: p.displayName, committed: !!p.state.salt.committed, verbs: p.state.salt.verbs ?? [], won: saltWon(p.state.salt, winner) }));
+  s.lastResult = { round: s.round, winner, why: s.why, at: ctx.now(), salt };
   ctx.music.stop({ fade: 0.5 });
   ctx.emit("playSound", { clip: winner === "hiders" ? SFX.bell : SFX.death, volume: 0.9 }, { audience: "all" });
   ctx.emit("slowMo", { scale: 0.35, duration: 1.2 }, { audience: "all" });
@@ -68,6 +77,8 @@ function startRound(ctx) {
   const s = ctx.place.state, now = ctx.now(), players = ctx.place.players.filter((p) => !p.state.menu);
   clearRound(ctx);
   s.round = (s.round ?? 0) + 1;
+  // a round's key names its room: player.state follows a player into every room, so round 3 here is never round 3 there
+  s.roundId = `${ctx.getRoomId?.() ?? "main"}:${s.round}:${now}`;
   const bot = players.length < 2;
   // a fair draw: whoever was the mimic last round sits this one out of the draw
   // a fair draw: one seeker per 5 players; last round's seekers sit this draw out when there are enough others
@@ -84,19 +95,34 @@ function startRound(ctx) {
   // nobody knows: the mimic wakes in the same ring as everyone, wearing its own face
   const ring = [...players];
   for (let j = ring.length - 1; j > 0; j--) { const r = Math.floor(ctx.random() * (j + 1)); [ring[j], ring[r]] = [ring[r], ring[j]]; }
-  ring.forEach((p, i) => { resetBody(p, seekers.includes(p) ? "mimic" : "hider", s.round); p.feetPosition = spawnAt(i, ring.length); });
+  ring.forEach((p, i) => { resetBody(p, seekers.includes(p) ? "mimic" : "hider", s.roundId); p.feetPosition = spawnAt(i, ring.length); });
+  // salt-touched: at 4+ humans one human hider is quietly turned (never in a bot round). only their own HUD knows
+  s.saltHinted = false;
+  const open = ring.filter((p) => !seekers.includes(p));
+  for (let i = bot ? 0 : saltSeats(players.length); i > 0 && open.length; i--) {
+    const p = open.splice(Math.floor(ctx.random() * open.length), 1)[0];
+    p.state.salt = { round: s.roundId, unbar: SALT.unbar.uses, ping: SALT.ping.uses, committed: false, verbs: [] };
+    p.state.msg = { text: "salt on your tongue. the dream has you. nobody knows", at: now };
+  }
   // claws lock from this instant. a human round is already the hunt, so the half-minute is spent beside someone who cannot strike
   for (const p of seekers) { p.state.clawReadyAt = now + RULES.reveal.startLock * 1000; p.state.ambushAt = p.state.clawReadyAt; }
   s.clawsAt = now + RULES.reveal.startLock * 1000;
-  if (bot) ctx.spawn("mimic-bot", {
-    tags: ["mimic-bot"], feetPosition: { ...CAGE, y: CAGE.y + 0.3 }, physics: { body: "character" }, render: false,
-    primitive: { kind: "capsule", radius: 0.35, halfHeight: 0.6 }, behavior: ["scripts/bot-mimic.js"],
-    state: { hp: RULES.bot.hp, disguise: "none", mode: "ambush-go", role: "mimic" },
-    children: [{ id: "body", template: "templates/creature.js#mimicBody" }],
-  });
+  s.botDead = false;
+  if (bot) spawnBot(ctx);
   // empty seats fill with npc hiders; whoever joins mid-round takes one over
   const npcs = Math.max(0, (RULES.seats ?? 5) - players.length - (bot ? 1 : 0));
   for (let i = 0; i < npcs; i++) spawnNpc(ctx, i, npcs, players.length);
+  startRest(ctx, s, players, bot, now);
+}
+function spawnBot(ctx, at) {
+  ctx.spawn({
+    tags: ["mimic-bot"], feetPosition: at ?? { ...CAGE, y: CAGE.y + 0.3 }, physics: { body: "character" }, render: false,
+    primitive: { kind: "capsule", radius: 0.35, halfHeight: 0.6 }, behavior: ["scripts/bot-mimic.js"],
+    state: { hp: RULES.bot.hp, disguise: "none", mode: at ? "hunt" : "ambush-go", role: "mimic" },
+    children: [{ id: "body", template: "templates/creature.js#mimicBody" }],
+  });
+}
+function startRest(ctx, s, players, bot, now) {
   // the dream fills: dreamers shuffle near home, shards hang where things are wrong
   for (const d of DREAM.dreamers) ctx.spawn(d.id, { template: "templates/dream.js#dreamer", feetPosition: { x: d.home[0], y: 0.3, z: d.home[1] }, state: { home: d.home, name: d.name, says: d.says, awake: false, talker: null } });
   for (const c of DREAM.clues) ctx.spawn(c.id, { template: "templates/dream.js#clue", feetPosition: { x: c.at[0], y: 1.1, z: c.at[1] }, material: { texture: c.pic, emissive: "oklch(0.35 0.05 230)", emissiveIntensity: 0.5, roughness: 0.5 }, state: { text: c.text, pic: c.pic, taken: false } });
@@ -134,7 +160,7 @@ function takeOver(ctx, p) {
   if (!row) return false;
   const npc = ctx.getObject(row.id); if (!npc) return false;
   if (npc.state.hiddenIn) { const spot = ctx.getObject(npc.state.hiddenIn); if (spot && spot.state.occupant === npc.id) spot.state.occupant = null; }
-  resetBody(p, "hider", s.round);
+  resetBody(p, "hider", s.roundId);
   p.state.hp = Math.max(1, npc.state.hp ?? RULES.hiderHp);
   p.feetPosition = { x: npc.feetPosition.x, y: npc.feetPosition.y + 0.3, z: npc.feetPosition.z };
   p.state.msg = { text: `you woke up as ${npc.state.name}. hide.`, at: ctx.now() };
@@ -248,6 +274,61 @@ function judgeKit(ctx) {
   }
 }
 
+// salt-touched, each hunt tick: the mimic's one hint after the first sabotage, the false heartbeat in its ears,
+// and the flicker only the bearer's allies see on what the bearer made
+const SALT_FLICKER = `fx
+pop glint burst=14 life=.15..0.35 on=sphere(.6) v=sdir()*.4 size=.05..0.12 col=hdr(1.4,1.5,1.7) a=1>0 sz=$size r=sprite(ember,add)
+pop ghost burst=1 life=.25 size=1.6 col=oklch(.9 .03 220) a=.35>0 sz=$size*(1>.6) r=sprite(soft-disc,add)`;
+let beatAt = 0, flickAt = 0;
+function judgeSalt(ctx, here) {
+  const s = ctx.place.state, now = ctx.now(), mimics = here.filter((p) => p.state.role === "mimic");
+  if (!s.saltHinted) {
+    const sp = here.find((p) => saltOf(p, s.roundId)?.committed);
+    if (sp) {
+      s.saltHinted = true;
+      const text = `salt on the air. someone has turned, near ${areaOf(sp.state.salt.at)}`;
+      for (const m of mimics) m.state.saltHint = { text, at: now };
+    }
+  }
+  if (now >= beatAt) {
+    beatAt = now + SALT_TUNE.beat * 1000;
+    for (const r of ctx.query({ tags: ["saltping"] })) {
+      if ((r.state.until ?? 0) < now) continue;
+      const at = { x: r.feetPosition.x, y: r.feetPosition.y - 0.6, z: r.feetPosition.z };
+      for (const m of mimics) ctx.emit("playSound", { clip: SFX.heart, position: at, volume: 0.9, maxDistance: 30 }, { audience: { player: m.id } });
+    }
+  }
+  if (now >= flickAt) {
+    flickAt = now + SALT_TUNE.flickerEvery * 1000 * (0.6 + ctx.random() * 0.8);
+    for (const r of ctx.query({ anyTags: ["smoke", "scarecrow"] })) {
+      if (!r.state.saltFlicker) continue;
+      const at = { x: r.feetPosition.x, y: r.feetPosition.y + (r.tags?.includes?.("scarecrow") ? 1.1 : 0.8), z: r.feetPosition.z };
+      for (const p of here) {
+        if (p.id === r.state.owner || p.state.role !== "hider") continue;
+        ctx.emit("fx", { position: at, script: SALT_FLICKER }, { audience: { player: p.id } });
+        if (r.tags?.includes?.("scarecrow")) ctx.emit("highlightSet", { target: r.id, color: "oklch(0.92 0.04 220)", style: "pulse", duration: 0.35 }, { audience: { player: p.id } });
+      }
+    }
+  }
+}
+// a hiding place still marked for someone who isn't in it (left the room, died, took the mask): free it.
+// a mark has to stay wrong for two looks in a row, so a player's own enter never races this
+let spotsAt = 0;
+const staleSpots = new Set();
+function freeSpots(ctx, here) {
+  const now = ctx.now(); if (now < spotsAt) return; spotsAt = now + 1000;
+  for (const r of ctx.query({ tags: ["hidespot"] })) {
+    const occ = r.state.occupant;
+    if (!occ) { staleSpots.delete(r.id); continue; }
+    const p = here.find((q) => q.id === occ), n = p ? null : ctx.getObject(occ);
+    const ok = p ? p.state.hiddenIn === r.id && p.state.role === "hider" : !!n && !n.state.dead && n.state.hiddenIn === r.id;
+    if (ok) { staleSpots.delete(r.id); continue; }
+    if (!staleSpots.has(r.id)) { staleSpots.add(r.id); continue; }
+    staleSpots.delete(r.id);
+    const h = ctx.getObject(r.id); if (h && h.state.occupant === occ) h.state.occupant = null;
+  }
+}
+
 // the lobby board: each room posts its head-count every few seconds; the list is every room seen lately
 let boardAt = 0, tableMade = false;
 function postBoard(ctx) {
@@ -258,7 +339,7 @@ function postBoard(ctx) {
   (async () => {
     if (!tableMade) { await sql`CREATE TABLE IF NOT EXISTS lobbies (room TEXT PRIMARY KEY, players INTEGER, phase TEXT, round INTEGER, seen INTEGER)`; tableMade = true; }
     await sql`INSERT INTO lobbies (room, players, phase, round, seen) VALUES (${room}, ${n}, ${s.phase ?? "lobby"}, ${s.round ?? 0}, CAST(strftime('%s','now') AS INTEGER)) ON CONFLICT(room) DO UPDATE SET players = excluded.players, phase = excluded.phase, round = excluded.round, seen = excluded.seen`;
-    const { rows } = await sql`SELECT room, players, phase FROM lobbies WHERE seen > CAST(strftime('%s','now') AS INTEGER) - 20 AND players > 0 ORDER BY players DESC LIMIT 8`;
+    const { rows } = await sql`SELECT room, players, phase FROM lobbies WHERE seen > CAST(strftime('%s','now') AS INTEGER) - 20 AND players > 0 ORDER BY players DESC, room LIMIT 30`;
     s.lobbies = rows; s.roomId = room;
   })().catch((e) => ctx.log("lobby board", String(e)));
 }
@@ -267,12 +348,17 @@ export function tick(ctx) {
   postBoard(ctx);
   const s = ctx.place.state, now = ctx.now(), players = ctx.place.players.filter((p) => !p.state.menu);
   s.phase ??= "lobby";
+  const here = ctx.place.players; // everyone in the round, a player browsing the menu included: M is not a walk-out
+  if (!s.roundId) { s.roundId = `${ctx.getRoomId?.() ?? "main"}:${s.round ?? 0}:${now}`; for (const p of here) if (p.state.round === s.round) p.state.round = s.roundId; }
+  // player.state is a save: a fresh arrival sitting in the menu can carry a role from some other round or room.
+  // until they play, they are nobody here (never counted alive, never clawed, never handed the mask)
+  for (const p of here) if (p.state.menu && p.state.round !== s.roundId && p.state.role && p.state.role !== "lobby") resetBody(p, "lobby", p.state.round ?? null);
   // late joiners: hide phase makes them a hider; during the hunt they watch as ghosts
   for (const p of players) {
-    if ((s.phase === "hide" || s.phase === "hunt") && p.state.round !== s.round && takeOver(ctx, p)) continue;
-    if (s.phase === "hide" && p.state.round !== s.round) { resetBody(p, "hider", s.round); p.feetPosition = spawnAt(0, 1); s.hiderCount = (s.hiderCount ?? 0) + 1; }
-    else if (s.phase === "hunt" && p.state.round !== s.round) { resetBody(p, "ghost", s.round); }
-    else if ((s.phase === "lobby") && p.state.role !== "lobby") { resetBody(p, "lobby", s.round ?? 0); }
+    if ((s.phase === "hide" || s.phase === "hunt") && p.state.round !== s.roundId && takeOver(ctx, p)) continue;
+    if (s.phase === "hide" && p.state.round !== s.roundId) { resetBody(p, "hider", s.roundId); p.feetPosition = spawnAt(0, 1); s.hiderCount = (s.hiderCount ?? 0) + 1; }
+    else if (s.phase === "hunt" && p.state.round !== s.roundId) { resetBody(p, "ghost", s.roundId); p.state.team = null; p.state.msg = { text: "a round is on. you watch this one", at: now }; } // a spectator, on nobody's side
+    else if ((s.phase === "lobby") && p.state.role !== "lobby") { resetBody(p, "lobby", s.roundId ?? null); }
   }
   if (s.phase === "lobby") {
     ctx.music.play(MUSIC.lobby, { fade: 2, volume: 0.6 });
@@ -281,6 +367,12 @@ export function tick(ctx) {
     if (players.length >= 10 && s.startAt - now > 5000) s.startAt = now + 5000; // a full room starts fast
     if (now >= s.startAt) { s.startAt = null; startRound(ctx); }
     return;
+  }
+  // a round nobody is left in: after a grace for reloads, it ends quietly and the room waits in the lobby again
+  if (s.phase === "hide" || s.phase === "hunt") {
+    if (here.length) s.emptySince = null;
+    else if (!s.emptySince) s.emptySince = now;
+    else if (now - s.emptySince > 15000) { clearRound(ctx); cageDoor(ctx, false); ctx.music.stop({ fade: 0.5 }); s.phase = "lobby"; s.winner = null; s.why = null; s.startAt = null; return; }
   }
   if (s.phase === "hide") {
     if (now >= s.endsAt) {
@@ -297,16 +389,23 @@ export function tick(ctx) {
     judgeTraps(ctx);
     judgeKit(ctx);
     judgeDark(ctx);
+    judgeSalt(ctx, here);
+    freeSpots(ctx, here);
+    const inRound = (p) => p.state.round === s.roundId;
     // the dead
-    for (const p of players) {
-      if (p.state.role === "hider" && (p.state.hp ?? 100) <= 0) {
+    for (const p of here) {
+      if (p.state.role === "hider" && inRound(p) && (p.state.hp ?? 100) <= 0) {
         const pos = { x: p.feetPosition.x, y: p.feetPosition.y + 1, z: p.feetPosition.z };
         ctx.emit("fx", { position: pos, script: DEATH });
         ctx.emit("playSound", { clip: SFX.death, position: pos, volume: 1, maxDistance: 60 });
         ctx.emit("screenFlash", { color: "oklch(0.35 0.15 25)", duration: 0.8, intensity: 0.6 }, { audience: { player: p.id } });
+        // a committed salt-touched dies: the mimic alone hears the chime. the mark stays on them for the end screen
+        const salt = saltOf(p, s.roundId);
+        if (salt?.committed) for (const m of here) if (m.state.role === "mimic") ctx.emit("playSound", { clip: SFX.saltChime, volume: 0.85 }, { audience: { player: m.id } });
         // the dream keeps them: they rise as a mimic where they fell
-        resetBody(p, "mimic", s.round);
+        resetBody(p, "mimic", s.roundId);
         p.state.hp = RULES.risenHp; p.state.risen = true; p.state.revealed = true; p.state.team = "mimic";
+        if (salt) p.state.salt = salt;
         ctx.emit("screenShake", { intensity: 0.6, duration: 0.5 }, { audience: { player: p.id } });
         feed(ctx, `${p.displayName} was taken. now they hunt`);
       }
@@ -335,28 +434,32 @@ export function tick(ctx) {
       feed(ctx, `${n.state.name} was taken`);
       ctx.destroy(n.id);
     }
-    const alive = players.filter((p) => p.state.role === "hider").length + ctx.query({ tags: ["npc-hider"] }).filter((r) => !r.state.dead && (r.state.hp ?? 1) > 0).length;
+    const alive = here.filter((p) => p.state.role === "hider" && inRound(p)).length + ctx.query({ tags: ["npc-hider"] }).filter((r) => !r.state.dead && (r.state.hp ?? 1) > 0).length;
     const mimics = mimicBodies(ctx);
     // a mimic killed: a risen one falls for good; the true mimic dead (every one of them) ends the dream
     for (const m of mimics.filter((m) => (m.state.hp ?? 1) <= 0)) {
       ctx.emit("fx", { position: { ...m.feetPosition, y: m.feetPosition.y + 1 }, script: BLAST });
       ctx.emit("shockwave", { position: m.feetPosition, speed: 18, thickness: 1.5, intensity: 1 });
-      if (m.tags?.includes?.("mimic-bot")) m.state.dead = true;
-      else { const risen = m.state.risen; resetBody(m, "ghost", s.round); m.state.team = "mimic"; feed(ctx, risen ? `${m.displayName} is put to rest` : `${m.displayName}, a true mimic, is dead`); }
+      if (m.tags?.includes?.("mimic-bot")) { m.state.dead = true; s.botDead = true; }
+      else { const risen = m.state.risen; resetBody(m, "ghost", s.roundId); m.state.team = "mimic"; feed(ctx, risen ? `${m.displayName} is put to rest` : `${m.displayName}, a true mimic, is dead`); }
     }
     // a true mimic who walked out: the mask passes to a random hider, so a quit is never a free win
     for (const id of s.mimicIds ?? []) {
-      if (id === "bot" || players.some((p) => p.id === id)) continue;
-      const pool = players.filter((p) => p.state.role === "hider");
+      if (id === "bot" || here.some((p) => p.id === id)) continue;
+      const pool = here.filter((p) => p.state.role === "hider" && inRound(p));
       if (pool.length < 2) { s.mimicIds = s.mimicIds.filter((x) => x !== id); if (!s.mimicIds.length) return finish(ctx, "hiders", "the mimic fled the dream"); continue; }
       const heir = pool[Math.floor(ctx.random() * pool.length)];
       const hp = heir.state.hp;
-      resetBody(heir, "mimic", s.round); heir.state.hp = Math.max(hp ?? 100, 100);
-      s.mimicIds = s.mimicIds.map((x) => (x === id ? heir.id : x)); s.mimicName = heir.displayName;
+      resetBody(heir, "mimic", s.roundId); heir.state.hp = Math.max(hp ?? 100, 100);
+      s.mimicIds = s.mimicIds.map((x) => (x === id ? heir.id : x));
+      // two seekers, one fled: the end line still names both masks
+      s.mimicName = s.mimicIds.map((x) => here.find((p) => p.id === x)?.displayName).filter(Boolean).join(" & ") || heir.displayName;
       heir.state.msg = { text: "the mimic fled. its mask is yours now. nobody knows", at: now };
       feed(ctx, "the mimic fled the dream. someone else wears its face now");
     }
-    const trueAlive = (s.mimicIds ?? []).some((id) => id === "bot" ? ctx.query({ tags: ["mimic-bot"] }).some((b) => !b.state.dead) : players.some((p) => p.id === id && p.state.role === "mimic"));
+    // the bot is alive until its hp says otherwise: a bot that went missing (fell out, lost its row) comes back, it never hands a free win
+    if ((s.mimicIds ?? []).includes("bot") && !s.botDead && !ctx.query({ tags: ["mimic-bot"] }).length) { ctx.log("bot missing, respawned"); spawnBot(ctx, { ...CAGE, y: CAGE.y + 0.3 }); }
+    const trueAlive = (s.mimicIds ?? []).some((id) => id === "bot" ? !s.botDead : here.some((p) => p.id === id && p.state.role === "mimic"));
     if (!trueAlive) return finish(ctx, "hiders", "the mimic is dead");
     if (alive === 0) return finish(ctx, "mimic", "nobody is left");
     if (now >= s.endsAt) return finish(ctx, "hiders", "dawn came. they survived");
@@ -365,7 +468,7 @@ export function tick(ctx) {
   if (s.phase === "end" && now >= s.endsAt) {
     clearRound(ctx);
     let i = 0;
-    for (const p of players) { resetBody(p, "lobby", s.round); p.feetPosition = spawnAt(i++, players.length); }
+    for (const p of here) { resetBody(p, "lobby", s.roundId); p.feetPosition = spawnAt(i++, here.length); }
     cageDoor(ctx, false);
     s.phase = "lobby"; s.winner = null; s.why = null; s.startAt = now + RULES.lobbySeconds * 1000;
   }

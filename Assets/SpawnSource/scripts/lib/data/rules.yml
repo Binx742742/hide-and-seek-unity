@@ -97,3 +97,14 @@ tricks:   # the mimic's own tricks, no fish needed
   echo: { cooldown: 16, distance: 14 }   # B: throws a cry for help ahead of it
   snare: { cooldown: 10, max: 3, reach: 0.75, root: 2.5, damage: 10, ring: 60 }   # H: a gut snare on the ground; a hider stepping in sticks and rings for the mimic
   steal: { cooldown: 30, reach: 5 }   # J: wear the face of the hider in front of you
+saltTouched:   # one human hider quietly turned at hunt start: sabotage, never kill. keys mirror the Unity port's rules.yml, keep them in sync
+  seats: { minPlayers: 4, count: 1, below: 0 }   # 0 seats under 4 players, 1 at 4+, never 2; 0 in bot/solo rounds
+  ownHud: true          # only the salt-touched sees their own salt mark
+  unbar: { uses: 1 }    # R on a player-barred door lifts the bar, once; a soft creak at door-noise distance
+  drain: { seconds: 45 }   # hold E on a Saltgate drain grate: forced open and flooding this long
+  ping: { uses: 1, seconds: 10 }   # Y: a false hider heartbeat on a tile ahead, for the mimic's ears alone
+  flicker: 0.15         # chance a scarecrow or smoke they craft flickers wrong for the other hiders
+  win:
+    clean: { hiders: withHiders, mimic: lose }        # no sabotage: wins and loses with the hiders
+    committed: { hiders: lose, mimic: withMimic }     # any sabotage: wins only if the mimic wins
+saltTuning: { hold: 1.5, pingReach: 12, pingRadius: 45, beat: 0.9, hintSeconds: 8, flickerEvery: 2.5 }   # web-port only (not in the Unity rules): bleed hold s, ping throw m, mimic ring m, heartbeat interval s, mimic hint s, flicker interval s

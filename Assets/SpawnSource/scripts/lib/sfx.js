@@ -45,4 +45,8 @@ export const SFX = {
   snare: "cdn/sfx-wet-sinew-snare-snapping-tight-around-ankle.mp3",
   echo: "cdn/voice-frightened-young-man-saying-help-me-please-im-over-here.mp3",
   steal: "cdn/sfx-wet-skin-stretching-face-peeling-creepy.mp3",
+  // Salt-touched hooks: no dedicated clips yet, so each reuses an existing one. Swap the name when a real clip is made.
+  saltChime: "cdn/sfx-glass-shard-chime-dreamy-shimmer.mp3",   // HOOK: a dying committed salt-touched, to the mimic only
+  saltBleed: "cdn/sfx-rusty-iron-grate-gate-squealing-open.mp3", // HOOK: a drain grate forced open and flooding
+  saltCreak: "cdn/sfx-old-wooden-door-creaking-open-slow-damp.mp3", // a bar lifted in secret: the door's own creak, soft
 };
